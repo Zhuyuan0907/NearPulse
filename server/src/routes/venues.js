@@ -19,6 +19,8 @@ import {
   venueGeometry,
   venueMeta,
 } from '../services/venueService.js';
+import { evacuationLine } from '../services/evacuationService.js';
+import { getAdvice } from '../pipeline/advisors/llm.js';
 
 export function createVenuesRouter() {
   const router = Router();
@@ -42,7 +44,32 @@ export function createVenuesRouter() {
     res.json({ ok: true, venues: searchVenues(q) });
   });
 
-  /** 單一場域：出口清單 + 示意幾何（client 據此畫 SVG，不需要圖磚） */
+  /**
+   * 即時疏散建議——給「剛送出回報、正要開始逃」的人。
+   *
+   * 態勢卡的疏散文字要等下一個批次 tick（最多 10 秒）才會出現，
+   * 但回報的人現在就要知道往哪走。這個端點直接算，不經過批次。
+   * 內容與態勢卡完全一致（同一個 evacuationService），只是不必等。
+   */
+  router.get('/:id/evacuation', (req, res) => {
+    const venue = findVenue(req.params.id);
+    if (!venue) return res.status(404).json({ ok: false, error: '查無此場域' });
+
+    const exit = typeof req.query.exit === 'string' ? req.query.exit.toUpperCase() : null;
+    const lat = Number(req.query.lat);
+    const lon = Number(req.query.lon);
+    const point = Number.isFinite(lat) && Number.isFinite(lon) ? { lat, lon } : null;
+    const type = typeof req.query.type === 'string' ? req.query.type : 'other';
+
+    res.json({
+      ok: true,
+      venueName: venue.name,
+      advice: getAdvice(type, 'active'),
+      evacuation: evacuationLine(venue.id, exit, point),
+    });
+  });
+
+  /** 單一場域：出口清單 + 真實經緯度（client 據此在地圖上標記） */
   router.get('/:id', (req, res) => {
     const venue = findVenue(req.params.id);
     if (!venue) return res.status(404).json({ ok: false, error: '查無此場域' });

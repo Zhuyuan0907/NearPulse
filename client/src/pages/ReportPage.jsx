@@ -19,7 +19,10 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import {
   resolveLocation, rememberStation, manualClaim, coarseFix, geolocationPermission,
 } from '../modules/location.js';
-import { postReport, fetchEventsContext, analyzePhoto, fetchVenue } from '../modules/api.js';
+import {
+  postReport, fetchEventsContext, analyzePhoto, fetchVenue, fetchEvacuation,
+} from '../modules/api.js';
+import { isSpeechSupported, speak, stopSpeaking } from '../modules/speech.js';
 import { isVoiceSupported, createRecorder } from '../modules/voiceRecorder.js';
 import { compressPhoto, cropCell } from '../modules/photoCompressor.js';
 import VenuePicker from '../components/VenuePicker.jsx';
@@ -60,6 +63,7 @@ export default function ReportPage() {
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState(null);
+  const [evac, setEvac] = useState(null); // 送出後立刻取得的疏散指示
 
   // ---- 選配補充 ----
   const [note, setNote] = useState('');
@@ -241,6 +245,14 @@ export default function ReportPage() {
         photoRef,
       });
       setDone(true); // 樂觀 UI：不等批次、不等 AI
+
+      // 疏散指示要**現在**就給——態勢卡要等下一個批次 tick，但人已經在逃了
+      fetchEvacuation({
+        venueId: claim.stationId,
+        exitCode: nearExitCode,
+        point: incidentPoint,
+        type: selectedType,
+      }).then(setEvac);
     } catch {
       setError('送出失敗，請再試一次');
     } finally {
@@ -255,6 +267,7 @@ export default function ReportPage() {
     setReadTexts([]); setCandidates([]); setNearExitCode(null); setIncidentPoint(null);
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null); rawFileRef.current = null;
+    setEvac(null); stopSpeaking();
   }
 
   // ---- hold-to-talk：按下開錄、放開即停 ----
@@ -278,17 +291,37 @@ export default function ReportPage() {
 
   // ===================== 送出完成 =====================
   if (done) {
+    // 播報的內容 = 螢幕上看到的內容。濃煙中看不到螢幕、人又在移動，
+    // 用聽的才真的接收得到；瀏覽器內建語音是離線的，不需要網路。
+    const spoken = [evac?.advice, evac?.evacuation].filter(Boolean).join('。');
     return (
       <div className="page">
         <div className="done-box">
           <div className="done-icon">✅</div>
           <h2>已通報</h2>
-          <p className="muted">
-            已記錄你的回報。若現場有其他人確認，事件會升級並顯示在態勢卡上，
-            同時附上依實際出口距離算出的疏散建議。
-          </p>
+
+          {evac?.evacuation ? (
+            <>
+              <p className="advice">{evac.advice}</p>
+              <p className="evac-line">🧭 {evac.evacuation}</p>
+              {isSpeechSupported() && (
+                <button
+                  className="primary-btn btn-block btn-lg"
+                  style={{ marginTop: 14 }}
+                  onClick={() => speak(spoken)}
+                >
+                  🔊 唸出疏散指示
+                </button>
+              )}
+            </>
+          ) : (
+            <p className="muted">
+              已記錄你的回報。若現場有其他人確認，事件會升級並顯示在態勢卡上。
+            </p>
+          )}
+
           <div className="done-actions">
-            <a className="primary-btn btn-lg" href="#/situation">查看態勢卡與疏散建議</a>
+            <a className="primary-btn" href="#/situation">查看態勢卡</a>
             <button className="ghost-btn" onClick={() => { setDone(false); resetDraft(); }}>
               再回報一筆
             </button>

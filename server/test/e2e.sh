@@ -40,6 +40,12 @@ check "別名解析：BL12 → 台北車站（多線交會站已合併）" \
   test "$(curl -s "$BASE/api/venues/BL12" | json "d['venue']['name']")" = "台北車站"
 check "示意幾何座標已正規化（供 client 畫 SVG，非圖磚）" \
   test "$(curl -s "$BASE/api/venues/BL13" | json "all(0 <= e['x'] <= 1 and 0 <= e['y'] <= 1 for e in d['venue']['exits'])")" = "True"
+# 送出回報的人不能等 10 秒批次才知道往哪逃——這個端點直接算
+EVAC=$(curl -s "$BASE/api/venues/BL13/evacuation?exit=2&type=fire")
+check "即時疏散端點（不等批次 tick）" \
+  test "$(echo "$EVAC" | json "'改往' in d['evacuation'] and '避開' in d['evacuation']")" = "True"
+check "即時疏散內容與態勢卡一致（同一個 service）" \
+  test "$(echo "$EVAC" | json "'成功高中' in d['evacuation']")" = "True"
 check "搜尋後備路徑：忠孝 → 有出口的車站排前面" \
   test "$(curl -s "$BASE/api/venues/search?q=%E5%BF%A0%E5%AD%9D" | json "d['venues'][0]['exitsAvailable']")" = "True"
 

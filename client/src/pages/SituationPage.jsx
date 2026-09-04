@@ -15,6 +15,7 @@
 
 import { useEffect, useState } from 'react';
 import { startSituationPolling } from '../modules/api.js';
+import { isSpeechSupported, speak } from '../modules/speech.js';
 
 const THREAT_LABEL = {
   high: '高警戒',
@@ -77,6 +78,18 @@ export default function SituationPage() {
               <p className="evac-line">
                 🧭 {ev.evacuation ?? '依現場人員指示，使用最近可用出口。'}
               </p>
+
+              {/* 用聽的：移動中、濃煙中、或視力不便時，螢幕上的字是接收不到的。
+                  瀏覽器內建語音，離線可用。 */}
+              {isSpeechSupported() && (
+                <button
+                  className="chip"
+                  style={{ marginTop: 10 }}
+                  onClick={() => speak([ev.advice, ev.evacuation].filter(Boolean).join('。'))}
+                >
+                  🔊 唸出來
+                </button>
+              )}
 
               {ev.timeline && <p className="muted timeline">「{ev.timeline}」</p>}
 

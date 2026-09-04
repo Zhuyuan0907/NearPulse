@@ -128,6 +128,24 @@ export async function fetchVenue(venueId) {
   }
 }
 
+/**
+ * 即時疏散建議——送出回報後立刻要用，不等 10 秒的批次 tick。
+ * 內容與態勢卡一致（server 端同一個 evacuationService）。
+ */
+export async function fetchEvacuation({ venueId, exitCode, point, type }) {
+  try {
+    const p = new URLSearchParams();
+    if (exitCode) p.set('exit', exitCode);
+    if (point) { p.set('lat', point.lat); p.set('lon', point.lon); }
+    if (type) p.set('type', type);
+    const res = await fetch(`/api/venues/${encodeURIComponent(venueId)}/evacuation?${p}`);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null; // 拿不到疏散建議不該讓「已通報」畫面出不來
+  }
+}
+
 /** 查某站（可選加類型）進行中的事件——「同一件/另一件」歸屬確認用 */
 export async function fetchEventsContext(stationId, type) {
   const params = new URLSearchParams({ station: stationId });

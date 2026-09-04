@@ -16,6 +16,8 @@
 | GPS 座標反查最近場域 | ✅ | OSM 即為所需圖資（v0.2 時列為 Phase 2） |
 | 歸屬確認（同一件/另一件） | ✅ | `GET /api/reports/context` 比對；兩條路徑都保留補充能力 |
 | hold-to-talk 語音（選配補充） | ✅ | MediaRecorder 上傳制（iOS 相容） |
+| 疏散指示語音播報（TTS） | ✅ | 瀏覽器內建 `speechSynthesis`，**離線可用**、零 API、零成本 |
+| 送出後立即取得疏散指示 | ✅ | `GET /api/venues/:id/evacuation`——不等 10 秒批次，人已經在逃了 |
 | 文字補充（≤140 字，選配） | ✅ | 與語音併行的第二輸入通道；不支援錄音時的替代路徑 |
 | 照片壓縮上傳（選配，<50KB） | ✅ | EXIF 轉正 + 1024px WebP，量到達標為止（必要時降級 800px） |
 | 照片九宮格 ROI（標出有牌子的那格） | ✅ | `PhotoRoiPicker` 疊在縮圖上；使用者點選為主、AI 建議為輔 |
@@ -56,7 +58,7 @@
 
 | 功能 | 狀態 | 說明 |
 |---|---|---|
-| STT（Whisper） | 🔶 | 介面 + stub；上傳路徑已通 |
+| STT（Whisper） | 🔶 | 介面 + stub；錄音上傳路徑已通，但不轉文字（需 audio API） |
 | Vision 兩段式（locate → read） | ✅ | 先找有牌子的那格，裁切放大後**只讀字**——不猜座標 |
 | Vision provider 可插拔 | ✅ | `config.vision`：`openai`（gpt-4o-mini, detail low）/ `none`；地端 OCR 加一個 entry 即可 |
 | 錨點 → 位置的確定性查表 | ✅ | `venueService.resolveAnchors`：站名/出口編號 → 場域 + 出口 + 經緯度 |
@@ -89,7 +91,7 @@
 | Redis Stream / Postgres | ⬜ | 換 store 實作即可 |
 | Rate limiter | ⬜ | **Phase 2，但 `/api/vision` 已提高風險**：無認證端點會轉發到付費 API，公開部署前必補 |
 | PWA manifest（可安裝） | ✅ | iOS 加主畫面即得推播資格 |
-| 端到端 API 測試腳本 | ✅ | `server/test/e2e.sh`——25 項檢查，不需任何 API 金鑰 |
+| 端到端 API 測試腳本 | ✅ | `server/test/e2e.sh`——27 項檢查，不需任何 API 金鑰 |
 
 ## 約束遵循（設計原則 → 實作檢查）
 
@@ -99,6 +101,6 @@
 - 零 GPS 依賴：✅ 有粗略定位就收斂清單，沒有就手選；視覺錨點再定到出口
 - 無持久個資：✅ 僅 sessionStorage（關頁即滅）；照片暫存 10 分鐘後失效
 - 不依賴 Cell-ID/BLE/背景執行：✅ 未使用任何不可得 API
-- AI 不在關鍵路徑：✅ 無金鑰環境下 e2e 25 項全通過（降級路徑＝主路徑）
+- AI 不在關鍵路徑：✅ 無金鑰環境下 e2e 27 項全通過（降級路徑＝主路徑）
 - AI 不產生座標：✅ Vision 只回「哪一格」與「讀到的字」；位置一律確定性查表
 - 不輸出未知的數字：✅ 疏散建議不顯示公尺數——地面直線距離不是地下步行距離
