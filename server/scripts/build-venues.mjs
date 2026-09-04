@@ -240,11 +240,12 @@ function cleanStreetName(name) {
   return name.replace(/高架(道路|橋)$/, '').trim() || null;
 }
 
-async function enrichLandmarks(venues, stats) {
+async function enrichLandmarks(venues, stats, save) {
   const targets = venues.filter(
     (v) => v.exitsAvailable && v.exits.some((e) => !e.landmark)
   );
   console.log(`[build-venues] 補方向地標：${targets.length} 個場域缺少出口方向資訊`);
+  console.log('  （Overpass 公開實例限流嚴格；此步驟可中斷後重跑，已補的會保留）');
 
   for (const [i, v] of targets.entries()) {
     const lats = v.exits.map((e) => e.lat);
@@ -290,8 +291,9 @@ async function enrichLandmarks(venues, stats) {
       }
     }
 
-    if ((i + 1) % 20 === 0) console.log(`  … ${i + 1}/${targets.length}`);
-    // Overpass 公開實例只有 2 個併發槽，連發會被 429。3 秒是實測可穩定跑完的節奏。
+    // 每 10 個場域存一次檔：限流很容易讓整批中斷，已完成的成果不該賠掉。
+    // 重跑時已有 landmark 的出口會被跳過，等於自動續跑。
+    if ((i + 1) % 10 === 0) { save(); console.log(`  … ${i + 1}/${targets.length}（已存檔）`); }
     await sleep(3);
   }
 }
@@ -535,11 +537,6 @@ async function main() {
     };
   });
 
-  // 方向地標補完（需要額外的 Overpass 查詢，放在最後一次做完）
-  if (!process.argv.includes('--no-landmarks')) {
-    await enrichLandmarks(venues, stats);
-  }
-
   // 沒有出口的捷運站代表 OSM 資料不全，保留但標記；停車場則本來就沒有
   venues.sort((a, b) => a.id.localeCompare(b.id));
 
@@ -552,7 +549,17 @@ async function main() {
   };
 
   mkdirSync(dirname(OUT_PATH), { recursive: true });
-  writeFileSync(OUT_PATH, JSON.stringify(snapshot, null, 1));
+  const save = () => writeFileSync(OUT_PATH, JSON.stringify(snapshot, null, 1));
+
+  // 先把基礎資料寫下來：補地標需要上百次額外查詢，很容易被限流中斷，
+  // 基礎資料不該跟著陪葬。
+  save();
+
+  // 方向地標補完（可中斷、可續跑）
+  if (!process.argv.includes('--no-landmarks')) {
+    await enrichLandmarks(venues, stats, save);
+  }
+  save();
 
   // ---- 統計：這份輸出必須人工掃過一遍再 commit ----
   const byKind = venues.reduce((acc, v) => {
