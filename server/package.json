@@ -1,0 +1,15 @@
+{
+  "name": "nearpulse-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "NearPulse 後端：回報 ingest、10 秒批次分群、事件狀態機、靜態態勢卡（ETag）",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

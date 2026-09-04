@@ -1,0 +1,234 @@
+/* ============================================================================
+   NearPulse 樣式 —— 恐慌情境優先的高對比大按鈕 UI
+   設計約束：
+     - 觸控目標 >= 56-64px（濕手/手套可操作）
+     - 深底高對比（地下/夜間可讀，兼省電 AMOLED）
+     - 不依賴紅綠色單一通道區分（色盲安全：以文字標籤輔助）
+============================================================================ */
+
+:root {
+  --bg: #0d1117;
+  --card: #161b22;
+  --border: #30363d;
+  --text: #f0f6fc;
+  --muted: #9ea7b3;
+  --accent: #ff5252;
+  --warn: #ffb347;
+  --ok: #3fb950;
+  --blue: #58a6ff;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.page {
+  max-width: 480px;         /* 單手可及寬度 */
+  margin: 0 auto;
+  padding: 16px;
+  min-height: 100vh;
+}
+
+.muted { color: var(--muted); font-size: 0.9em; }
+
+/* ---- 頂欄：位置聲明 ---- */
+.loc-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.loc-src { color: var(--muted); }
+
+/* ---- 標題 ---- */
+.headline { margin: 20px 0 12px; font-size: 1.5em; }
+
+/* ---- 事件類型大按鈕（首屏 4 顆） ---- */
+.type-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.type-btn {
+  min-height: 96px;                 /* 大觸控目標 */
+  font-size: 1.25em;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.type-emoji { font-size: 1.8em; }
+.type-high   { border-color: var(--accent); }
+.type-medium { border-color: var(--warn); }
+.type-low    { border-color: var(--blue); }
+.type-selected { outline: 3px solid var(--text); }
+
+/* ---- 通用按鈕 ---- */
+.primary-btn {
+  display: inline-block;
+  min-height: 56px;
+  padding: 0 24px;
+  font-size: 1.05em;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  line-height: 56px;
+}
+.primary-btn:disabled { opacity: 0.5; }
+.big { width: 100%; }
+
+.ghost-btn {
+  min-height: 56px;
+  padding: 0 20px;
+  font-size: 1em;
+  color: var(--text);
+  background: transparent;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+}
+.big { min-height: 56px; }
+
+.chip {
+  padding: 8px 14px;
+  font-size: 0.9em;
+  color: var(--text);
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.chip-active { border-color: var(--text); }
+
+/* ---- 補充區（語音/照片/送出） ---- */
+.supplement {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.mic-btn {
+  min-height: 64px;
+  font-size: 1.1em;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--card);
+  border: 2px dashed var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+}
+.mic-recording { border-color: var(--accent); border-style: solid; }
+.ok-note { color: var(--ok); margin: 0; }
+.error-note { color: var(--accent); margin: 0; }
+
+/* ---- 歸屬確認框 ---- */
+.match-box {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--card);
+  border: 1px solid var(--warn);
+  border-radius: 12px;
+}
+.match-actions { display: flex; gap: 10px; margin-top: 10px; }
+
+/* ---- 站點選擇器 ---- */
+.picker {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.picker-lines { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+.picker-stations { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.station-btn {
+  min-height: 56px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 1em;
+  cursor: pointer;
+}
+.station-id { color: var(--muted); font-size: 0.8em; margin-right: 4px; }
+
+/* ---- 送出成功 / 完成畫面 ---- */
+.done-box { text-align: center; padding-top: 15vh; }
+.done-icon { font-size: 3em; }
+.done-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+
+/* ---- 確認頁 ---- */
+.confirm-box { padding-top: 8vh; text-align: center; }
+.confirm-actions {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ---- 態勢卡 ---- */
+.all-clear { text-align: center; padding: 40px 0; color: var(--ok); }
+.station-group { margin: 16px 0; }
+.station-name { margin-bottom: 8px; }
+
+.event-card {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 14px;
+  margin-bottom: 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  cursor: pointer;
+}
+.event-active { border-color: var(--accent); }
+.event-candidate { border-style: dashed; }
+
+.event-title { font-size: 1.1em; font-weight: 700; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.threat {
+  font-size: 0.75em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+}
+.threat-high   { color: var(--accent); }
+.threat-medium { color: var(--warn); }
+.threat-low    { color: var(--blue); }
+.threat-unverified { color: var(--muted); }
+
+.advice { margin: 8px 0 4px; }
+.timeline { font-style: italic; }
+
+.pending-section { margin-top: 24px; }
+.pending-section h3 { color: var(--muted); }
+
+.page-footer {
+  margin-top: 32px;
+  padding-bottom: 24px;
+  text-align: center;
+}
+.page-footer a { color: var(--blue); text-decoration: none; }
