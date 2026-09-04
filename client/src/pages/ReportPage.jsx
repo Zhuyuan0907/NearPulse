@@ -16,7 +16,9 @@
  */
 
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
-import { resolveLocation, rememberStation, manualClaim, coarseFix } from '../modules/location.js';
+import {
+  resolveLocation, rememberStation, manualClaim, coarseFix, geolocationPermission,
+} from '../modules/location.js';
 import { postReport, fetchEventsContext, analyzePhoto, fetchVenue } from '../modules/api.js';
 import { isVoiceSupported, createRecorder } from '../modules/voiceRecorder.js';
 import { compressPhoto, cropCell } from '../modules/photoCompressor.js';
@@ -64,6 +66,7 @@ export default function ReportPage() {
   const [audioClip, setAudioClip] = useState(null);
   const [recording, setRecording] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  const [gpsBusy, setGpsBusy] = useState(false);
 
   // ---- 照片與視覺定位 ----
   const [photo, setPhoto] = useState(null);
@@ -88,19 +91,32 @@ export default function ReportPage() {
     setVenueName(name);
     setNearExitCode(null);
     setIncidentPoint(null);
-    rememberStation(venueId);
+    rememberStation(venueId, name);
     const v = await fetchVenue(venueId);
     setVenue(v);
-    if (v?.name) setVenueName(v.name);
+    if (v?.name) { setVenueName(v.name); rememberStation(venueId, v.name); }
   }, []);
 
-  // ---- 啟動：先取 session 記憶，同時背景要一次粗略定位 ----
+  // ---- 啟動 ----
   useEffect(() => {
-    resolveLocation().then(({ claim }) => {
-      if (claim) applyVenue(claim.stationId, null, claim);
+    // session 記憶連場域名一起存，頂欄才不會先閃站碼（BL13）再變「善導寺」
+    resolveLocation().then(({ claim, stationName }) => {
+      if (claim) applyVenue(claim.stationId, stationName, claim);
     });
-    coarseFix().then(setFix);
+    // **只有已經授權過的人才靜默取定位**。沒授權過的留到打開場域選擇器時再問——
+    // 那時畫面上正寫著「附近的場域」，理由自明。一開 App 就跳權限，
+    // 使用者還不知道這是什麼就會拒絕，而拒絕之後整個 session 的定位就沒了。
+    geolocationPermission().then((state) => {
+      if (state === 'granted') coarseFix().then(setFix);
+    });
   }, [applyVenue]);
+
+  /** 需要定位時才實際去要（場域選擇器與 GPS 按鈕共用） */
+  const ensureFix = useCallback(async () => {
+    const f = await coarseFix();
+    setFix(f);
+    return f;
+  }, []);
 
   // 預覽 URL 用完要釋放，否則連拍幾張就漏一堆記憶體
   useEffect(() => () => { if (previewUrl) URL.revokeObjectURL(previewUrl); }, [previewUrl]);
@@ -131,8 +147,9 @@ export default function ReportPage() {
 
   /** GPS 夠準時直接當事件位置。地下多半失敗，那是設計中的常態 */
   async function useGps() {
-    const f = await coarseFix();
-    setFix(f);
+    setGpsBusy(true);
+    const f = await ensureFix();
+    setGpsBusy(false);
     if (f && f.accuracy <= GPS_USABLE_ACCURACY_M) {
       setIncidentPoint({ lat: f.lat, lon: f.lon });
       setNearExitCode(null);
@@ -155,19 +172,24 @@ export default function ReportPage() {
     setPhotoRef(res.photoRef);
     setVisionOff(!res.enabled);
     setSuggestedCell(res.result.roiCell);
-    setVisionBusy(false);
+
+    // AI 已經指出是哪一格了，不該再要使用者點一下確認——直接接著讀字。
+    // 判斷錯的時候使用者再改格即可（省一次點擊 + 一次來回等待）。
+    if (res.result.roiCell) {
+      await runRead(res.result.roiCell, file);
+    } else {
+      setVisionBusy(false);
+    }
   }
 
   /**
-   * 選定影像格：從**原圖**裁那一格送去讀字。
+   * 從**原圖**裁出指定格送去讀字。
    * 整張圖降到 512px 後出口牌的字只有 20~40px 高；裁切後可達 120px 以上。
    */
-  async function handleRoiPick(cell) {
+  async function runRead(cell, file) {
     setRoiCell(cell);
-    if (!cell || !rawFileRef.current) { setReadTexts([]); setCandidates([]); return; }
-
     setVisionBusy(true);
-    const crop = await cropCell(rawFileRef.current, cell);
+    const crop = await cropCell(file, cell);
     if (!crop) { setVisionBusy(false); return; }
 
     const res = await analyzePhoto({
@@ -188,6 +210,15 @@ export default function ReportPage() {
       if (top.exitCode) { setNearExitCode(top.exitCode); setIncidentPoint(null); }
     }
     setVisionBusy(false);
+  }
+
+  /** 使用者手動改格（AI 判斷錯時） */
+  async function handleRoiPick(cell) {
+    if (!cell || !rawFileRef.current) {
+      setRoiCell(null); setReadTexts([]); setCandidates([]);
+      return;
+    }
+    await runRead(cell, rawFileRef.current);
   }
 
   // ===================== 送出 =====================
@@ -337,119 +368,116 @@ export default function ReportPage() {
         </>
       )}
 
-      {/* ===== ③ 選配補充 ===== */}
+      {/* ===== ③ 定位：拍照是主要動作，不藏在收合區裡 ===== */}
+      {/* 拍照辨識是整個系統的核心能力，把它埋在「＋加上補充」後面等於沒有。
+          它跟送出並列，才是它應得的層級。語音／文字才是真正的選配。 */}
+      <input
+        ref={photoInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        hidden
+        onChange={(e) => {
+          if (e.target.files[0]) handlePhoto(e.target.files[0]);
+          e.target.value = '';
+        }}
+      />
+
       {readyToSubmit && (
         <>
-          <h2 className="section-title">補充細節（全部選配）</h2>
+          <h2 className="section-title">事件在哪裡？（愈精確，疏散建議愈有用）</h2>
 
+          <div className="supp-row">
+            <button className="ghost-btn btn-lg" onClick={() => photoInputRef.current?.click()}>
+              📷 拍照定位
+            </button>
+            <button className="ghost-btn btn-lg" disabled={gpsBusy} onClick={useGps}>
+              {gpsBusy ? '定位中…' : '🛰️ GPS 定位'}
+            </button>
+          </div>
+
+          {gpsBusy && <p className="muted">正在取得定位（最多 5 秒）…</p>}
+          {!gpsBusy && fix && fix.accuracy > GPS_USABLE_ACCURACY_M && (
+            <div className="notice notice-warn" style={{ marginTop: 10 }}>
+              GPS 誤差約 {Math.round(fix.accuracy)}m，不足以定位到出口——這是地下的常態。
+              請改用拍照定位，或直接在地圖上點。
+            </div>
+          )}
+
+          {/* --- 照片九宮格：拍完立刻出現，AI 建議的那格會自動送去讀字 --- */}
+          {previewUrl && (
+            <div className="card" style={{ marginTop: 12 }}>
+              <PhotoRoiPicker
+                previewUrl={previewUrl}
+                cell={roiCell}
+                suggested={suggestedCell}
+                busy={visionBusy}
+                onPick={handleRoiPick}
+              />
+              {visionOff && (
+                <p className="muted">（視覺辨識未啟用——照片仍會附上，位置請用地圖確認）</p>
+              )}
+              {readTexts.length > 0 && (
+                <p className="ok-note">
+                  讀到：{readTexts.map((t) => `${t.label}「${t.value}」`).join('、')}
+                </p>
+              )}
+              {candidates.length > 1 && (
+                <p className="muted">
+                  有 {candidates.length} 個可能的位置——請在下方地圖點選正確的出口。
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* --- 地圖：確認或更正 --- */}
+          {venue && (
+            <div style={{ marginTop: 12 }}>
+              <Suspense fallback={<p className="muted">載入地圖…</p>}>
+                <VenueMap
+                  venue={venue}
+                  selectedCode={nearExitCode}
+                  incidentPoint={incidentPoint}
+                  userFix={fix}
+                  onSelectExit={(code) => { setNearExitCode(code); setIncidentPoint(null); }}
+                  onPickPoint={(p) => { setIncidentPoint(p); setNearExitCode(null); }}
+                />
+              </Suspense>
+              <p className="muted" style={{ marginTop: 6 }}>
+                點出口圖釘，或直接點地圖上事件發生的位置。
+              </p>
+            </div>
+          )}
+
+          {/* ===== ④ 真正選配的補充：語音與文字 ===== */}
+          <h2 className="section-title">補充描述（選配）</h2>
           {!showDetails ? (
             <button className="ghost-btn btn-block" onClick={() => setShowDetails(true)}>
-              ＋ 加上位置、語音、照片或文字
+              ＋ 加上語音或文字說明
             </button>
           ) : (
-            <div className="stack">
-              {/* --- 位置精確化 --- */}
-              <div className="card">
-                <b>事件的確切位置</b>
-                <p className="muted" style={{ margin: '2px 0 10px' }}>
-                  愈精確，疏散建議就愈有用。
-                </p>
-
-                <div className="supp-row" style={{ marginBottom: 10 }}>
-                  <button className="ghost-btn" onClick={useGps}>
-                    🛰️ 用 GPS 定位
-                  </button>
-                  <button className="ghost-btn" onClick={() => photoInputRef.current?.click()}>
-                    📷 拍照辨識
-                  </button>
-                </div>
-
-                {fix && fix.accuracy > GPS_USABLE_ACCURACY_M && (
-                  <p className="muted">
-                    GPS 誤差約 {Math.round(fix.accuracy)}m——地下常態。
-                    請改用拍照辨識或直接在地圖上點。
-                  </p>
-                )}
-
-                {venue && (
-                  <Suspense fallback={<p className="muted">載入地圖…</p>}>
-                    <VenueMap
-                      venue={venue}
-                      selectedCode={nearExitCode}
-                      incidentPoint={incidentPoint}
-                      userFix={fix}
-                      onSelectExit={(code) => { setNearExitCode(code); setIncidentPoint(null); }}
-                      onPickPoint={(p) => { setIncidentPoint(p); setNearExitCode(null); }}
-                    />
-                  </Suspense>
-                )}
-                <p className="muted" style={{ marginTop: 6 }}>
-                  點出口圖釘，或直接點地圖上事件發生的位置。
-                </p>
-              </div>
-
-              {/* --- 照片九宮格 ROI --- */}
-              <input
-                ref={photoInputRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                hidden
-                onChange={(e) => {
-                  if (e.target.files[0]) { setShowDetails(true); handlePhoto(e.target.files[0]); }
-                  e.target.value = '';
-                }}
-              />
-              {previewUrl && (
-                <div className="card">
-                  <PhotoRoiPicker
-                    previewUrl={previewUrl}
-                    cell={roiCell}
-                    suggested={suggestedCell}
-                    busy={visionBusy}
-                    onPick={handleRoiPick}
-                  />
-                  {visionOff && (
-                    <p className="muted">（視覺辨識未啟用——照片仍會附上，位置請用地圖確認）</p>
-                  )}
-                  {readTexts.length > 0 && (
-                    <p className="ok-note">
-                      讀到：{readTexts.map((t) => `${t.label}「${t.value}」`).join('、')}
-                    </p>
-                  )}
-                  {candidates.length > 1 && (
-                    <p className="muted">
-                      有 {candidates.length} 個可能的位置——請在地圖上點選正確的出口。
-                    </p>
-                  )}
-                </div>
+            <div className="card stack">
+              {isVoiceSupported() ? (
+                <button
+                  className={`mic-btn${recording ? ' mic-recording' : ''}`}
+                  onPointerDown={handleMicDown}
+                  onPointerUp={handleMicUp}
+                  onPointerLeave={handleMicUp}
+                >
+                  {recording ? '🔴 放開送出' : '🎤 按住說話'}
+                </button>
+              ) : (
+                <p className="muted">（此瀏覽器不支援錄音，可改用文字）</p>
               )}
-
-              {/* --- 語音與文字 --- */}
-              <div className="card stack">
-                <b>補充描述</b>
-                {isVoiceSupported() ? (
-                  <button
-                    className={`mic-btn${recording ? ' mic-recording' : ''}`}
-                    onPointerDown={handleMicDown}
-                    onPointerUp={handleMicUp}
-                    onPointerLeave={handleMicUp}
-                  >
-                    {recording ? '🔴 放開送出' : '🎤 按住說話'}
-                  </button>
-                ) : (
-                  <p className="muted">（此瀏覽器不支援錄音，可改用文字）</p>
-                )}
-                {audioClip && <p className="ok-note">已收錄語音補充</p>}
-                <textarea
-                  className="note-input"
-                  placeholder="或輸入文字（140 字內）"
-                  maxLength={140}
-                  rows={2}
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                />
-              </div>
+              {audioClip && <p className="ok-note">已收錄語音補充</p>}
+              <textarea
+                className="note-input"
+                placeholder="輸入文字（140 字內）"
+                maxLength={140}
+                rows={2}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+              />
             </div>
           )}
         </>
@@ -486,7 +514,12 @@ export default function ReportPage() {
       )}
 
       {showPicker && (
-        <VenuePicker fix={fix} onPicked={handlePicked} onCancel={() => setShowPicker(false)} />
+        <VenuePicker
+          fix={fix}
+          requestFix={ensureFix}
+          onPicked={handlePicked}
+          onCancel={() => setShowPicker(false)}
+        />
       )}
     </div>
   );
