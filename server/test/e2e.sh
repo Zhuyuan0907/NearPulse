@@ -100,10 +100,13 @@ echo "== 6. 態勢卡與 ETag =="
 CARD=$(curl -s "$BASE/api/situation")
 BL12_ON_CARD=$(echo "$CARD" | json "any(s['stationId']=='BL12' for s in d['stations'])")
 check "警示區包含 BL12 事件" test "$BL12_ON_CARD" = "True"
-check "態勢卡含真實公尺距離的疏散建議" \
-  test "$(echo "$CARD" | json "'m）' in (d['stations'][0]['events'][0]['evacuation'] or '')")" = "True"
 check "疏散建議以 M3 出口為原點（事件錨點）" \
-  test "$(echo "$CARD" | json "'M3' in (d['stations'][0]['events'][0]['evacuation'] or '')")" = "True"
+  test "$(echo "$CARD" | json "'遠離 M3 出口一帶' in (d['stations'][0]['events'][0]['evacuation'] or '')")" = "True"
+# 只有實測步行時間才有資格出現數字——地面直線距離不能當成地下步行距離
+check "疏散建議不輸出未經實測的距離數字" \
+  test "$(echo "$CARD" | json "'m）' not in (d['stations'][0]['events'][0]['evacuation'] or '') and '公尺' not in (d['stations'][0]['events'][0]['evacuation'] or '')")" = "True"
+check "疏散建議導引使用者依站內指標前進" \
+  test "$(echo "$CARD" | json "'依站內出口指標' in (d['stations'][0]['events'][0]['evacuation'] or '')")" = "True"
 ETAG=$(curl -sI "$BASE/api/situation" | grep -i '^etag:' | tr -d '\r' | cut -d' ' -f2)
 CODE=$(curl -s -o /dev/null -w "%{http_code}" -H "If-None-Match: $ETAG" "$BASE/api/situation")
 check "ETag 命中 → 304（$CODE）" test "$CODE" = "304"
@@ -119,7 +122,7 @@ EV3=$(curl -s "$BASE/api/events/$EVT3")
 check "事件保留地圖選點座標" \
   test "$(echo "$EV3" | json "abs(d['event']['incidentPoint']['lat'] - 25.04505) < 1e-6")" = "True"
 check "疏散建議以選點為原點（不是場域中心）" \
-  test "$(curl -s "$BASE/api/situation" | json "any('3 出口（成功高中）（約 96m）' in (e.get('evacuation') or '') for s in d['stations'] for e in s['events'])")" = "True"
+  test "$(curl -s "$BASE/api/situation" | json "any('3 出口（往成功高中）' in (e.get('evacuation') or '') and '避開 1 出口' in (e.get('evacuation') or '') for s in d['stations'] for e in s['events'])")" = "True"
 
 echo "== 8. 否證否決：在場「沒看到」>=3 → cancelled =="
 curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/json' -d '{
