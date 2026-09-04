@@ -21,6 +21,13 @@ export function createReportsRouter(store) {
       return res.status(400).json({ ok: false, errors });
     }
 
+    // ---- photoRef 還原：照片已在 /api/vision 上傳過，這裡取回即可 ----
+    // 取不到（過期／server 重啟／偽造 ref）就當作沒附照片——照片是選配，不擋回報。
+    if (!req.body.photo && req.body.photoRef) {
+      const cached = store.takePhoto(req.body.photoRef);
+      if (cached) req.body.photo = cached;
+    }
+
     // ---- 冪等檢查：同一 UUID 直接回上次的結果 ----
     const ingested = store.ingestReport(normalizeReport(req.body));
     if (!ingested.newReport) {

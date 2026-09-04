@@ -15,11 +15,25 @@ import { getSessionId } from './session.js';
 
 const jsonHeaders = { 'Content-Type': 'application/json' };
 
+/** analyzePhoto 失敗時的降級形狀——與 server 端 advisor 的降級結構一致 */
+const VISION_DEGRADED = { pending: true, roiCell: null, texts: [], anomalies: [] };
+
 /**
  * 送出一筆回報。
  * 攜帶 client 產生的 UUID 作為冪等鍵——恐慌連點重送時 server 去重。
+ * zone（九宮格）、note（文字補充）、語音、照片皆為選配。
+ *
+ * 照片有兩種帶法，擇一即可：
+ *   - photoRef：拍照時已打過 /api/vision，server 那邊還留著這張圖 → 只帶 ref，
+ *     3G 下省掉第二次 50KB 上傳（首選）
+ *   - photo：沒有 ref 時（分析失敗／ref 過期）才帶完整 base64（後備）
+ * photoAnalysis 則讓 server 免於對同一張圖再付一次 Vision 費用。
  */
-export async function postReport({ uuid, type, locationClaim, attachToEventId = null, audio = null, photo = null }) {
+export async function postReport({
+  uuid, type, locationClaim, attachToEventId = null,
+  nearExitCode = null, photoRoi = null, note = null, audio = null,
+  photo = null, photoRef = null,
+}) {
   const res = await fetch('/api/reports', {
     method: 'POST',
     headers: jsonHeaders,
@@ -29,14 +43,87 @@ export async function postReport({ uuid, type, locationClaim, attachToEventId = 
       type,
       locationClaim,
       attachToEventId,
-      audio, // { base64, mimeType } | null
-      photo, // { base64 } | null
+      nearExitCode,               // 場域錨點（出口代碼，確定性查表得出）
+      photoRoi,                   // 照片九宮格（影像座標，僅供追溯）
+      note,                       // 文字補充（≤140 字，選配）
+      audio,                      // { base64, mimeType } | null
+      // 有 ref 就不重傳圖；沒有才帶 base64
+      photo: photoRef ? null : photo,
+      photoRef,                   // server 端暫存的照片代號
     }),
   });
   if (!res.ok && res.status !== 202) {
     throw new Error(`回報失敗（${res.status}）`);
   }
   return res.json();
+}
+
+/**
+ * 視覺錨點分析（兩階段，非阻塞）：
+ *   stage='locate' 送整張壓縮圖 → 回 roiCell（哪一格有站名/出口牌）+ photoRef
+ *   stage='read'   送裁切後的那一格 → 回 texts（讀到的字）+ candidates（查表結果）
+ *
+ * 失敗或未設供應商時回降級形狀——UI 靜默退回手選，絕不擋回報。
+ *
+ * @returns {Promise<{result, candidates, photoRef, enabled}>}
+ */
+export async function analyzePhoto({ base64, mimeType, stage = 'locate', venueId, lat, lon }) {
+  const fallback = { result: VISION_DEGRADED, candidates: [], photoRef: null, enabled: false };
+  try {
+    const res = await fetch('/api/vision', {
+      method: 'POST',
+      headers: jsonHeaders,
+      body: JSON.stringify({ base64, mimeType, stage, venueId, lat, lon }),
+    });
+    if (!res.ok) return fallback;
+    const data = await res.json();
+    return {
+      result: data.result ?? VISION_DEGRADED,
+      candidates: data.candidates ?? [],
+      photoRef: data.photoRef ?? null,
+      enabled: Boolean(data.enabled),
+    };
+  } catch {
+    // 網路中斷也不能擋回報——照片改走完整上傳路徑
+    return fallback;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 場域圖資（全部在 server：client 不持有任何地圖資料）
+// ---------------------------------------------------------------------------
+
+/** 依粗略座標取鄰近場域——零打字選擇的主路徑 */
+export async function fetchNearbyVenues(lat, lon) {
+  try {
+    const res = await fetch(`/api/venues/nearby?lat=${lat}&lon=${lon}`);
+    if (!res.ok) return [];
+    return (await res.json()).venues ?? [];
+  } catch {
+    return [];
+  }
+}
+
+/** 場域名稱搜尋——沒有定位訊號時的後備路徑 */
+export async function searchVenues(q) {
+  try {
+    const res = await fetch(`/api/venues/search?q=${encodeURIComponent(q)}`);
+    if (!res.ok) return [];
+    return (await res.json()).venues ?? [];
+  } catch {
+    return [];
+  }
+}
+
+/** 單一場域的出口清單與示意幾何（畫 SVG 小地圖用；無圖磚、僅幾 KB） */
+export async function fetchVenue(venueId) {
+  try {
+    const res = await fetch(`/api/venues/${encodeURIComponent(venueId)}`);
+    if (!res.ok) return null;
+    return (await res.json()).venue ?? null;
+  } catch {
+    return null;
+  }
 }
 
 /** 查某站（可選加類型）進行中的事件——「同一件/另一件」歸屬確認用 */

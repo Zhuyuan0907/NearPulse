@@ -1,0 +1,10224 @@
+{
+ "generatedAt": "2026-09-04T08:51:32.465Z",
+ "source": "OpenStreetMap via Overpass API",
+ "attribution": "© OpenStreetMap contributors (ODbL)",
+ "regions": [
+  "台北"
+ ],
+ "venues": [
+  {
+   "id": "A1",
+   "name": "台北車站",
+   "nameEn": "Taipei main station",
+   "kind": "metro",
+   "lat": 25.046243,
+   "lon": 121.517475,
+   "aliases": [
+    "台北車站",
+    "Taipei main station",
+    "taipeimainstation",
+    "A1",
+    "a1",
+    "BL12",
+    "bl12",
+    "R10",
+    "r10"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "1號出入口",
+     "landmark": null,
+     "lat": 25.048539,
+     "lon": 121.514969,
+     "x": 0.3448,
+     "y": 0.3953
+    },
+    {
+     "code": "2",
+     "name": "2號出入口",
+     "landmark": null,
+     "lat": 25.048795,
+     "lon": 121.514496,
+     "x": 0.2656,
+     "y": 0.3979
+    },
+    {
+     "code": "3",
+     "name": "3號出入口",
+     "landmark": null,
+     "lat": 25.048982,
+     "lon": 121.513683,
+     "x": 0.1496,
+     "y": 0.3339
+    },
+    {
+     "code": "4",
+     "name": "4號出入口",
+     "landmark": null,
+     "lat": 25.048594,
+     "lon": 121.513596,
+     "x": 0.1694,
+     "y": 0.2173
+    },
+    {
+     "code": "5",
+     "name": "5號出入口",
+     "landmark": null,
+     "lat": 25.048803,
+     "lon": 121.512678,
+     "x": 0.0385,
+     "y": 0.1446
+    },
+    {
+     "code": "M1",
+     "name": "M1",
+     "landmark": null,
+     "lat": 25.048253,
+     "lon": 121.51817,
+     "x": 0.7661,
+     "y": 0.768
+    },
+    {
+     "code": "M2",
+     "name": "M2",
+     "landmark": null,
+     "lat": 25.048092,
+     "lon": 121.519009,
+     "x": 0.8834,
+     "y": 0.8425
+    },
+    {
+     "code": "M3",
+     "name": null,
+     "landmark": null,
+     "lat": 25.046293,
+     "lon": 121.517794,
+     "x": 0.8744,
+     "y": 0.187
+    },
+    {
+     "code": "M4",
+     "name": null,
+     "landmark": null,
+     "lat": 25.046473,
+     "lon": 121.517385,
+     "x": 0.8091,
+     "y": 0.178
+    },
+    {
+     "code": "M5",
+     "name": null,
+     "landmark": null,
+     "lat": 25.046779,
+     "lon": 121.516158,
+     "x": 0.6321,
+     "y": 0.0883
+    },
+    {
+     "code": "M6",
+     "name": null,
+     "landmark": null,
+     "lat": 25.046114,
+     "lon": 121.516806,
+     "x": 0.7655,
+     "y": 0
+    },
+    {
+     "code": "M7",
+     "name": null,
+     "landmark": null,
+     "lat": 25.046061,
+     "lon": 121.518655,
+     "x": 1,
+     "y": 0.2455
+    },
+    {
+     "code": "M8",
+     "name": null,
+     "landmark": null,
+     "lat": 25.045783,
+     "lon": 121.517503,
+     "x": 0.8784,
+     "y": 0.0087
+    },
+    {
+     "code": "R1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.04867,
+     "lon": 121.51902,
+     "x": 0.839,
+     "y": 1
+    },
+    {
+     "code": "Y9",
+     "name": null,
+     "landmark": null,
+     "lat": 25.049039,
+     "lon": 121.515804,
+     "x": 0.4092,
+     "y": 0.6474
+    },
+    {
+     "code": "Y10",
+     "name": null,
+     "landmark": null,
+     "lat": 25.04863,
+     "lon": 121.516173,
+     "x": 0.4875,
+     "y": 0.5891
+    },
+    {
+     "code": "Y11",
+     "name": "Y11",
+     "landmark": null,
+     "lat": 25.049074,
+     "lon": 121.515581,
+     "x": 0.3787,
+     "y": 0.6255
+    },
+    {
+     "code": "Y12",
+     "name": null,
+     "landmark": null,
+     "lat": 25.048721,
+     "lon": 121.51561,
+     "x": 0.4102,
+     "y": 0.5345
+    },
+    {
+     "code": "Y13",
+     "name": "Y13",
+     "landmark": null,
+     "lat": 25.049456,
+     "lon": 121.514845,
+     "x": 0.2568,
+     "y": 0.625
+    },
+    {
+     "code": "Y14",
+     "name": "Y14",
+     "landmark": null,
+     "lat": 25.048864,
+     "lon": 121.514961,
+     "x": 0.3181,
+     "y": 0.482
+    },
+    {
+     "code": "Y15",
+     "name": "Y15",
+     "landmark": null,
+     "lat": 25.049331,
+     "lon": 121.514371,
+     "x": 0.2077,
+     "y": 0.5249
+    },
+    {
+     "code": "Y16",
+     "name": "Y16",
+     "landmark": null,
+     "lat": 25.048935,
+     "lon": 121.514641,
+     "x": 0.2725,
+     "y": 0.456
+    },
+    {
+     "code": "Y17",
+     "name": null,
+     "landmark": null,
+     "lat": 25.04949,
+     "lon": 121.513709,
+     "x": 0.1126,
+     "y": 0.4745
+    },
+    {
+     "code": "Y18",
+     "name": "Y18",
+     "landmark": null,
+     "lat": 25.049065,
+     "lon": 121.514034,
+     "x": 0.1868,
+     "y": 0.4058
+    },
+    {
+     "code": "Y19",
+     "name": null,
+     "landmark": null,
+     "lat": 25.049713,
+     "lon": 121.512946,
+     "x": 0,
+     "y": 0.4275
+    },
+    {
+     "code": "Y20",
+     "name": "Y20",
+     "landmark": null,
+     "lat": 25.049215,
+     "lon": 121.513722,
+     "x": 0.136,
+     "y": 0.4025
+    },
+    {
+     "code": "Y22",
+     "name": "Y22",
+     "landmark": null,
+     "lat": 25.049387,
+     "lon": 121.512808,
+     "x": 0.0085,
+     "y": 0.3203
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 702,
+    "across": 358
+   }
+  },
+  {
+   "id": "A2",
+   "name": "三重",
+   "nameEn": "Sanchong",
+   "kind": "metro",
+   "lat": 25.055978,
+   "lon": 121.485377,
+   "aliases": [
+    "三重",
+    "Sanchong",
+    "sanchong",
+    "A2",
+    "a2",
+    "O15",
+    "o15"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "三重捷運站1號出口",
+     "landmark": null,
+     "lat": 25.055327,
+     "lon": 121.483199,
+     "x": 0.2736,
+     "y": 1
+    },
+    {
+     "code": "1A",
+     "name": null,
+     "landmark": null,
+     "lat": 25.054895,
+     "lon": 121.482599,
+     "x": 0,
+     "y": 0.3022
+    },
+    {
+     "code": "2",
+     "name": "三重捷運站2號出口",
+     "landmark": null,
+     "lat": 25.055536,
+     "lon": 121.48448,
+     "x": 0.7432,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": "三重捷運站3號出口",
+     "landmark": null,
+     "lat": 25.05597,
+     "lon": 121.485029,
+     "x": 1,
+     "y": 0.7725
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 272,
+    "across": 29
+   }
+  },
+  {
+   "id": "A3",
+   "name": "新北產業園區",
+   "nameEn": "New Taipei Industrial Park",
+   "kind": "metro",
+   "lat": 25.061269,
+   "lon": 121.459809,
+   "aliases": [
+    "新北產業園區",
+    "New Taipei Industrial Park",
+    "newtaipeiindustrialpark",
+    "A3",
+    "a3",
+    "Y20",
+    "y20"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "A4",
+   "name": "新莊副都心",
+   "nameEn": "Xinzhuang Fuduxin",
+   "kind": "metro",
+   "lat": 25.05921,
+   "lon": 121.445789,
+   "aliases": [
+    "新莊副都心",
+    "Xinzhuang Fuduxin",
+    "xinzhuangfuduxin",
+    "A4",
+    "a4"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.059276,
+     "lon": 121.446042,
+     "x": 0,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.05888,
+     "lon": 121.446457,
+     "x": 1,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 61,
+    "across": 0
+   }
+  },
+  {
+   "id": "A5",
+   "name": "泰山",
+   "nameEn": "Taishan",
+   "kind": "metro",
+   "lat": 25.053265,
+   "lon": 121.439552,
+   "aliases": [
+    "泰山",
+    "Taishan",
+    "taishan",
+    "A5",
+    "a5"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口 1",
+     "landmark": null,
+     "lat": 25.05287,
+     "lon": 121.439683,
+     "x": 0.8134,
+     "y": 0.6773
+    },
+    {
+     "code": "2",
+     "name": "出口 2",
+     "landmark": null,
+     "lat": 25.052948,
+     "lon": 121.439774,
+     "x": 0.8696,
+     "y": 1
+    },
+    {
+     "code": "3",
+     "name": "出口 3",
+     "landmark": null,
+     "lat": 25.05261,
+     "lon": 121.439743,
+     "x": 1,
+     "y": 0
+    },
+    {
+     "code": "4",
+     "name": "出口 4",
+     "landmark": null,
+     "lat": 25.053057,
+     "lon": 121.438978,
+     "x": 0,
+     "y": 0.4405
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 90,
+    "across": 36
+   }
+  },
+  {
+   "id": "A6",
+   "name": "泰山貴和",
+   "nameEn": "Taishan Guihe",
+   "kind": "metro",
+   "lat": 25.033345,
+   "lon": 121.422963,
+   "aliases": [
+    "泰山貴和",
+    "Taishan Guihe",
+    "taishanguihe",
+    "A6",
+    "a6"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口 1",
+     "landmark": null,
+     "lat": 25.033188,
+     "lon": 121.422225,
+     "x": 0.5,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "BL01",
+   "name": "頂埔",
+   "nameEn": "Dingpu",
+   "kind": "metro",
+   "lat": 24.959734,
+   "lon": 121.419477,
+   "aliases": [
+    "頂埔",
+    "Dingpu",
+    "dingpu",
+    "BL01",
+    "bl01",
+    "LB01",
+    "lb01"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口1 (頂埔街)",
+     "landmark": "頂埔街",
+     "lat": 24.959311,
+     "lon": 121.418368,
+     "x": 0.1423,
+     "y": 1
+    },
+    {
+     "code": "2",
+     "name": "出口2 (永福岩祖師廟)",
+     "landmark": "永福岩祖師廟",
+     "lat": 24.958846,
+     "lon": 121.418368,
+     "x": 0,
+     "y": 0.3168
+    },
+    {
+     "code": "3",
+     "name": "出口3 (大暖路)",
+     "landmark": "大暖路",
+     "lat": 24.959466,
+     "lon": 121.419579,
+     "x": 0.6301,
+     "y": 0
+    },
+    {
+     "code": "4",
+     "name": "出口4 (三民路)",
+     "landmark": "三民路",
+     "lat": 24.960252,
+     "lon": 121.419936,
+     "x": 1,
+     "y": 0.7922
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 221,
+    "across": 60
+   }
+  },
+  {
+   "id": "BL02",
+   "name": "永寧",
+   "nameEn": "Yongning",
+   "kind": "metro",
+   "lat": 24.966872,
+   "lon": 121.43627,
+   "aliases": [
+    "永寧",
+    "Yongning",
+    "yongning",
+    "BL02",
+    "bl02"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "永寧捷運站1號出口",
+     "landmark": null,
+     "lat": 24.96667,
+     "lon": 121.435569,
+     "x": 0.1918,
+     "y": 1
+    },
+    {
+     "code": "2",
+     "name": "永寧捷運站2號出口",
+     "landmark": null,
+     "lat": 24.965977,
+     "lon": 121.435799,
+     "x": 0,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": "永寧捷運站3號出口",
+     "landmark": null,
+     "lat": 24.967215,
+     "lon": 121.437106,
+     "x": 0.9813,
+     "y": 0.0903
+    },
+    {
+     "code": "4",
+     "name": "永寧捷運站4號出口",
+     "landmark": null,
+     "lat": 24.96751,
+     "lon": 121.436839,
+     "x": 1,
+     "y": 0.683
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 194,
+    "across": 71
+   }
+  },
+  {
+   "id": "BL03",
+   "name": "土城",
+   "nameEn": "Tucheng",
+   "kind": "metro",
+   "lat": 24.973182,
+   "lon": 121.444391,
+   "aliases": [
+    "土城",
+    "Tucheng",
+    "tucheng",
+    "BL03",
+    "bl03"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運土城站1號出口",
+     "landmark": null,
+     "lat": 24.973308,
+     "lon": 121.444232,
+     "x": 0.4045,
+     "y": 1
+    },
+    {
+     "code": "2",
+     "name": "捷運土城站2號出口",
+     "landmark": null,
+     "lat": 24.972783,
+     "lon": 121.443717,
+     "x": 0,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": "捷運土城站3號出口",
+     "landmark": null,
+     "lat": 24.973736,
+     "lon": 121.445247,
+     "x": 1,
+     "y": 0.1197
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 187,
+    "across": 20
+   }
+  },
+  {
+   "id": "BL04",
+   "name": "海山",
+   "nameEn": "Haishan",
+   "kind": "metro",
+   "lat": 24.985318,
+   "lon": 121.448786,
+   "aliases": [
+    "海山",
+    "Haishan",
+    "haishan",
+    "BL04",
+    "bl04"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運海山站1號出口",
+     "landmark": null,
+     "lat": 24.98533,
+     "lon": 121.448634,
+     "x": 0,
+     "y": 1
+    },
+    {
+     "code": "2",
+     "name": "捷運海山站2號出口",
+     "landmark": null,
+     "lat": 24.985347,
+     "lon": 121.448958,
+     "x": 0.1292,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": "捷運海山站3號出口",
+     "landmark": null,
+     "lat": 24.986281,
+     "lon": 121.449261,
+     "x": 1,
+     "y": 0.6036
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 123,
+    "across": 29
+   }
+  },
+  {
+   "id": "BL05",
+   "name": "亞東醫院",
+   "nameEn": "Far Eastern Hospital",
+   "kind": "metro",
+   "lat": 24.997522,
+   "lon": 121.452363,
+   "aliases": [
+    "亞東醫院",
+    "Far Eastern Hospital",
+    "fareasternhospital",
+    "BL05",
+    "bl05"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "亞東醫院站1號出口",
+     "landmark": null,
+     "lat": 24.998874,
+     "lon": 121.452549,
+     "x": 0.8411,
+     "y": 1
+    },
+    {
+     "code": "2",
+     "name": "亞東醫院站2號出口",
+     "landmark": null,
+     "lat": 24.99818,
+     "lon": 121.45233,
+     "x": 0,
+     "y": 0.3705
+    },
+    {
+     "code": "3",
+     "name": "亞東醫院站3號出口",
+     "landmark": null,
+     "lat": 24.998826,
+     "lon": 121.452912,
+     "x": 1,
+     "y": 0
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 92,
+    "across": 34
+   }
+  },
+  {
+   "id": "BL06",
+   "name": "府中",
+   "nameEn": "Fuzhong",
+   "kind": "metro",
+   "lat": 25.00877,
+   "lon": 121.45928,
+   "aliases": [
+    "府中",
+    "Fuzhong",
+    "fuzhong",
+    "BL06",
+    "bl06"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "府中站1號出口",
+     "landmark": null,
+     "lat": 25.008389,
+     "lon": 121.459003,
+     "x": 0,
+     "y": 0.8577
+    },
+    {
+     "code": "2",
+     "name": "府中站2號出口",
+     "landmark": null,
+     "lat": 25.0089,
+     "lon": 121.459361,
+     "x": 0.6149,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": "府中站3號出口",
+     "landmark": null,
+     "lat": 25.009246,
+     "lon": 121.458993,
+     "x": 1,
+     "y": 1
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 95,
+    "across": 39
+   }
+  },
+  {
+   "id": "BL07",
+   "name": "板橋",
+   "nameEn": "Banqiao",
+   "kind": "metro",
+   "lat": 25.015187,
+   "lon": 121.464592,
+   "aliases": [
+    "板橋",
+    "Banqiao",
+    "banqiao",
+    "BL07",
+    "bl07",
+    "Y16",
+    "y16"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運板橋1號出口",
+     "landmark": null,
+     "lat": 25.013215,
+     "lon": 121.461821,
+     "x": 0,
+     "y": 0.4156
+    },
+    {
+     "code": "2",
+     "name": "捷運板橋2號出口",
+     "landmark": null,
+     "lat": 25.013209,
+     "lon": 121.462545,
+     "x": 0.1449,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": "捷運板橋站3號出口",
+     "landmark": null,
+     "lat": 25.014576,
+     "lon": 121.462592,
+     "x": 0.4088,
+     "y": 1
+    },
+    {
+     "code": "4",
+     "name": "捷運板橋站4號出口",
+     "landmark": null,
+     "lat": 25.015144,
+     "lon": 121.464997,
+     "x": 1,
+     "y": 0.0596
+    },
+    {
+     "code": "5",
+     "name": "捷運板橋站5號出口",
+     "landmark": null,
+     "lat": 25.015474,
+     "lon": 121.464485,
+     "x": 0.9581,
+     "y": 0.5984
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 383,
+    "across": 114
+   }
+  },
+  {
+   "id": "BL08",
+   "name": "新埔",
+   "nameEn": "Xinpu",
+   "kind": "metro",
+   "lat": 25.02346,
+   "lon": 121.468306,
+   "aliases": [
+    "新埔",
+    "Xinpu",
+    "xinpu",
+    "BL08",
+    "bl08"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運新埔站1號出口",
+     "landmark": null,
+     "lat": 25.02311,
+     "lon": 121.467512,
+     "x": 0.565,
+     "y": 0
+    },
+    {
+     "code": "2",
+     "name": "捷運新埔站2號出口",
+     "landmark": null,
+     "lat": 25.022253,
+     "lon": 121.468169,
+     "x": 1,
+     "y": 0.5774
+    },
+    {
+     "code": "3",
+     "name": "捷運新埔站3號出口",
+     "landmark": null,
+     "lat": 25.022714,
+     "lon": 121.468647,
+     "x": 0.7669,
+     "y": 1
+    },
+    {
+     "code": "4",
+     "name": "捷運新埔站4號出口",
+     "landmark": null,
+     "lat": 25.023744,
+     "lon": 121.468622,
+     "x": 0.2446,
+     "y": 0.9799
+    },
+    {
+     "code": "5",
+     "name": "捷運新埔站5號出口",
+     "landmark": null,
+     "lat": 25.024226,
+     "lon": 121.468095,
+     "x": 0,
+     "y": 0.5167
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 220,
+    "across": 114
+   }
+  },
+  {
+   "id": "BL09",
+   "name": "江子翠",
+   "nameEn": "Jiangzicui",
+   "kind": "metro",
+   "lat": 25.030424,
+   "lon": 121.472778,
+   "aliases": [
+    "江子翠",
+    "Jiangzicui",
+    "jiangzicui",
+    "BL09",
+    "bl09"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運江子翠站1號出口",
+     "landmark": null,
+     "lat": 25.030278,
+     "lon": 121.471911,
+     "x": 0.1989,
+     "y": 1
+    },
+    {
+     "code": "2",
+     "name": "捷運江子翠站2號出口",
+     "landmark": null,
+     "lat": 25.029793,
+     "lon": 121.471927,
+     "x": 0.0021,
+     "y": 0.6384
+    },
+    {
+     "code": "3",
+     "name": "捷運江子翠站3號出口",
+     "landmark": null,
+     "lat": 25.029514,
+     "lon": 121.472304,
+     "x": 0,
+     "y": 0.1305
+    },
+    {
+     "code": "4",
+     "name": "捷運江子翠站4號出口",
+     "landmark": null,
+     "lat": 25.029746,
+     "lon": 121.47267,
+     "x": 0.207,
+     "y": 0
+    },
+    {
+     "code": "5",
+     "name": "捷運江子翠站5號出口",
+     "landmark": null,
+     "lat": 25.031046,
+     "lon": 121.473506,
+     "x": 1,
+     "y": 0.2563
+    },
+    {
+     "code": "6",
+     "name": "捷運江子翠站6號出口",
+     "landmark": null,
+     "lat": 25.031114,
+     "lon": 121.473115,
+     "x": 0.9098,
+     "y": 0.6223
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 209,
+    "across": 97
+   }
+  },
+  {
+   "id": "BL10",
+   "name": "龍山寺",
+   "nameEn": "Longshan Temple",
+   "kind": "metro",
+   "lat": 25.035284,
+   "lon": 121.499581,
+   "aliases": [
+    "龍山寺",
+    "Longshan Temple",
+    "longshantemple",
+    "BL10",
+    "bl10"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "龍山寺捷運站1號出口",
+     "landmark": null,
+     "lat": 25.035481,
+     "lon": 121.499652,
+     "x": 0,
+     "y": 1
+    },
+    {
+     "code": "2",
+     "name": "龍山寺捷運站2號出口",
+     "landmark": null,
+     "lat": 25.034984,
+     "lon": 121.499993,
+     "x": 0.1654,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": "龍山寺捷運站3號出口",
+     "landmark": null,
+     "lat": 25.035357,
+     "lon": 121.501603,
+     "x": 1,
+     "y": 0.6352
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 196,
+    "across": 56
+   }
+  },
+  {
+   "id": "BL11",
+   "name": "西門",
+   "nameEn": "Ximen",
+   "kind": "metro",
+   "lat": 25.042713,
+   "lon": 121.508608,
+   "aliases": [
+    "西門",
+    "Ximen",
+    "ximen",
+    "BL11",
+    "bl11",
+    "G12",
+    "g12"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "西門捷運站1號出口",
+     "landmark": null,
+     "lat": 25.042105,
+     "lon": 121.507618,
+     "x": 0.3422,
+     "y": 1
+    },
+    {
+     "code": "2",
+     "name": "西門捷運站2號出口",
+     "landmark": null,
+     "lat": 25.041453,
+     "lon": 121.508359,
+     "x": 0,
+     "y": 0.3087
+    },
+    {
+     "code": "3",
+     "name": "西門捷運站3號出口",
+     "landmark": "遠東百貨",
+     "lat": 25.041837,
+     "lon": 121.508716,
+     "x": 0.2863,
+     "y": 0.088
+    },
+    {
+     "code": "4",
+     "name": "西門捷運站4號出口",
+     "landmark": null,
+     "lat": 25.042212,
+     "lon": 121.508902,
+     "x": 0.5484,
+     "y": 0
+    },
+    {
+     "code": "5",
+     "name": "西門捷運站5號出口",
+     "landmark": null,
+     "lat": 25.042935,
+     "lon": 121.50875,
+     "x": 1,
+     "y": 0.2361
+    },
+    {
+     "code": "6",
+     "name": "西門捷運站6號出口",
+     "landmark": "西門徒步區",
+     "lat": 25.042535,
+     "lon": 121.507724,
+     "x": 0.6314,
+     "y": 0.9843
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 169,
+    "across": 125
+   }
+  },
+  {
+   "id": "BL13",
+   "name": "善導寺",
+   "nameEn": "Shandao Temple",
+   "kind": "metro",
+   "lat": 25.044762,
+   "lon": 121.523423,
+   "aliases": [
+    "善導寺",
+    "Shandao Temple",
+    "shandaotemple",
+    "BL13",
+    "bl13"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口 1 (警政署)",
+     "landmark": "警政署",
+     "lat": 25.045053,
+     "lon": 121.523021,
+     "x": 0,
+     "y": 0.8743
+    },
+    {
+     "code": "2",
+     "name": "出口 2 (台北喜來登大飯店)",
+     "landmark": "台北喜來登大飯店",
+     "lat": 25.044737,
+     "lon": 121.522983,
+     "x": 0.0355,
+     "y": 0.4055
+    },
+    {
+     "code": "3",
+     "name": "出口 3 (成功高中)",
+     "landmark": "成功高中",
+     "lat": 25.044474,
+     "lon": 121.523722,
+     "x": 0.4401,
+     "y": 0.3362
+    },
+    {
+     "code": "4",
+     "name": "出口 4 (青島社區)",
+     "landmark": "青島社區",
+     "lat": 25.044092,
+     "lon": 121.524233,
+     "x": 0.7542,
+     "y": 0
+    },
+    {
+     "code": "5",
+     "name": "出口 5 (華山市場)",
+     "landmark": "華山市場",
+     "lat": 25.0443,
+     "lon": 121.524799,
+     "x": 0.9939,
+     "y": 0.5325
+    },
+    {
+     "code": "6",
+     "name": "出口 6 (善導寺)",
+     "landmark": "善導寺",
+     "lat": 25.044593,
+     "lon": 121.524915,
+     "x": 1,
+     "y": 1
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 197,
+    "across": 74
+   }
+  },
+  {
+   "id": "BL14",
+   "name": "忠孝新生",
+   "nameEn": "Zhongxiao Xinsheng",
+   "kind": "metro",
+   "lat": 25.04229,
+   "lon": 121.532838,
+   "aliases": [
+    "忠孝新生",
+    "Zhongxiao Xinsheng",
+    "zhongxiaoxinsheng",
+    "BL14",
+    "bl14",
+    "O07",
+    "o07"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口 1 (忠孝國小)",
+     "landmark": "忠孝國小",
+     "lat": 25.042739,
+     "lon": 121.531859,
+     "x": 0,
+     "y": 0.3366
+    },
+    {
+     "code": "2",
+     "name": "出口 2 (忠孝公園)",
+     "landmark": "忠孝公園",
+     "lat": 25.042128,
+     "lon": 121.532098,
+     "x": 0.2883,
+     "y": 0.2606
+    },
+    {
+     "code": "3",
+     "name": null,
+     "landmark": null,
+     "lat": 25.041742,
+     "lon": 121.53368,
+     "x": 0.7562,
+     "y": 1
+    },
+    {
+     "code": "4",
+     "name": null,
+     "landmark": null,
+     "lat": 25.042458,
+     "lon": 121.533205,
+     "x": 0.3792,
+     "y": 0.9823
+    },
+    {
+     "code": "5",
+     "name": null,
+     "landmark": null,
+     "lat": 25.041072,
+     "lon": 121.532277,
+     "x": 0.7399,
+     "y": 0
+    },
+    {
+     "code": "6",
+     "name": null,
+     "landmark": null,
+     "lat": 25.040779,
+     "lon": 121.533002,
+     "x": 1,
+     "y": 0.2997
+    },
+    {
+     "code": "7",
+     "name": null,
+     "landmark": null,
+     "lat": 25.041679,
+     "lon": 121.533025,
+     "x": 0.6502,
+     "y": 0.6181
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 247,
+    "across": 160
+   }
+  },
+  {
+   "id": "BL15",
+   "name": "忠孝復興",
+   "nameEn": "Zhongxiao Fuxing",
+   "kind": "metro",
+   "lat": 25.041541,
+   "lon": 121.543771,
+   "aliases": [
+    "忠孝復興",
+    "Zhongxiao Fuxing",
+    "zhongxiaofuxing",
+    "BL15",
+    "bl15",
+    "BR10",
+    "br10"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.041793,
+     "lon": 121.543126,
+     "x": 0,
+     "y": 0.7298
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.0412,
+     "lon": 121.543477,
+     "x": 0.1781,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": null,
+     "landmark": null,
+     "lat": 25.041449,
+     "lon": 121.545108,
+     "x": 1,
+     "y": 0.3144
+    },
+    {
+     "code": "4",
+     "name": null,
+     "landmark": null,
+     "lat": 25.04176,
+     "lon": 121.545037,
+     "x": 0.9634,
+     "y": 0.6987
+    },
+    {
+     "code": "5",
+     "name": null,
+     "landmark": null,
+     "lat": 25.042009,
+     "lon": 121.54395,
+     "x": 0.4148,
+     "y": 1
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 200,
+    "across": 90
+   }
+  },
+  {
+   "id": "BL16",
+   "name": "忠孝敦化",
+   "nameEn": "Zhongxiao Dunhua",
+   "kind": "metro",
+   "lat": 25.041509,
+   "lon": 121.549479,
+   "aliases": [
+    "忠孝敦化",
+    "Zhongxiao Dunhua",
+    "zhongxiaodunhua",
+    "BL16",
+    "bl16"
+   ],
+   "exits": [
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.041625,
+     "lon": 121.551236,
+     "x": 0.8183,
+     "y": 0.7335
+    },
+    {
+     "code": "3",
+     "name": "忠孝敦化站出入口3",
+     "landmark": null,
+     "lat": 25.041306,
+     "lon": 121.551677,
+     "x": 1,
+     "y": 0.3761
+    },
+    {
+     "code": "4",
+     "name": null,
+     "landmark": null,
+     "lat": 25.041331,
+     "lon": 121.550524,
+     "x": 0.541,
+     "y": 0.3499
+    },
+    {
+     "code": "5",
+     "name": "忠孝敦化站出入口5",
+     "landmark": null,
+     "lat": 25.041348,
+     "lon": 121.549757,
+     "x": 0.2354,
+     "y": 0.3339
+    },
+    {
+     "code": "6",
+     "name": "忠孝敦化站出入口6",
+     "landmark": null,
+     "lat": 25.04109,
+     "lon": 121.549178,
+     "x": 0.0105,
+     "y": 0
+    },
+    {
+     "code": "7",
+     "name": "忠孝敦化站出入口7",
+     "landmark": null,
+     "lat": 25.04166,
+     "lon": 121.549897,
+     "x": 0.2853,
+     "y": 0.7104
+    },
+    {
+     "code": "8",
+     "name": "忠孝敦化站出入口8",
+     "landmark": null,
+     "lat": 25.041932,
+     "lon": 121.549193,
+     "x": 0,
+     "y": 1
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 253,
+    "across": 94
+   }
+  },
+  {
+   "id": "BL17",
+   "name": "國父紀念館",
+   "nameEn": "Sun Yat-Sen Memorial Hall",
+   "kind": "metro",
+   "lat": 25.041342,
+   "lon": 121.557392,
+   "aliases": [
+    "國父紀念館",
+    "Sun Yat-Sen Memorial Hall",
+    "sunyat-senmemorialhall",
+    "BL17",
+    "bl17"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運國父紀念館站1號出口",
+     "landmark": null,
+     "lat": 25.041629,
+     "lon": 121.556676,
+     "x": 0,
+     "y": 0.8541
+    },
+    {
+     "code": "2",
+     "name": "捷運國父紀念館站2號出口",
+     "landmark": null,
+     "lat": 25.041062,
+     "lon": 121.556707,
+     "x": 0.0102,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": "捷運國父紀念館站3號出口",
+     "landmark": null,
+     "lat": 25.041139,
+     "lon": 121.557935,
+     "x": 0.7209,
+     "y": 0.0806
+    },
+    {
+     "code": "4",
+     "name": "捷運國父紀念館站4號出口",
+     "landmark": null,
+     "lat": 25.041112,
+     "lon": 121.558419,
+     "x": 1,
+     "y": 0.0252
+    },
+    {
+     "code": "5",
+     "name": "捷運國父紀念館站5號出口",
+     "landmark": null,
+     "lat": 25.041759,
+     "lon": 121.558367,
+     "x": 0.979,
+     "y": 1
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 175,
+    "across": 74
+   }
+  },
+  {
+   "id": "BL18",
+   "name": "市政府",
+   "nameEn": "Taipei City Hall",
+   "kind": "metro",
+   "lat": 25.041128,
+   "lon": 121.5661,
+   "aliases": [
+    "市政府",
+    "Taipei City Hall",
+    "taipeicityhall",
+    "BL18",
+    "bl18"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運市政府站1號出口",
+     "landmark": null,
+     "lat": 25.041312,
+     "lon": 121.565482,
+     "x": 0.1709,
+     "y": 1
+    },
+    {
+     "code": "2",
+     "name": "捷運市政府站2號出口",
+     "landmark": null,
+     "lat": 25.040803,
+     "lon": 121.565136,
+     "x": 0,
+     "y": 0.1304
+    },
+    {
+     "code": "3",
+     "name": "捷運市政府站3號出口",
+     "landmark": null,
+     "lat": 25.040745,
+     "lon": 121.567027,
+     "x": 0.9176,
+     "y": 0
+    },
+    {
+     "code": "4",
+     "name": "捷運市政府站4號出口",
+     "landmark": null,
+     "lat": 25.041257,
+     "lon": 121.567191,
+     "x": 1,
+     "y": 0.8774
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 208,
+    "across": 65
+   }
+  },
+  {
+   "id": "BL19",
+   "name": "永春",
+   "nameEn": "Yongchun",
+   "kind": "metro",
+   "lat": 25.040876,
+   "lon": 121.575705,
+   "aliases": [
+    "永春",
+    "Yongchun",
+    "yongchun",
+    "BL19",
+    "bl19"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口1（松信路）",
+     "landmark": "松信路",
+     "lat": 25.041007,
+     "lon": 121.574544,
+     "x": 0,
+     "y": 0.7669
+    },
+    {
+     "code": "2",
+     "name": "出口2（松山工農）",
+     "landmark": "松山工農",
+     "lat": 25.040778,
+     "lon": 121.575182,
+     "x": 0.298,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": "出口3（忠孝東路五段）",
+     "landmark": "忠孝東路五段",
+     "lat": 25.040769,
+     "lon": 121.576405,
+     "x": 0.8579,
+     "y": 0.182
+    },
+    {
+     "code": "4",
+     "name": "出口4（虎林街）",
+     "landmark": "虎林街",
+     "lat": 25.040758,
+     "lon": 121.576678,
+     "x": 0.9834,
+     "y": 0.1899
+    },
+    {
+     "code": "5",
+     "name": "出口5（富台國宅）",
+     "landmark": "富台國宅",
+     "lat": 25.040966,
+     "lon": 121.576726,
+     "x": 1,
+     "y": 1
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 220,
+    "across": 29
+   }
+  },
+  {
+   "id": "BL20",
+   "name": "後山埤",
+   "nameEn": "Houshanpi",
+   "kind": "metro",
+   "lat": 25.044741,
+   "lon": 121.582322,
+   "aliases": [
+    "後山埤",
+    "Houshanpi",
+    "houshanpi",
+    "BL20",
+    "bl20"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口 1 (五分埔商圈)",
+     "landmark": "五分埔商圈",
+     "lat": 25.044359,
+     "lon": 121.581576,
+     "x": 0.0719,
+     "y": 0.9104
+    },
+    {
+     "code": "2",
+     "name": "出口 2 (玉成公園)",
+     "landmark": "玉成公園",
+     "lat": 25.043915,
+     "lon": 121.581999,
+     "x": 0,
+     "y": 0.0632
+    },
+    {
+     "code": "3",
+     "name": "出口 3 (聯合醫院忠孝院區)",
+     "landmark": "聯合醫院忠孝院區",
+     "lat": 25.045242,
+     "lon": 121.583169,
+     "x": 1,
+     "y": 0
+    },
+    {
+     "code": "4",
+     "name": "出口 4 (永吉路)",
+     "landmark": "永吉路",
+     "lat": 25.045535,
+     "lon": 121.582478,
+     "x": 0.9147,
+     "y": 1
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 189,
+    "across": 75
+   }
+  },
+  {
+   "id": "BL21",
+   "name": "昆陽",
+   "nameEn": "Kunyang",
+   "kind": "metro",
+   "lat": 25.05049,
+   "lon": 121.593316,
+   "aliases": [
+    "昆陽",
+    "Kunyang",
+    "kunyang",
+    "BL21",
+    "bl21"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運昆陽站 (1號出口)",
+     "landmark": "1號出口",
+     "lat": 25.050286,
+     "lon": 121.592725,
+     "x": 0,
+     "y": 0
+    },
+    {
+     "code": "2",
+     "name": "捷運昆陽站(2號出口)",
+     "landmark": "2號出口",
+     "lat": 25.050429,
+     "lon": 121.592907,
+     "x": 0.1956,
+     "y": 1
+    },
+    {
+     "code": "3",
+     "name": "捷運昆陽站(3號出口)",
+     "landmark": "3號出口",
+     "lat": 25.050582,
+     "lon": 121.593558,
+     "x": 0.8001,
+     "y": 0.8995
+    },
+    {
+     "code": "4",
+     "name": "捷運昆陽站 (4號出口)",
+     "landmark": "4號出口",
+     "lat": 25.050561,
+     "lon": 121.593795,
+     "x": 1,
+     "y": 0.0647
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 112,
+    "across": 10
+   }
+  },
+  {
+   "id": "BL22",
+   "name": "南港",
+   "nameEn": "Nangang",
+   "kind": "metro",
+   "lat": 25.05209,
+   "lon": 121.607192,
+   "aliases": [
+    "南港",
+    "Nangang",
+    "nangang",
+    "BL22",
+    "bl22"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口1（忠孝東路七段）",
+     "landmark": "忠孝東路七段",
+     "lat": 25.051827,
+     "lon": 121.606596,
+     "x": 0,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "出口2（國家文官學院）",
+     "landmark": "國家文官學院",
+     "lat": 25.051987,
+     "lon": 121.607764,
+     "x": 1,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 119,
+    "across": 0
+   }
+  },
+  {
+   "id": "BL23",
+   "name": "南港展覽館",
+   "nameEn": "Taipei Nangang Exhibition Center",
+   "kind": "metro",
+   "lat": 25.054569,
+   "lon": 121.617219,
+   "aliases": [
+    "南港展覽館",
+    "Taipei Nangang Exhibition Center",
+    "taipeinangangexhibitioncenter",
+    "BL23",
+    "bl23",
+    "BR24",
+    "br24"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口 1",
+     "landmark": null,
+     "lat": 25.055748,
+     "lon": 121.61723,
+     "x": 0,
+     "y": 0.6753
+    },
+    {
+     "code": "2",
+     "name": "出口 2",
+     "landmark": null,
+     "lat": 25.055419,
+     "lon": 121.617199,
+     "x": 0.1198,
+     "y": 0.4908
+    },
+    {
+     "code": "2A",
+     "name": "出口 2A",
+     "landmark": null,
+     "lat": 25.055305,
+     "lon": 121.617302,
+     "x": 0.2004,
+     "y": 0.4816
+    },
+    {
+     "code": "3",
+     "name": "出口 3",
+     "landmark": null,
+     "lat": 25.055137,
+     "lon": 121.618241,
+     "x": 0.5945,
+     "y": 0.8457
+    },
+    {
+     "code": "4",
+     "name": "出口 4",
+     "landmark": null,
+     "lat": 25.055394,
+     "lon": 121.618287,
+     "x": 0.5085,
+     "y": 1
+    },
+    {
+     "code": "5",
+     "name": "出口 5 (研究院路一段)",
+     "landmark": "研究院路一段",
+     "lat": 25.054866,
+     "lon": 121.616769,
+     "x": 0.1887,
+     "y": 0
+    },
+    {
+     "code": "6",
+     "name": "出口 6 (南港路一段)",
+     "landmark": "南港路一段",
+     "lat": 25.054756,
+     "lon": 121.617936,
+     "x": 0.6387,
+     "y": 0.5032
+    },
+    {
+     "code": "7",
+     "name": "出口 7 (誠正國中)",
+     "landmark": "誠正國中",
+     "lat": 25.054028,
+     "lon": 121.618145,
+     "x": 1,
+     "y": 0.229
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 202,
+    "across": 151
+   }
+  },
+  {
+   "id": "BR01",
+   "name": "動物園",
+   "nameEn": "Taipei Zoo",
+   "kind": "metro",
+   "lat": 24.998317,
+   "lon": 121.579448,
+   "aliases": [
+    "動物園",
+    "Taipei Zoo",
+    "taipeizoo",
+    "BR01",
+    "br01"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口 1",
+     "landmark": null,
+     "lat": 24.998271,
+     "lon": 121.579947,
+     "x": 1,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "出口 2",
+     "landmark": null,
+     "lat": 24.99802,
+     "lon": 121.579386,
+     "x": 0,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 63,
+    "across": 0
+   }
+  },
+  {
+   "id": "BR02",
+   "name": "木柵",
+   "nameEn": "Muzha",
+   "kind": "metro",
+   "lat": 24.998246,
+   "lon": 121.573183,
+   "aliases": [
+    "木柵",
+    "Muzha",
+    "muzha",
+    "BR02",
+    "br02"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運木柵站1號出口",
+     "landmark": null,
+     "lat": 24.998159,
+     "lon": 121.573361,
+     "x": 0.5,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "BR03",
+   "name": "萬芳社區",
+   "nameEn": "Wanfang Community",
+   "kind": "metro",
+   "lat": 24.998609,
+   "lon": 121.568123,
+   "aliases": [
+    "萬芳社區",
+    "Wanfang Community",
+    "wanfangcommunity",
+    "BR03",
+    "br03"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運萬芳社區站1號出口",
+     "landmark": null,
+     "lat": 24.998688,
+     "lon": 121.568043,
+     "x": 0.5,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "BR04",
+   "name": "萬芳醫院",
+   "nameEn": "Wanfang Hospital",
+   "kind": "metro",
+   "lat": 24.999431,
+   "lon": 121.558138,
+   "aliases": [
+    "萬芳醫院",
+    "Wanfang Hospital",
+    "wanfanghospital",
+    "BR04",
+    "br04"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "BR05",
+   "name": "辛亥",
+   "nameEn": "Xinhai",
+   "kind": "metro",
+   "lat": 25.005481,
+   "lon": 121.55706,
+   "aliases": [
+    "辛亥",
+    "Xinhai",
+    "xinhai",
+    "BR05",
+    "br05"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "BR06",
+   "name": "麟光",
+   "nameEn": "Linguang",
+   "kind": "metro",
+   "lat": 25.018439,
+   "lon": 121.558905,
+   "aliases": [
+    "麟光",
+    "Linguang",
+    "linguang",
+    "BR06",
+    "br06"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運麟光站1號出口",
+     "landmark": null,
+     "lat": 25.018644,
+     "lon": 121.55865,
+     "x": 0,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "捷運麟光站2號出口",
+     "landmark": null,
+     "lat": 25.018253,
+     "lon": 121.558896,
+     "x": 1,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 50,
+    "across": 0
+   }
+  },
+  {
+   "id": "BR07",
+   "name": "六張犁",
+   "nameEn": "Liuzhangli",
+   "kind": "metro",
+   "lat": 25.023818,
+   "lon": 121.553121,
+   "aliases": [
+    "六張犁",
+    "Liuzhangli",
+    "liuzhangli",
+    "BR07",
+    "br07"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "BR08",
+   "name": "科技大樓",
+   "nameEn": "Technology Building",
+   "kind": "metro",
+   "lat": 25.026101,
+   "lon": 121.54346,
+   "aliases": [
+    "科技大樓",
+    "Technology Building",
+    "technologybuilding",
+    "BR08",
+    "br08"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.026024,
+     "lon": 121.543698,
+     "x": 1,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "龍生綜合大樓",
+     "landmark": null,
+     "lat": 25.025879,
+     "lon": 121.543192,
+     "x": 0,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 54,
+    "across": 0
+   }
+  },
+  {
+   "id": "BR09",
+   "name": "大安",
+   "nameEn": "Daan",
+   "kind": "metro",
+   "lat": 25.033329,
+   "lon": 121.543555,
+   "aliases": [
+    "大安",
+    "Daan",
+    "daan",
+    "BR09",
+    "br09",
+    "R05",
+    "r05"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運大安站1號出口",
+     "landmark": null,
+     "lat": 25.033637,
+     "lon": 121.541997,
+     "x": 0.1515,
+     "y": 0.3459
+    },
+    {
+     "code": "2",
+     "name": "捷運大安站2號出口",
+     "landmark": null,
+     "lat": 25.033647,
+     "lon": 121.541624,
+     "x": 0,
+     "y": 0.3072
+    },
+    {
+     "code": "3",
+     "name": "捷運大安站3號出口",
+     "landmark": null,
+     "lat": 25.033256,
+     "lon": 121.54258,
+     "x": 0.4165,
+     "y": 0.1182
+    },
+    {
+     "code": "4",
+     "name": "捷運大安站4號出口",
+     "landmark": null,
+     "lat": 25.03306,
+     "lon": 121.543986,
+     "x": 1,
+     "y": 0.1392
+    },
+    {
+     "code": "5",
+     "name": "捷運大安站5號出口",
+     "landmark": null,
+     "lat": 25.032903,
+     "lon": 121.543866,
+     "x": 0.9638,
+     "y": 0
+    },
+    {
+     "code": "6",
+     "name": "大安站6號出口",
+     "landmark": null,
+     "lat": 25.034182,
+     "lon": 121.54378,
+     "x": 0.8295,
+     "y": 1
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 246,
+    "across": 139
+   }
+  },
+  {
+   "id": "BR11",
+   "name": "南京復興",
+   "nameEn": "Nanjing Fuxing",
+   "kind": "metro",
+   "lat": 25.051836,
+   "lon": 121.543965,
+   "aliases": [
+    "南京復興",
+    "Nanjing Fuxing",
+    "nanjingfuxing",
+    "BR11",
+    "br11",
+    "G16",
+    "g16"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.052568,
+     "lon": 121.542245,
+     "x": 0.1276,
+     "y": 1
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.051658,
+     "lon": 121.541825,
+     "x": 0,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": null,
+     "landmark": null,
+     "lat": 25.05172,
+     "lon": 121.542973,
+     "x": 0.3746,
+     "y": 0.1
+    },
+    {
+     "code": "4",
+     "name": null,
+     "landmark": null,
+     "lat": 25.05172,
+     "lon": 121.543189,
+     "x": 0.4454,
+     "y": 0.1068
+    },
+    {
+     "code": "5",
+     "name": "南京復興站5號出口",
+     "landmark": null,
+     "lat": 25.051692,
+     "lon": 121.544571,
+     "x": 0.8972,
+     "y": 0.1157
+    },
+    {
+     "code": "6",
+     "name": null,
+     "landmark": null,
+     "lat": 25.051963,
+     "lon": 121.544894,
+     "x": 1,
+     "y": 0.4193
+    },
+    {
+     "code": "7",
+     "name": null,
+     "landmark": null,
+     "lat": 25.052164,
+     "lon": 121.544226,
+     "x": 0.7794,
+     "y": 0.6182
+    },
+    {
+     "code": "8",
+     "name": "8號出口",
+     "landmark": null,
+     "lat": 25.051991,
+     "lon": 121.543619,
+     "x": 0.583,
+     "y": 0.413
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 308,
+    "across": 102
+   }
+  },
+  {
+   "id": "BR12",
+   "name": "中山國中",
+   "nameEn": "Zhongshan Junior High School",
+   "kind": "metro",
+   "lat": 25.060687,
+   "lon": 121.544202,
+   "aliases": [
+    "中山國中",
+    "Zhongshan Junior High School",
+    "zhongshanjuniorhighschool",
+    "BR12",
+    "br12"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "BR13",
+   "name": "松山機場",
+   "nameEn": "Songshan Airport",
+   "kind": "metro",
+   "lat": 25.063086,
+   "lon": 121.551614,
+   "aliases": [
+    "松山機場",
+    "Songshan Airport",
+    "songshanairport",
+    "BR13",
+    "br13"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口 1第一航廈（國際線）",
+     "landmark": "國際線",
+     "lat": 25.063542,
+     "lon": 121.551987,
+     "x": 0.9566,
+     "y": 1
+    },
+    {
+     "code": "2",
+     "name": "出口2 第二航廈（國內線）",
+     "landmark": "國內線",
+     "lat": 25.063529,
+     "lon": 121.551202,
+     "x": 0,
+     "y": 0.4668
+    },
+    {
+     "code": "3",
+     "name": "出口 3 敦化北路",
+     "landmark": null,
+     "lat": 25.063006,
+     "lon": 121.551753,
+     "x": 1,
+     "y": 0
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 75,
+    "across": 64
+   }
+  },
+  {
+   "id": "BR14",
+   "name": "大直",
+   "nameEn": "Dazhi",
+   "kind": "metro",
+   "lat": 25.079865,
+   "lon": 121.54744,
+   "aliases": [
+    "大直",
+    "Dazhi",
+    "dazhi",
+    "BR14",
+    "br14"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.080237,
+     "lon": 121.547055,
+     "x": 1,
+     "y": 0.337
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.079606,
+     "lon": 121.546843,
+     "x": 0.196,
+     "y": 1
+    },
+    {
+     "code": "3",
+     "name": null,
+     "landmark": null,
+     "lat": 25.07944,
+     "lon": 121.547112,
+     "x": 0,
+     "y": 0
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 88,
+    "across": 28
+   }
+  },
+  {
+   "id": "BR15",
+   "name": "劍南路",
+   "nameEn": "Jiannan Road",
+   "kind": "metro",
+   "lat": 25.084849,
+   "lon": 121.555653,
+   "aliases": [
+    "劍南路",
+    "Jiannan Road",
+    "jiannanroad",
+    "BR15",
+    "br15"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.085252,
+     "lon": 121.555248,
+     "x": 0,
+     "y": 0.8022
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.084536,
+     "lon": 121.555302,
+     "x": 0.6646,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": null,
+     "landmark": null,
+     "lat": 25.084393,
+     "lon": 121.55581,
+     "x": 1,
+     "y": 1
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 111,
+    "across": 39
+   }
+  },
+  {
+   "id": "BR16",
+   "name": "西湖",
+   "nameEn": "Xihu",
+   "kind": "metro",
+   "lat": 25.082192,
+   "lon": 121.567316,
+   "aliases": [
+    "西湖",
+    "Xihu",
+    "xihu",
+    "BR16",
+    "br16"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運出入口1",
+     "landmark": null,
+     "lat": 25.082358,
+     "lon": 121.5668,
+     "x": 0,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "捷運出入口2",
+     "landmark": null,
+     "lat": 25.081937,
+     "lon": 121.567143,
+     "x": 1,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 58,
+    "across": 0
+   }
+  },
+  {
+   "id": "BR17",
+   "name": "港墘",
+   "nameEn": "Gangqian",
+   "kind": "metro",
+   "lat": 25.080073,
+   "lon": 121.575203,
+   "aliases": [
+    "港墘",
+    "Gangqian",
+    "gangqian",
+    "BR17",
+    "br17"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運出入口1",
+     "landmark": null,
+     "lat": 25.080125,
+     "lon": 121.575777,
+     "x": 1,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "捷運出入口2",
+     "landmark": null,
+     "lat": 25.080028,
+     "lon": 121.574841,
+     "x": 0,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 95,
+    "across": 0
+   }
+  },
+  {
+   "id": "BR18",
+   "name": "文德",
+   "nameEn": "Wende",
+   "kind": "metro",
+   "lat": 25.078556,
+   "lon": 121.584942,
+   "aliases": [
+    "文德",
+    "Wende",
+    "wende",
+    "BR18",
+    "br18"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運出入口1",
+     "landmark": null,
+     "lat": 25.078714,
+     "lon": 121.585766,
+     "x": 1,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "捷運出入口2",
+     "landmark": null,
+     "lat": 25.078332,
+     "lon": 121.584653,
+     "x": 0,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 120,
+    "across": 0
+   }
+  },
+  {
+   "id": "BR19",
+   "name": "內湖",
+   "nameEn": "Neihu",
+   "kind": "metro",
+   "lat": 25.083497,
+   "lon": 121.594189,
+   "aliases": [
+    "內湖",
+    "Neihu",
+    "neihu",
+    "BR19",
+    "br19"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "內湖捷運站1號出口",
+     "landmark": null,
+     "lat": 25.083333,
+     "lon": 121.593863,
+     "x": 0,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "內湖捷運站2號出口",
+     "landmark": null,
+     "lat": 25.083515,
+     "lon": 121.594545,
+     "x": 1,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 72,
+    "across": 0
+   }
+  },
+  {
+   "id": "BR20",
+   "name": "大湖公園",
+   "nameEn": "Dahu Park",
+   "kind": "metro",
+   "lat": 25.083761,
+   "lon": 121.602341,
+   "aliases": [
+    "大湖公園",
+    "Dahu Park",
+    "dahupark",
+    "BR20",
+    "br20"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口1",
+     "landmark": null,
+     "lat": 25.083854,
+     "lon": 121.602658,
+     "x": 1,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "出口2",
+     "landmark": null,
+     "lat": 25.083262,
+     "lon": 121.602336,
+     "x": 0,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 74,
+    "across": 0
+   }
+  },
+  {
+   "id": "BR21",
+   "name": "葫洲",
+   "nameEn": "Huzhou",
+   "kind": "metro",
+   "lat": 25.072639,
+   "lon": 121.607363,
+   "aliases": [
+    "葫洲",
+    "Huzhou",
+    "huzhou",
+    "BR21",
+    "br21"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口1",
+     "landmark": null,
+     "lat": 25.072477,
+     "lon": 121.608159,
+     "x": 1,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "出口2",
+     "landmark": null,
+     "lat": 25.072409,
+     "lon": 121.607321,
+     "x": 0,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 85,
+    "across": 0
+   }
+  },
+  {
+   "id": "BR22",
+   "name": "東湖",
+   "nameEn": "Donghu",
+   "kind": "metro",
+   "lat": 25.06742,
+   "lon": 121.61161,
+   "aliases": [
+    "東湖",
+    "Donghu",
+    "donghu",
+    "BR22",
+    "br22"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "康寧公園",
+     "landmark": null,
+     "lat": 25.067201,
+     "lon": 121.610961,
+     "x": 0,
+     "y": 1
+    },
+    {
+     "code": "2",
+     "name": "南湖高中",
+     "landmark": null,
+     "lat": 25.067162,
+     "lon": 121.611126,
+     "x": 0.15,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": "安康公園",
+     "landmark": null,
+     "lat": 25.067026,
+     "lon": 121.612074,
+     "x": 1,
+     "y": 0.6216
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 114,
+    "across": 2
+   }
+  },
+  {
+   "id": "BR23",
+   "name": "南港軟體園區",
+   "nameEn": "Nangang Software Park",
+   "kind": "metro",
+   "lat": 25.059946,
+   "lon": 121.615897,
+   "aliases": [
+    "南港軟體園區",
+    "Nangang Software Park",
+    "nangangsoftwarepark",
+    "BR23",
+    "br23"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口1",
+     "landmark": null,
+     "lat": 25.060274,
+     "lon": 121.615817,
+     "x": 0.2922,
+     "y": 1
+    },
+    {
+     "code": "2",
+     "name": "出口2",
+     "landmark": null,
+     "lat": 25.06,
+     "lon": 121.616402,
+     "x": 1,
+     "y": 0.2434
+    },
+    {
+     "code": "3",
+     "name": "出口3",
+     "landmark": null,
+     "lat": 25.060055,
+     "lon": 121.615521,
+     "x": 0,
+     "y": 0
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 89,
+    "across": 28
+   }
+  },
+  {
+   "id": "G01",
+   "name": "新店",
+   "nameEn": "Xindian",
+   "kind": "metro",
+   "lat": 24.958067,
+   "lon": 121.537631,
+   "aliases": [
+    "新店",
+    "Xindian",
+    "xindian",
+    "G01",
+    "g01"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "G02",
+   "name": "新店區公所",
+   "nameEn": "Xindian District Office",
+   "kind": "metro",
+   "lat": 24.967386,
+   "lon": 121.541351,
+   "aliases": [
+    "新店區公所",
+    "Xindian District Office",
+    "xindiandistrictoffice",
+    "G02",
+    "g02"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "1",
+     "landmark": null,
+     "lat": 24.967501,
+     "lon": 121.54106,
+     "x": 0,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "2",
+     "landmark": null,
+     "lat": 24.967924,
+     "lon": 121.541747,
+     "x": 1,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 84,
+    "across": 0
+   }
+  },
+  {
+   "id": "G03",
+   "name": "七張",
+   "nameEn": "Qizhang",
+   "kind": "metro",
+   "lat": 24.975022,
+   "lon": 121.54292,
+   "aliases": [
+    "七張",
+    "Qizhang",
+    "qizhang",
+    "G03",
+    "g03"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "七張站1號出口",
+     "landmark": null,
+     "lat": 24.974934,
+     "lon": 121.543112,
+     "x": 1,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "七張站2號出口",
+     "landmark": null,
+     "lat": 24.976947,
+     "lon": 121.542698,
+     "x": 0,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 228,
+    "across": 0
+   }
+  },
+  {
+   "id": "G03A",
+   "name": "小碧潭",
+   "nameEn": "Xiaobitan",
+   "kind": "metro",
+   "lat": 24.97177,
+   "lon": 121.530599,
+   "aliases": [
+    "小碧潭",
+    "Xiaobitan",
+    "xiaobitan",
+    "G03A",
+    "g03a"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 24.971878,
+     "lon": 121.529834,
+     "x": 0,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 24.973196,
+     "lon": 121.530088,
+     "x": 1,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 149,
+    "across": 0
+   }
+  },
+  {
+   "id": "G04",
+   "name": "大坪林",
+   "nameEn": "Dapinglin",
+   "kind": "metro",
+   "lat": 24.98293,
+   "lon": 121.541329,
+   "aliases": [
+    "大坪林",
+    "Dapinglin",
+    "dapinglin",
+    "G04",
+    "g04",
+    "Y07",
+    "y07"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口 1",
+     "landmark": null,
+     "lat": 24.982781,
+     "lon": 121.54099,
+     "x": 0,
+     "y": 0.3777
+    },
+    {
+     "code": "2",
+     "name": "出口 2",
+     "landmark": null,
+     "lat": 24.982156,
+     "lon": 121.541605,
+     "x": 0.35,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": "出口 3",
+     "landmark": null,
+     "lat": 24.983116,
+     "lon": 121.541592,
+     "x": 0.2495,
+     "y": 0.6957
+    },
+    {
+     "code": "4",
+     "name": "出口 4",
+     "landmark": null,
+     "lat": 24.983552,
+     "lon": 121.541493,
+     "x": 0.1604,
+     "y": 1
+    },
+    {
+     "code": "5",
+     "name": "出口 5",
+     "landmark": null,
+     "lat": 24.982738,
+     "lon": 121.543112,
+     "x": 1,
+     "y": 0.6108
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 211,
+    "across": 151
+   }
+  },
+  {
+   "id": "G05",
+   "name": "景美",
+   "nameEn": "Jingmei",
+   "kind": "metro",
+   "lat": 24.992712,
+   "lon": 121.540706,
+   "aliases": [
+    "景美",
+    "Jingmei",
+    "jingmei",
+    "G05",
+    "g05"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "1號出口 (景行綜合大樓)",
+     "landmark": "景行綜合大樓",
+     "lat": 24.992041,
+     "lon": 121.540872,
+     "x": 0,
+     "y": 0.2653
+    },
+    {
+     "code": "2",
+     "name": "2號出口 (景美國中)",
+     "landmark": "景美國中",
+     "lat": 24.993047,
+     "lon": 121.541581,
+     "x": 1,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": "3號出口 (景福街)",
+     "landmark": "景福街",
+     "lat": 24.993051,
+     "lon": 121.54066,
+     "x": 0.7294,
+     "y": 1
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 131,
+    "across": 86
+   }
+  },
+  {
+   "id": "G06",
+   "name": "萬隆",
+   "nameEn": "Wanlong",
+   "kind": "metro",
+   "lat": 25.001903,
+   "lon": 121.539023,
+   "aliases": [
+    "萬隆",
+    "Wanlong",
+    "wanlong",
+    "G06",
+    "g06"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "1號出口 (萬隆街)",
+     "landmark": "萬隆街",
+     "lat": 25.001478,
+     "lon": 121.538985,
+     "x": 0.8256,
+     "y": 0
+    },
+    {
+     "code": "2",
+     "name": "2號出口 (景隆街)",
+     "landmark": "景隆街",
+     "lat": 25.001471,
+     "lon": 121.53956,
+     "x": 1,
+     "y": 1
+    },
+    {
+     "code": "3",
+     "name": "3號出口 (武功國小)",
+     "landmark": "武功國小",
+     "lat": 25.002207,
+     "lon": 121.539065,
+     "x": 0.4362,
+     "y": 0.9551
+    },
+    {
+     "code": "4",
+     "name": "4號出口 (萬和公園)",
+     "landmark": "萬和公園",
+     "lat": 25.002693,
+     "lon": 121.538524,
+     "x": 0,
+     "y": 0.5501
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 170,
+    "across": 50
+   }
+  },
+  {
+   "id": "G07",
+   "name": "公館",
+   "nameEn": "Gongguan",
+   "kind": "metro",
+   "lat": 25.014917,
+   "lon": 121.534264,
+   "aliases": [
+    "公館",
+    "Gongguan",
+    "gongguan",
+    "G07",
+    "g07"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "1號出口 (水源市場)",
+     "landmark": "水源市場",
+     "lat": 25.014347,
+     "lon": 121.534324,
+     "x": 1,
+     "y": 0
+    },
+    {
+     "code": "2",
+     "name": "2號出口 (銘傳國小)",
+     "landmark": "銘傳國小",
+     "lat": 25.014731,
+     "lon": 121.534735,
+     "x": 0.9216,
+     "y": 1
+    },
+    {
+     "code": "3",
+     "name": "3號出口 (臺灣大學)",
+     "landmark": "臺灣大學",
+     "lat": 25.015415,
+     "lon": 121.534084,
+     "x": 0.0211,
+     "y": 0.9016
+    },
+    {
+     "code": "4",
+     "name": "4號出口 (三總汀州院區)",
+     "landmark": "三總汀州院區",
+     "lat": 25.015153,
+     "lon": 121.533668,
+     "x": 0,
+     "y": 0.0352
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 111,
+    "across": 59
+   }
+  },
+  {
+   "id": "G08",
+   "name": "台電大樓",
+   "nameEn": "Taipower Building",
+   "kind": "metro",
+   "lat": 25.020669,
+   "lon": 121.528208,
+   "aliases": [
+    "台電大樓",
+    "Taipower Building",
+    "taipowerbuilding",
+    "G08",
+    "g08"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口 1 (台電大樓)",
+     "landmark": "台電大樓",
+     "lat": 25.01962,
+     "lon": 121.528673,
+     "x": 1,
+     "y": 0
+    },
+    {
+     "code": "2",
+     "name": "出口 2 (古亭國小)",
+     "landmark": "古亭國小",
+     "lat": 25.020176,
+     "lon": 121.529115,
+     "x": 0.9374,
+     "y": 1
+    },
+    {
+     "code": "3",
+     "name": "出口 3 (師大路)",
+     "landmark": "師大路",
+     "lat": 25.0212,
+     "lon": 121.5279,
+     "x": 0.1019,
+     "y": 0.9136
+    },
+    {
+     "code": "4",
+     "name": "出口 4 (晉江街)",
+     "landmark": "晉江街",
+     "lat": 25.021009,
+     "lon": 121.527403,
+     "x": 0,
+     "y": 0.2426
+    },
+    {
+     "code": "5",
+     "name": "出口 5 (客家文化主題公園)",
+     "landmark": "客家文化主題公園",
+     "lat": 25.020717,
+     "lon": 121.527716,
+     "x": 0.2265,
+     "y": 0.2355
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 200,
+    "across": 75
+   }
+  },
+  {
+   "id": "G09",
+   "name": "古亭",
+   "nameEn": "Guting",
+   "kind": "metro",
+   "lat": 25.026715,
+   "lon": 121.522722,
+   "aliases": [
+    "古亭",
+    "Guting",
+    "guting",
+    "G09",
+    "g09",
+    "O05",
+    "o05"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口 1 (同安街)",
+     "landmark": "同安街",
+     "lat": 25.026094,
+     "lon": 121.522958,
+     "x": 0.7539,
+     "y": 0.3208
+    },
+    {
+     "code": "2",
+     "name": "出口 2 (同安街)",
+     "landmark": "同安街",
+     "lat": 25.025557,
+     "lon": 121.523351,
+     "x": 1,
+     "y": 0.2885
+    },
+    {
+     "code": "3",
+     "name": "出口 3 (古亭市場)",
+     "landmark": "古亭市場",
+     "lat": 25.025896,
+     "lon": 121.523506,
+     "x": 0.9268,
+     "y": 0.669
+    },
+    {
+     "code": "4",
+     "name": "出口 4 (師範大學)",
+     "landmark": "師範大學",
+     "lat": 25.026594,
+     "lon": 121.522981,
+     "x": 0.6038,
+     "y": 0.6985
+    },
+    {
+     "code": "5",
+     "name": "出口 5 (和平東路一段)",
+     "landmark": "和平東路一段",
+     "lat": 25.027209,
+     "lon": 121.522827,
+     "x": 0.3818,
+     "y": 1
+    },
+    {
+     "code": "6",
+     "name": "出口 6 (杭州南路)",
+     "landmark": "杭州南路",
+     "lat": 25.027553,
+     "lon": 121.522286,
+     "x": 0.1654,
+     "y": 0.7627
+    },
+    {
+     "code": "7",
+     "name": "出口 7 國語日報",
+     "landmark": null,
+     "lat": 25.027729,
+     "lon": 121.52174,
+     "x": 0,
+     "y": 0.4009
+    },
+    {
+     "code": "8",
+     "name": "出口 8 (和平西路一段)",
+     "landmark": "和平西路一段",
+     "lat": 25.027093,
+     "lon": 121.521799,
+     "x": 0.2089,
+     "y": 0
+    },
+    {
+     "code": "9",
+     "name": "出口 9 (大都市國際中心)",
+     "landmark": "大都市國際中心",
+     "lat": 25.026794,
+     "lon": 121.522431,
+     "x": 0.43,
+     "y": 0.351
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 291,
+    "across": 92
+   }
+  },
+  {
+   "id": "G10",
+   "name": "中正紀念堂",
+   "nameEn": "Chiang Kai-Shek Memorial Hall",
+   "kind": "metro",
+   "lat": 25.033696,
+   "lon": 121.517545,
+   "aliases": [
+    "中正紀念堂",
+    "Chiang Kai-Shek Memorial Hall",
+    "chiangkai-shekmemorialhall",
+    "G10",
+    "g10",
+    "R08",
+    "r08"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "1號出口 (勞保局)",
+     "landmark": "勞保局",
+     "lat": 25.033389,
+     "lon": 121.517574,
+     "x": 0.594,
+     "y": 0.49
+    },
+    {
+     "code": "2",
+     "name": "2號出口 (南門市場)",
+     "landmark": "南門市場",
+     "lat": 25.032473,
+     "lon": 121.51825,
+     "x": 0.8604,
+     "y": 0.4878
+    },
+    {
+     "code": "3",
+     "name": "3號出口 (金華街)",
+     "landmark": "金華街",
+     "lat": 25.032178,
+     "lon": 121.51891,
+     "x": 1,
+     "y": 0.7469
+    },
+    {
+     "code": "4",
+     "name": "4號出口 (林森南路)",
+     "landmark": "林森南路",
+     "lat": 25.033481,
+     "lon": 121.517926,
+     "x": 0.6186,
+     "y": 0.7358
+    },
+    {
+     "code": "5",
+     "name": "5號出口 (中正紀念堂)",
+     "landmark": "中正紀念堂",
+     "lat": 25.035189,
+     "lon": 121.517109,
+     "x": 0.1763,
+     "y": 1
+    },
+    {
+     "code": "6",
+     "name": "6號出口 (國家圖書館)",
+     "landmark": "國家圖書館",
+     "lat": 25.03569,
+     "lon": 121.516487,
+     "x": 0,
+     "y": 0.8532
+    },
+    {
+     "code": "7",
+     "name": "7號出口 (中央銀行)",
+     "landmark": "中央銀行",
+     "lat": 25.034596,
+     "lon": 121.515844,
+     "x": 0.1408,
+     "y": 0
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 461,
+    "across": 143
+   }
+  },
+  {
+   "id": "G11",
+   "name": "小南門",
+   "nameEn": "Xiaonanmen",
+   "kind": "metro",
+   "lat": 25.035901,
+   "lon": 121.510806,
+   "aliases": [
+    "小南門",
+    "Xiaonanmen",
+    "xiaonanmen",
+    "G11",
+    "g11"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口 1",
+     "landmark": null,
+     "lat": 25.036422,
+     "lon": 121.50973,
+     "x": 0,
+     "y": 1
+    },
+    {
+     "code": "2",
+     "name": "出口 2",
+     "landmark": null,
+     "lat": 25.035718,
+     "lon": 121.509878,
+     "x": 0.2464,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": "出口 3",
+     "landmark": null,
+     "lat": 25.035341,
+     "lon": 121.510975,
+     "x": 0.7586,
+     "y": 0.4479
+    },
+    {
+     "code": "4",
+     "name": "出口 4",
+     "landmark": null,
+     "lat": 25.035213,
+     "lon": 121.511527,
+     "x": 1,
+     "y": 0.7739
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 225,
+    "across": 57
+   }
+  },
+  {
+   "id": "G13",
+   "name": "北門",
+   "nameEn": "Beimen",
+   "kind": "metro",
+   "lat": 25.049399,
+   "lon": 121.510329,
+   "aliases": [
+    "北門",
+    "Beimen",
+    "beimen",
+    "G13",
+    "g13"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.048812,
+     "lon": 121.509822,
+     "x": 0.3711,
+     "y": 0.7955
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.049369,
+     "lon": 121.510575,
+     "x": 0.6094,
+     "y": 0.7055
+    },
+    {
+     "code": "3",
+     "name": null,
+     "landmark": null,
+     "lat": 25.049929,
+     "lon": 121.510139,
+     "x": 0.6656,
+     "y": 1
+    },
+    {
+     "code": "5",
+     "name": "延平北路緊急出口",
+     "landmark": null,
+     "lat": 25.048452,
+     "lon": 121.511983,
+     "x": 0.6243,
+     "y": 0
+    },
+    {
+     "code": "6",
+     "name": "6號出入口",
+     "landmark": null,
+     "lat": 25.049434,
+     "lon": 121.512195,
+     "x": 0.8729,
+     "y": 0.2012
+    },
+    {
+     "code": "7",
+     "name": "7號出入口",
+     "landmark": null,
+     "lat": 25.049288,
+     "lon": 121.512024,
+     "x": 0.8145,
+     "y": 0.2162
+    },
+    {
+     "code": "48",
+     "name": null,
+     "landmark": null,
+     "lat": 25.04714,
+     "lon": 121.509801,
+     "x": 0,
+     "y": 0.3429
+    },
+    {
+     "code": "Y21",
+     "name": null,
+     "landmark": null,
+     "lat": 25.049977,
+     "lon": 121.512244,
+     "x": 1,
+     "y": 0.3343
+    },
+    {
+     "code": "Y23",
+     "name": null,
+     "landmark": null,
+     "lat": 25.050115,
+     "lon": 121.511684,
+     "x": 0.9443,
+     "y": 0.5531
+    },
+    {
+     "code": "Y25",
+     "name": null,
+     "landmark": null,
+     "lat": 25.050187,
+     "lon": 121.511305,
+     "x": 0.9018,
+     "y": 0.6952
+    },
+    {
+     "code": "Y26",
+     "name": null,
+     "landmark": null,
+     "lat": 25.049757,
+     "lon": 121.511569,
+     "x": 0.8479,
+     "y": 0.4917
+    },
+    {
+     "code": "Y27",
+     "name": null,
+     "landmark": null,
+     "lat": 25.050304,
+     "lon": 121.510663,
+     "x": 0.8287,
+     "y": 0.934
+    },
+    {
+     "code": "Y28",
+     "name": null,
+     "landmark": null,
+     "lat": 25.049914,
+     "lon": 121.510806,
+     "x": 0.765,
+     "y": 0.781
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 400,
+    "across": 248
+   }
+  },
+  {
+   "id": "G14",
+   "name": "中山",
+   "nameEn": "Zhongshan",
+   "kind": "metro",
+   "lat": 25.052626,
+   "lon": 121.520391,
+   "aliases": [
+    "中山",
+    "Zhongshan",
+    "zhongshan",
+    "G14",
+    "g14",
+    "R11",
+    "r11"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.052442,
+     "lon": 121.520306,
+     "x": 0.624,
+     "y": 0
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.05238,
+     "lon": 121.521145,
+     "x": 1,
+     "y": 0.2522
+    },
+    {
+     "code": "3",
+     "name": null,
+     "landmark": null,
+     "lat": 25.052605,
+     "lon": 121.52119,
+     "x": 0.9956,
+     "y": 0.8098
+    },
+    {
+     "code": "4",
+     "name": null,
+     "landmark": null,
+     "lat": 25.052857,
+     "lon": 121.52033,
+     "x": 0.5897,
+     "y": 1
+    },
+    {
+     "code": "5",
+     "name": null,
+     "landmark": null,
+     "lat": 25.053036,
+     "lon": 121.519409,
+     "x": 0.1648,
+     "y": 0.9853
+    },
+    {
+     "code": "6",
+     "name": null,
+     "landmark": null,
+     "lat": 25.052782,
+     "lon": 121.518973,
+     "x": 0,
+     "y": 0.1723
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 224,
+    "across": 46
+   }
+  },
+  {
+   "id": "G15",
+   "name": "松江南京",
+   "nameEn": "Songjiang Nanjing",
+   "kind": "metro",
+   "lat": 25.052014,
+   "lon": 121.533036,
+   "aliases": [
+    "松江南京",
+    "Songjiang Nanjing",
+    "songjiangnanjing",
+    "G15",
+    "g15",
+    "O08",
+    "o08"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "1號出入口",
+     "landmark": null,
+     "lat": 25.05181,
+     "lon": 121.532347,
+     "x": 0.1855,
+     "y": 0.7902
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.051308,
+     "lon": 121.532708,
+     "x": 0.1037,
+     "y": 0.3708
+    },
+    {
+     "code": "3",
+     "name": null,
+     "landmark": null,
+     "lat": 25.051091,
+     "lon": 121.532706,
+     "x": 0,
+     "y": 0.2624
+    },
+    {
+     "code": "4",
+     "name": null,
+     "landmark": null,
+     "lat": 25.051499,
+     "lon": 121.533176,
+     "x": 0.3965,
+     "y": 0.2548
+    },
+    {
+     "code": "5",
+     "name": "5號出入口",
+     "landmark": null,
+     "lat": 25.051878,
+     "lon": 121.534156,
+     "x": 1,
+     "y": 0
+    },
+    {
+     "code": "6",
+     "name": "6號出入口",
+     "landmark": null,
+     "lat": 25.052159,
+     "lon": 121.533734,
+     "x": 0.9503,
+     "y": 0.3344
+    },
+    {
+     "code": "7",
+     "name": "捷運松江南京7號出口",
+     "landmark": null,
+     "lat": 25.052454,
+     "lon": 121.533164,
+     "x": 0.8438,
+     "y": 0.7442
+    },
+    {
+     "code": "8",
+     "name": "捷運松江南京8號出口",
+     "landmark": null,
+     "lat": 25.052619,
+     "lon": 121.532785,
+     "x": 0.7585,
+     "y": 1
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 166,
+    "across": 156
+   }
+  },
+  {
+   "id": "G17",
+   "name": "台北小巨蛋",
+   "nameEn": "Taipei Arena",
+   "kind": "metro",
+   "lat": 25.051686,
+   "lon": 121.551499,
+   "aliases": [
+    "台北小巨蛋",
+    "Taipei Arena",
+    "taipeiarena",
+    "G17",
+    "g17"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.051875,
+     "lon": 121.551439,
+     "x": 0.2494,
+     "y": 0.9542
+    },
+    {
+     "code": "2",
+     "name": "捷運小巨蛋站2號出口",
+     "landmark": null,
+     "lat": 25.051384,
+     "lon": 121.550858,
+     "x": 0,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": "捷運小巨蛋站(3號出口)",
+     "landmark": "3號出口",
+     "lat": 25.05134,
+     "lon": 121.552531,
+     "x": 0.7594,
+     "y": 0.0793
+    },
+    {
+     "code": "4",
+     "name": "台北小巨蛋站出口4",
+     "landmark": null,
+     "lat": 25.0515,
+     "lon": 121.553073,
+     "x": 1,
+     "y": 0.4245
+    },
+    {
+     "code": "5",
+     "name": "捷運小巨蛋站五號出口",
+     "landmark": null,
+     "lat": 25.051868,
+     "lon": 121.552038,
+     "x": 0.5209,
+     "y": 1
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 222,
+    "across": 61
+   }
+  },
+  {
+   "id": "G18",
+   "name": "南京三民",
+   "nameEn": "Nanjing Sanmin",
+   "kind": "metro",
+   "lat": 25.051428,
+   "lon": 121.564306,
+   "aliases": [
+    "南京三民",
+    "Nanjing Sanmin",
+    "nanjingsanmin",
+    "G18",
+    "g18"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口1 (三民路)",
+     "landmark": "三民路",
+     "lat": 25.051591,
+     "lon": 121.563126,
+     "x": 0,
+     "y": 0.9398
+    },
+    {
+     "code": "2",
+     "name": "出口2 (吉祥路)",
+     "landmark": "吉祥路",
+     "lat": 25.051327,
+     "lon": 121.563136,
+     "x": 0.0129,
+     "y": 0.1419
+    },
+    {
+     "code": "3",
+     "name": "出口3 (東興路)",
+     "landmark": "東興路",
+     "lat": 25.051234,
+     "lon": 121.564585,
+     "x": 0.9121,
+     "y": 0
+    },
+    {
+     "code": "4",
+     "name": "出口4 (麥帥一橋)",
+     "landmark": "麥帥一橋",
+     "lat": 25.05156,
+     "lon": 121.56474,
+     "x": 1,
+     "y": 1
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 163,
+    "across": 37
+   }
+  },
+  {
+   "id": "G19",
+   "name": "松山",
+   "nameEn": "Songshan",
+   "kind": "metro",
+   "lat": 25.050071,
+   "lon": 121.577474,
+   "aliases": [
+    "松山",
+    "Songshan",
+    "songshan",
+    "G19",
+    "g19"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口1 (饒河街觀光夜市)",
+     "landmark": "饒河街觀光夜市",
+     "lat": 25.050159,
+     "lon": 121.577138,
+     "x": 0.5306,
+     "y": 0.5424
+    },
+    {
+     "code": "2",
+     "name": "出口2 (松山市場)",
+     "landmark": "松山市場",
+     "lat": 25.05014,
+     "lon": 121.576086,
+     "x": 0,
+     "y": 0.3625
+    },
+    {
+     "code": "3",
+     "name": "出口3 (松山區行政中心)",
+     "landmark": "松山區行政中心",
+     "lat": 25.049902,
+     "lon": 121.577511,
+     "x": 0.7433,
+     "y": 0.3401
+    },
+    {
+     "code": "4",
+     "name": "出口4 (八德路四段)",
+     "landmark": "八德路四段",
+     "lat": 25.049893,
+     "lon": 121.578017,
+     "x": 1,
+     "y": 0.4087
+    },
+    {
+     "code": "4A",
+     "name": null,
+     "landmark": null,
+     "lat": 25.049501,
+     "lon": 121.577936,
+     "x": 0.9959,
+     "y": 0
+    },
+    {
+     "code": "5",
+     "name": "出口5 (松山國小)",
+     "landmark": "松山國小",
+     "lat": 25.050495,
+     "lon": 121.577912,
+     "x": 0.8909,
+     "y": 1
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 197,
+    "across": 109
+   }
+  },
+  {
+   "id": "LB02",
+   "name": "媽祖田",
+   "nameEn": "Mazutian",
+   "kind": "metro",
+   "lat": 24.953433,
+   "lon": 121.412114,
+   "aliases": [
+    "媽祖田",
+    "Mazutian",
+    "mazutian",
+    "LB02",
+    "lb02"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 24.953486,
+     "lon": 121.411998,
+     "x": 0,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 24.95401,
+     "lon": 121.412683,
+     "x": 1,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 90,
+    "across": 0
+   }
+  },
+  {
+   "id": "O01",
+   "name": "南勢角",
+   "nameEn": "Nanshijiao",
+   "kind": "metro",
+   "lat": 24.990026,
+   "lon": 121.508852,
+   "aliases": [
+    "南勢角",
+    "Nanshijiao",
+    "nanshijiao",
+    "O01",
+    "o01"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運南勢角站1號出口",
+     "landmark": null,
+     "lat": 24.990693,
+     "lon": 121.507589,
+     "x": 0,
+     "y": 0
+    },
+    {
+     "code": "2",
+     "name": "捷運南勢角站2號出口",
+     "landmark": null,
+     "lat": 24.990364,
+     "lon": 121.508399,
+     "x": 0.3512,
+     "y": 1
+    },
+    {
+     "code": "3",
+     "name": "捷運南勢角站3號出口",
+     "landmark": null,
+     "lat": 24.989983,
+     "lon": 121.509177,
+     "x": 0.7018,
+     "y": 0.6273
+    },
+    {
+     "code": "4",
+     "name": "捷運南勢角站4號出口",
+     "landmark": null,
+     "lat": 24.98965,
+     "lon": 121.509833,
+     "x": 1,
+     "y": 0.0899
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 255,
+    "across": 5
+   }
+  },
+  {
+   "id": "O02",
+   "name": "景安",
+   "nameEn": "Jingan",
+   "kind": "metro",
+   "lat": 24.993786,
+   "lon": 121.505046,
+   "aliases": [
+    "景安",
+    "Jingan",
+    "jingan",
+    "O02",
+    "o02",
+    "Y11",
+    "y11"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "O03",
+   "name": "永安市場",
+   "nameEn": "Yongan Market",
+   "kind": "metro",
+   "lat": 25.00241,
+   "lon": 121.5109,
+   "aliases": [
+    "永安市場",
+    "Yongan Market",
+    "yonganmarket",
+    "O03",
+    "o03"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運永安市場站1號出口",
+     "landmark": null,
+     "lat": 25.002289,
+     "lon": 121.51095,
+     "x": 0.5,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "O04",
+   "name": "頂溪",
+   "nameEn": "Dingxi",
+   "kind": "metro",
+   "lat": 25.013601,
+   "lon": 121.515472,
+   "aliases": [
+    "頂溪",
+    "Dingxi",
+    "dingxi",
+    "O04",
+    "o04"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運頂溪站1號出口",
+     "landmark": null,
+     "lat": 25.01271,
+     "lon": 121.515358,
+     "x": 0,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "捷運頂溪站2號出口",
+     "landmark": null,
+     "lat": 25.014196,
+     "lon": 121.515482,
+     "x": 1,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 166,
+    "across": 0
+   }
+  },
+  {
+   "id": "O06",
+   "name": "東門",
+   "nameEn": "Dongmen",
+   "kind": "metro",
+   "lat": 25.033842,
+   "lon": 121.529258,
+   "aliases": [
+    "東門",
+    "Dongmen",
+    "dongmen",
+    "O06",
+    "o06",
+    "R07",
+    "r07"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.034135,
+     "lon": 121.527929,
+     "x": 0.1702,
+     "y": 0.8865
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.034199,
+     "lon": 121.52754,
+     "x": 0,
+     "y": 0.9324
+    },
+    {
+     "code": "3",
+     "name": null,
+     "landmark": null,
+     "lat": 25.033737,
+     "lon": 121.527834,
+     "x": 0.1527,
+     "y": 0
+    },
+    {
+     "code": "4",
+     "name": null,
+     "landmark": null,
+     "lat": 25.03374,
+     "lon": 121.528868,
+     "x": 0.5948,
+     "y": 0.2551
+    },
+    {
+     "code": "5",
+     "name": null,
+     "landmark": null,
+     "lat": 25.033652,
+     "lon": 121.529485,
+     "x": 0.8638,
+     "y": 0.2116
+    },
+    {
+     "code": "6",
+     "name": null,
+     "landmark": null,
+     "lat": 25.033883,
+     "lon": 121.529835,
+     "x": 1,
+     "y": 0.7951
+    },
+    {
+     "code": "7",
+     "name": null,
+     "landmark": null,
+     "lat": 25.03391,
+     "lon": 121.529635,
+     "x": 0.9131,
+     "y": 0.8076
+    },
+    {
+     "code": "8",
+     "name": null,
+     "landmark": null,
+     "lat": 25.034073,
+     "lon": 121.528962,
+     "x": 0.6159,
+     "y": 1
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 234,
+    "across": 51
+   }
+  },
+  {
+   "id": "O09",
+   "name": "行天宮",
+   "nameEn": "Xingtian Temple",
+   "kind": "metro",
+   "lat": 25.059413,
+   "lon": 121.533162,
+   "aliases": [
+    "行天宮",
+    "Xingtian Temple",
+    "xingtiantemple",
+    "O09",
+    "o09"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口 1 (民生東路)",
+     "landmark": "民生東路",
+     "lat": 25.058121,
+     "lon": 121.532986,
+     "x": 1,
+     "y": 0.0357
+    },
+    {
+     "code": "2",
+     "name": "出口 2 (救國團)",
+     "landmark": "救國團",
+     "lat": 25.058736,
+     "lon": 121.533443,
+     "x": 0.7396,
+     "y": 0.9934
+    },
+    {
+     "code": "3",
+     "name": "出口 3 (行天宮)",
+     "landmark": "行天宮",
+     "lat": 25.059932,
+     "lon": 121.533427,
+     "x": 0.2274,
+     "y": 1
+    },
+    {
+     "code": "4",
+     "name": "出口 4 (康華大飯店)",
+     "landmark": "康華大飯店",
+     "lat": 25.060457,
+     "lon": 121.532931,
+     "x": 0,
+     "y": 0
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 260,
+    "across": 49
+   }
+  },
+  {
+   "id": "O10",
+   "name": "中山國小",
+   "nameEn": "Zhongshan Elementary School",
+   "kind": "metro",
+   "lat": 25.062674,
+   "lon": 121.526598,
+   "aliases": [
+    "中山國小",
+    "Zhongshan Elementary School",
+    "zhongshanelementaryschool",
+    "O10",
+    "o10"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運中山國小站1號出口",
+     "landmark": null,
+     "lat": 25.062834,
+     "lon": 121.525935,
+     "x": 0,
+     "y": 0.8547
+    },
+    {
+     "code": "2",
+     "name": "捷運中山國小站2號出口",
+     "landmark": null,
+     "lat": 25.062455,
+     "lon": 121.525909,
+     "x": 0.0137,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": "捷運中山國小站3號出口",
+     "landmark": null,
+     "lat": 25.062436,
+     "lon": 121.527177,
+     "x": 1,
+     "y": 0.2227
+    },
+    {
+     "code": "4",
+     "name": "捷運中山國小站4號出口",
+     "landmark": null,
+     "lat": 25.062822,
+     "lon": 121.526747,
+     "x": 0.632,
+     "y": 1
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 129,
+    "across": 49
+   }
+  },
+  {
+   "id": "O11",
+   "name": "民權西路",
+   "nameEn": "Minquan W. Rd.",
+   "kind": "metro",
+   "lat": 25.062851,
+   "lon": 121.519403,
+   "aliases": [
+    "民權西路",
+    "Minquan W. Rd.",
+    "minquanw.rd.",
+    "O11",
+    "o11",
+    "R13",
+    "r13"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.062557,
+     "lon": 121.519491,
+     "x": 0.4509,
+     "y": 0.5452
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.061861,
+     "lon": 121.519632,
+     "x": 0.6102,
+     "y": 0.051
+    },
+    {
+     "code": "3",
+     "name": null,
+     "landmark": null,
+     "lat": 25.061755,
+     "lon": 121.519822,
+     "x": 0.7226,
+     "y": 0
+    },
+    {
+     "code": "4",
+     "name": null,
+     "landmark": null,
+     "lat": 25.061938,
+     "lon": 121.519858,
+     "x": 0.7186,
+     "y": 0.1403
+    },
+    {
+     "code": "5",
+     "name": null,
+     "landmark": null,
+     "lat": 25.06321,
+     "lon": 121.518781,
+     "x": 0,
+     "y": 0.926
+    },
+    {
+     "code": "6",
+     "name": null,
+     "landmark": null,
+     "lat": 25.062739,
+     "lon": 121.518901,
+     "x": 0.1209,
+     "y": 0.5949
+    },
+    {
+     "code": "7",
+     "name": null,
+     "landmark": null,
+     "lat": 25.062702,
+     "lon": 121.520195,
+     "x": 0.8002,
+     "y": 0.7541
+    },
+    {
+     "code": "8",
+     "name": null,
+     "landmark": null,
+     "lat": 25.062688,
+     "lon": 121.520575,
+     "x": 1,
+     "y": 0.7979
+    },
+    {
+     "code": "9",
+     "name": null,
+     "landmark": null,
+     "lat": 25.062953,
+     "lon": 121.520614,
+     "x": 0.9872,
+     "y": 1
+    },
+    {
+     "code": "10",
+     "name": null,
+     "landmark": null,
+     "lat": 25.062964,
+     "lon": 121.520153,
+     "x": 0.7459,
+     "y": 0.9417
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 189,
+    "across": 147
+   }
+  },
+  {
+   "id": "O12",
+   "name": "大橋頭",
+   "nameEn": "Daqiaotou",
+   "kind": "metro",
+   "lat": 25.063198,
+   "lon": 121.512694,
+   "aliases": [
+    "大橋頭",
+    "Daqiaotou",
+    "daqiaotou",
+    "O12",
+    "o12"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.063153,
+     "lon": 121.512263,
+     "x": 0.2717,
+     "y": 0.2689
+    },
+    {
+     "code": "1A",
+     "name": null,
+     "landmark": null,
+     "lat": 25.063377,
+     "lon": 121.511704,
+     "x": 0,
+     "y": 0.8187
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.063181,
+     "lon": 121.513202,
+     "x": 0.7843,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": null,
+     "landmark": null,
+     "lat": 25.063849,
+     "lon": 121.513431,
+     "x": 1,
+     "y": 1
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 181,
+    "across": 67
+   }
+  },
+  {
+   "id": "O13",
+   "name": "台北橋",
+   "nameEn": "Taipei Bridge",
+   "kind": "metro",
+   "lat": 25.063178,
+   "lon": 121.500551,
+   "aliases": [
+    "台北橋",
+    "Taipei Bridge",
+    "taipeibridge",
+    "O13",
+    "o13"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "O14",
+   "name": "菜寮",
+   "nameEn": "Cailiao",
+   "kind": "metro",
+   "lat": 25.060268,
+   "lon": 121.492105,
+   "aliases": [
+    "菜寮",
+    "Cailiao",
+    "cailiao",
+    "O14",
+    "o14"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "菜寮站出口1",
+     "landmark": null,
+     "lat": 25.059617,
+     "lon": 121.490776,
+     "x": 0,
+     "y": 1
+    },
+    {
+     "code": "2",
+     "name": "菜寮站出口2",
+     "landmark": null,
+     "lat": 25.059357,
+     "lon": 121.491123,
+     "x": 0.0289,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": "菜寮站出口3",
+     "landmark": null,
+     "lat": 25.060506,
+     "lon": 121.49208,
+     "x": 1,
+     "y": 0.522
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 163,
+    "across": 45
+   }
+  },
+  {
+   "id": "O16",
+   "name": "先嗇宮",
+   "nameEn": "Xianse Temple",
+   "kind": "metro",
+   "lat": 25.046428,
+   "lon": 121.471681,
+   "aliases": [
+    "先嗇宮",
+    "Xianse Temple",
+    "xiansetemple",
+    "O16",
+    "o16"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "先嗇宮站 (1號出口)",
+     "landmark": "1號出口",
+     "lat": 25.046489,
+     "lon": 121.47142,
+     "x": 0.5401,
+     "y": 1
+    },
+    {
+     "code": "2",
+     "name": "先嗇宮站 (2號出口)",
+     "landmark": "2號出口",
+     "lat": 25.046114,
+     "lon": 121.471287,
+     "x": 0,
+     "y": 0.052
+    },
+    {
+     "code": "3",
+     "name": "先嗇宮站 (3號出口)",
+     "landmark": "3號出口",
+     "lat": 25.046277,
+     "lon": 121.471774,
+     "x": 1,
+     "y": 0
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 52,
+    "across": 35
+   }
+  },
+  {
+   "id": "O17",
+   "name": "頭前庄",
+   "nameEn": "Touqianzhuang",
+   "kind": "metro",
+   "lat": 25.039903,
+   "lon": 121.460319,
+   "aliases": [
+    "頭前庄",
+    "Touqianzhuang",
+    "touqianzhuang",
+    "O17",
+    "o17",
+    "Y18",
+    "y18"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運頭前庄站 (1號出口)",
+     "landmark": "1號出口",
+     "lat": 25.039776,
+     "lon": 121.460545,
+     "x": 0.0992,
+     "y": 1
+    },
+    {
+     "code": "2",
+     "name": "捷運頭前庄站 (2號出口)",
+     "landmark": "2號出口",
+     "lat": 25.038996,
+     "lon": 121.460839,
+     "x": 0,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": "捷運頭前庄站 (3號出口)",
+     "landmark": "3號出口",
+     "lat": 25.039714,
+     "lon": 121.462038,
+     "x": 0.7117,
+     "y": 0.0526
+    },
+    {
+     "code": "4",
+     "name": "捷運頭前庄站 (4號出口)",
+     "landmark": "4號出口",
+     "lat": 25.040379,
+     "lon": 121.46227,
+     "x": 1,
+     "y": 0.6211
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 204,
+    "across": 90
+   }
+  },
+  {
+   "id": "O18",
+   "name": "新莊",
+   "nameEn": "Xinzhuang",
+   "kind": "metro",
+   "lat": 25.036333,
+   "lon": 121.453359,
+   "aliases": [
+    "新莊",
+    "Xinzhuang",
+    "xinzhuang",
+    "O18",
+    "o18"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口1 (新莊區衛生所)",
+     "landmark": "新莊區衛生所",
+     "lat": 25.0363,
+     "lon": 121.452424,
+     "x": 0,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "出口2 (新莊國中)",
+     "landmark": "新莊國中",
+     "lat": 25.036019,
+     "lon": 121.452576,
+     "x": 1,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 35,
+    "across": 0
+   }
+  },
+  {
+   "id": "O19",
+   "name": "輔大",
+   "nameEn": "Fu Jen University",
+   "kind": "metro",
+   "lat": 25.032722,
+   "lon": 121.435275,
+   "aliases": [
+    "輔大",
+    "Fu Jen University",
+    "fujenuniversity",
+    "O19",
+    "o19"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口1 (輔仁大學)",
+     "landmark": "輔仁大學",
+     "lat": 25.032889,
+     "lon": 121.435238,
+     "x": 0.1218,
+     "y": 1
+    },
+    {
+     "code": "2",
+     "name": "出口2 (建國一路)",
+     "landmark": "建國一路",
+     "lat": 25.03232,
+     "lon": 121.435249,
+     "x": 0,
+     "y": 0.0104
+    },
+    {
+     "code": "3",
+     "name": "出口3 (福營路)",
+     "landmark": "福營路",
+     "lat": 25.032721,
+     "lon": 121.436603,
+     "x": 0.9254,
+     "y": 0
+    },
+    {
+     "code": "4",
+     "name": "出口4 (三泰路)",
+     "landmark": "三泰路",
+     "lat": 25.033175,
+     "lon": 121.436558,
+     "x": 1,
+     "y": 0.8097
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 155,
+    "across": 61
+   }
+  },
+  {
+   "id": "O20",
+   "name": "丹鳳",
+   "nameEn": "Danfeng",
+   "kind": "metro",
+   "lat": 25.028926,
+   "lon": 121.422657,
+   "aliases": [
+    "丹鳳",
+    "Danfeng",
+    "danfeng",
+    "O20",
+    "o20"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.029,
+     "lon": 121.422368,
+     "x": 0,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.028702,
+     "lon": 121.422611,
+     "x": 1,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 41,
+    "across": 0
+   }
+  },
+  {
+   "id": "O21",
+   "name": "迴龍",
+   "nameEn": "Huilong",
+   "kind": "metro",
+   "lat": 25.022079,
+   "lon": 121.411902,
+   "aliases": [
+    "迴龍",
+    "Huilong",
+    "huilong",
+    "O21",
+    "o21"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運迴龍站1號出口",
+     "landmark": null,
+     "lat": 25.021863,
+     "lon": 121.411312,
+     "x": 0.4118,
+     "y": 1
+    },
+    {
+     "code": "2",
+     "name": "捷運迴龍站2號出口",
+     "landmark": null,
+     "lat": 25.021054,
+     "lon": 121.410928,
+     "x": 0,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": "捷運迴龍站3號出口",
+     "landmark": null,
+     "lat": 25.022449,
+     "lon": 121.412465,
+     "x": 1,
+     "y": 0.1111
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 219,
+    "across": 38
+   }
+  },
+  {
+   "id": "O50",
+   "name": "三重國小",
+   "nameEn": "Sanchong Elementary School",
+   "kind": "metro",
+   "lat": 25.070003,
+   "lon": 121.4973,
+   "aliases": [
+    "三重國小",
+    "Sanchong Elementary School",
+    "sanchongelementaryschool",
+    "O50",
+    "o50"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "O51",
+   "name": "三和國中",
+   "nameEn": "Sanhe Junior High School",
+   "kind": "metro",
+   "lat": 25.076814,
+   "lon": 121.486378,
+   "aliases": [
+    "三和國中",
+    "Sanhe Junior High School",
+    "sanhejuniorhighschool",
+    "O51",
+    "o51"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口1 (三和國中)",
+     "landmark": "三和國中",
+     "lat": 25.076616,
+     "lon": 121.486319,
+     "x": 0,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "出口2 (三和路四段)",
+     "landmark": "三和路四段",
+     "lat": 25.076984,
+     "lon": 121.486517,
+     "x": 1,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 46,
+    "across": 0
+   }
+  },
+  {
+   "id": "O52",
+   "name": "徐匯中學",
+   "nameEn": "St. Ignatius High School",
+   "kind": "metro",
+   "lat": 25.080336,
+   "lon": 121.480227,
+   "aliases": [
+    "徐匯中學",
+    "St. Ignatius High School",
+    "st.ignatiushighschool",
+    "O52",
+    "o52"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口1 (徐匯中學)",
+     "landmark": "徐匯中學",
+     "lat": 25.080337,
+     "lon": 121.4798,
+     "x": 0,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "出口2 (永安北路二段)",
+     "landmark": "永安北路二段",
+     "lat": 25.080372,
+     "lon": 121.480476,
+     "x": 1,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 68,
+    "across": 0
+   }
+  },
+  {
+   "id": "O53",
+   "name": "三民高中",
+   "nameEn": "Sanmin Senior High School",
+   "kind": "metro",
+   "lat": 25.085505,
+   "lon": 121.473299,
+   "aliases": [
+    "三民高中",
+    "Sanmin Senior High School",
+    "sanminseniorhighschool",
+    "O53",
+    "o53"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口1 (三民路)",
+     "landmark": "三民路",
+     "lat": 25.08568,
+     "lon": 121.472703,
+     "x": 0,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "出口2 (復興路)",
+     "landmark": "復興路",
+     "lat": 25.085657,
+     "lon": 121.473582,
+     "x": 1,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 89,
+    "across": 0
+   }
+  },
+  {
+   "id": "O54",
+   "name": "蘆洲",
+   "nameEn": "Luzhou",
+   "kind": "metro",
+   "lat": 25.091278,
+   "lon": 121.465104,
+   "aliases": [
+    "蘆洲",
+    "Luzhou",
+    "luzhou",
+    "O54",
+    "o54"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "出口1 (三民路)",
+     "landmark": "三民路",
+     "lat": 25.091327,
+     "lon": 121.464757,
+     "x": 1,
+     "y": 0
+    },
+    {
+     "code": "2",
+     "name": "出口2 (捷運廣場)",
+     "landmark": "捷運廣場",
+     "lat": 25.091664,
+     "lon": 121.464877,
+     "x": 0.7875,
+     "y": 1
+    },
+    {
+     "code": "3",
+     "name": "出口3 (中正路)",
+     "landmark": "中正路",
+     "lat": 25.091855,
+     "lon": 121.464278,
+     "x": 0,
+     "y": 0.3217
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 75,
+    "across": 36
+   }
+  },
+  {
+   "id": "pk-n10035706038",
+   "name": "北科先鋒停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.04158,
+   "lon": 121.534769,
+   "aliases": [
+    "北科先鋒停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n10129713103",
+   "name": "忠厚市場地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.065847,
+   "lon": 121.640609,
+   "aliases": [
+    "忠厚市場地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n10736611377",
+   "name": "崇聖大樓地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.045282,
+   "lon": 121.518404,
+   "aliases": [
+    "崇聖大樓地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n10736611401",
+   "name": "中正第一分局停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.045167,
+   "lon": 121.517577,
+   "aliases": [
+    "中正第一分局停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n10769041743",
+   "name": "嘟嘟房",
+   "nameEn": "Dodohome",
+   "kind": "parking",
+   "lat": 25.045067,
+   "lon": 121.508265,
+   "aliases": [
+    "嘟嘟房",
+    "Dodohome",
+    "dodohome"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n10790516021",
+   "name": "士林運動中心停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.089654,
+   "lon": 121.521358,
+   "aliases": [
+    "士林運動中心停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n11116993896",
+   "name": "吉明秀社區停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.001879,
+   "lon": 121.524627,
+   "aliases": [
+    "吉明秀社區停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n11118984854",
+   "name": "秀朗國小停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.998704,
+   "lon": 121.521377,
+   "aliases": [
+    "秀朗國小停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n11244181457",
+   "name": "Times",
+   "nameEn": "Times",
+   "kind": "parking",
+   "lat": 25.032075,
+   "lon": 121.518228,
+   "aliases": [
+    "Times",
+    "times"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n11252882076",
+   "name": "萬華區行政中心地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.034588,
+   "lon": 121.499776,
+   "aliases": [
+    "萬華區行政中心地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n11263971962",
+   "name": "同安停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.023356,
+   "lon": 121.521582,
+   "aliases": [
+    "同安停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n11335872732",
+   "name": "國家圖書館讀者停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.036909,
+   "lon": 121.516528,
+   "aliases": [
+    "國家圖書館讀者停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n11493855851",
+   "name": "宏盛國際停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.051545,
+   "lon": 121.541363,
+   "aliases": [
+    "宏盛國際停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n11586155447",
+   "name": "富綠第",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.004426,
+   "lon": 121.513321,
+   "aliases": [
+    "富綠第"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n11586190846",
+   "name": "豪傑天下",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.004192,
+   "lon": 121.513304,
+   "aliases": [
+    "豪傑天下"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n11889059684",
+   "name": "鬆山高中地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.044089,
+   "lon": 121.565754,
+   "aliases": [
+    "鬆山高中地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n12040069816",
+   "name": "嘟嘟房地下停車場-八里全聯站",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.159567,
+   "lon": 121.414161,
+   "aliases": [
+    "嘟嘟房地下停車場-八里全聯站"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n12076385682",
+   "name": "城市車旅華山站",
+   "nameEn": "City Parking",
+   "kind": "parking",
+   "lat": 25.045248,
+   "lon": 121.526372,
+   "aliases": [
+    "城市車旅華山站",
+    "City Parking",
+    "cityparking"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n12248026712",
+   "name": "凝態館地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.021908,
+   "lon": 121.536518,
+   "aliases": [
+    "凝態館地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n12248026713",
+   "name": "綜合體育館地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.021748,
+   "lon": 121.535431,
+   "aliases": [
+    "綜合體育館地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n12250687927",
+   "name": "萬才館地下機車停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.019926,
+   "lon": 121.545001,
+   "aliases": [
+    "萬才館地下機車停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n12250779839",
+   "name": "霖澤館地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.020373,
+   "lon": 121.543642,
+   "aliases": [
+    "霖澤館地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n12252667502",
+   "name": "明達館地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.017899,
+   "lon": 121.544438,
+   "aliases": [
+    "明達館地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n12255465357",
+   "name": "卓越大樓地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.014442,
+   "lon": 121.5282,
+   "aliases": [
+    "卓越大樓地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n12355400243",
+   "name": "府前廣場地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.037756,
+   "lon": 121.562794,
+   "aliases": [
+    "府前廣場地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n12388351796",
+   "name": "信義廣場地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.033529,
+   "lon": 121.566553,
+   "aliases": [
+    "信義廣場地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n12395348778",
+   "name": "忠信廣場停車場",
+   "nameEn": "Zhongxin Plaza Parking Lot",
+   "kind": "parking",
+   "lat": 25.040649,
+   "lon": 121.567877,
+   "aliases": [
+    "忠信廣場停車場",
+    "Zhongxin Plaza Parking Lot",
+    "zhongxinplazaparkinglot"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n12401888806",
+   "name": "嘟嘟房 大安僑安站",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.040389,
+   "lon": 121.556589,
+   "aliases": [
+    "嘟嘟房 大安僑安站",
+    "嘟嘟房大安僑安站"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n12404372264",
+   "name": "國際會議中心停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.033574,
+   "lon": 121.560805,
+   "aliases": [
+    "國際會議中心停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n12404372265",
+   "name": "嘟嘟房 世貿一館站",
+   "nameEn": "Dodohome",
+   "kind": "parking",
+   "lat": 25.033939,
+   "lon": 121.562406,
+   "aliases": [
+    "嘟嘟房 世貿一館站",
+    "嘟嘟房世貿一館站",
+    "Dodohome",
+    "dodohome"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n12405021999",
+   "name": "台北君悅酒店停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.035645,
+   "lon": 121.562625,
+   "aliases": [
+    "台北君悅酒店停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n12424853901",
+   "name": "日月亭松山富邦場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.046179,
+   "lon": 121.567061,
+   "aliases": [
+    "日月亭松山富邦場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n12869842690",
+   "name": "Yaxiang Park Car Park",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.047504,
+   "lon": 121.571725,
+   "aliases": [
+    "Yaxiang Park Car Park",
+    "yaxiangparkcarpark"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n13046483071",
+   "name": "CITY PARKING 城市車旅停車場 皇翔MRT站",
+   "nameEn": "City Parking",
+   "kind": "parking",
+   "lat": 24.963726,
+   "lon": 121.43568,
+   "aliases": [
+    "CITY PARKING 城市車旅停車場 皇翔MRT站",
+    "cityparking城市車旅停車場皇翔mrt站",
+    "City Parking",
+    "cityparking"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n13274291271",
+   "name": "嘟嘟房台北西門站",
+   "nameEn": "Dodohome",
+   "kind": "parking",
+   "lat": 25.041496,
+   "lon": 121.508568,
+   "aliases": [
+    "嘟嘟房台北西門站",
+    "Dodohome",
+    "dodohome"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n13628845393",
+   "name": "忠孝公園地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.996823,
+   "lon": 121.459913,
+   "aliases": [
+    "忠孝公園地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n13912360479",
+   "name": "正好停 科技大樓地下場",
+   "nameEn": "Technology Building Parking Lot",
+   "kind": "parking",
+   "lat": 25.026014,
+   "lon": 121.54293,
+   "aliases": [
+    "正好停 科技大樓地下場",
+    "正好停科技大樓地下場",
+    "Technology Building Parking Lot",
+    "technologybuildingparkinglot"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n1720014708",
+   "name": "濱江國中地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.079185,
+   "lon": 121.5613,
+   "aliases": [
+    "濱江國中地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n1720302265",
+   "name": "遠東電信園區 T-PARK 地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.998762,
+   "lon": 121.456517,
+   "aliases": [
+    "遠東電信園區 T-PARK 地下停車場",
+    "遠東電信園區t-park地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n1720309752",
+   "name": "亞東醫院停車場 (地下)",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.997967,
+   "lon": 121.453476,
+   "aliases": [
+    "亞東醫院停車場 (地下)",
+    "亞東醫院停車場(地下)"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n1832675697",
+   "name": "地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.086071,
+   "lon": 121.572602,
+   "aliases": [
+    "地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n1839319943",
+   "name": "西湖捷運地下停場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.082907,
+   "lon": 121.566509,
+   "aliases": [
+    "西湖捷運地下停場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n1926398696",
+   "name": "松山工農停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.039056,
+   "lon": 121.572416,
+   "aliases": [
+    "松山工農停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n1943865066",
+   "name": "實踐大學停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.083094,
+   "lon": 121.545181,
+   "aliases": [
+    "實踐大學停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n2264127540",
+   "name": "馬公友誼公園地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.968457,
+   "lon": 121.542718,
+   "aliases": [
+    "馬公友誼公園地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n2744612493",
+   "name": "臺大醫院員工停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.03994,
+   "lon": 121.520117,
+   "aliases": [
+    "臺大醫院員工停車場",
+    "台大醫院員工停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n2847707207",
+   "name": "松壽廣場地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.037462,
+   "lon": 121.566096,
+   "aliases": [
+    "松壽廣場地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n2874027286",
+   "name": "員工專屬停車場",
+   "nameEn": "Parking Area (Staff Only)",
+   "kind": "parking",
+   "lat": 25.056212,
+   "lon": 121.443859,
+   "aliases": [
+    "員工專屬停車場",
+    "Parking Area (Staff Only)",
+    "parkingarea(staffonly)"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n2925702301",
+   "name": "學府室內停車場",
+   "nameEn": "Xue Fu Indoor Parking",
+   "kind": "parking",
+   "lat": 25.16886,
+   "lon": 121.448646,
+   "aliases": [
+    "學府室內停車場",
+    "Xue Fu Indoor Parking",
+    "xuefuindoorparking"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n2927224201",
+   "name": "力揚停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.177498,
+   "lon": 121.448328,
+   "aliases": [
+    "力揚停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n2969747400",
+   "name": "福容大飯店地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.181918,
+   "lon": 121.415972,
+   "aliases": [
+    "福容大飯店地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3033922309",
+   "name": "海光公園地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.081025,
+   "lon": 121.508446,
+   "aliases": [
+    "海光公園地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3054761527",
+   "name": "大都市科學園區停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.072437,
+   "lon": 121.469517,
+   "aliases": [
+    "大都市科學園區停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3097139275",
+   "name": "市民大道停車場延吉段",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.044428,
+   "lon": 121.552432,
+   "aliases": [
+    "市民大道停車場延吉段"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3097339788",
+   "name": "市民大道停車場 (復興 - 敦化)",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.045019,
+   "lon": 121.547096,
+   "aliases": [
+    "市民大道停車場 (復興 - 敦化)",
+    "市民大道停車場(復興-敦化)"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3145250383",
+   "name": "外賓、洽公、廠商專屬停車場",
+   "nameEn": "Visitors' Car Park",
+   "kind": "parking",
+   "lat": 25.056546,
+   "lon": 121.442865,
+   "aliases": [
+    "外賓、洽公、廠商專屬停車場",
+    "Visitors' Car Park",
+    "visitors'carpark"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3148707746",
+   "name": "萬萬停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.065387,
+   "lon": 121.522746,
+   "aliases": [
+    "萬萬停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3157660616",
+   "name": "南港區行政中心地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.054702,
+   "lon": 121.606879,
+   "aliases": [
+    "南港區行政中心地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3172604471",
+   "name": "中和國小地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.998601,
+   "lon": 121.500138,
+   "aliases": [
+    "中和國小地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3191035893",
+   "name": "艋舺公園地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.036156,
+   "lon": 121.499535,
+   "aliases": [
+    "艋舺公園地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3192426185",
+   "name": "青年公園棒球場地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.023837,
+   "lon": 121.503156,
+   "aliases": [
+    "青年公園棒球場地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3192426190",
+   "name": "青年公園高爾夫球場地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.02473,
+   "lon": 121.50741,
+   "aliases": [
+    "青年公園高爾夫球場地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3196533866",
+   "name": "臺北地下街地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.048754,
+   "lon": 121.516711,
+   "aliases": [
+    "臺北地下街地下停車場",
+    "台北地下街地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3196998919",
+   "name": "市民大道停車場 (林森 - 金山)",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.046993,
+   "lon": 121.527528,
+   "aliases": [
+    "市民大道停車場 (林森 - 金山)",
+    "市民大道停車場(林森-金山)"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3208558495",
+   "name": "永和國小地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.001772,
+   "lon": 121.517469,
+   "aliases": [
+    "永和國小地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3232592861",
+   "name": "東湖國小地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.068339,
+   "lon": 121.616186,
+   "aliases": [
+    "東湖國小地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3311207885",
+   "name": "仁愛公園地下停車場(仁愛路出入口)",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.010145,
+   "lon": 121.506128,
+   "aliases": [
+    "仁愛公園地下停車場(仁愛路出入口)"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3347626488",
+   "name": "欣豪陽玉山家具停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.984535,
+   "lon": 121.425518,
+   "aliases": [
+    "欣豪陽玉山家具停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3347627744",
+   "name": "車位出租",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.984387,
+   "lon": 121.425807,
+   "aliases": [
+    "車位出租"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3519592781",
+   "name": "臺灣科學教育館停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.096422,
+   "lon": 121.515956,
+   "aliases": [
+    "臺灣科學教育館停車場",
+    "台灣科學教育館停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3525967064",
+   "name": "城市車旅三創生活園區場",
+   "nameEn": "City Parking",
+   "kind": "parking",
+   "lat": 25.045129,
+   "lon": 121.53079,
+   "aliases": [
+    "城市車旅三創生活園區場",
+    "City Parking",
+    "cityparking"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3606296009",
+   "name": "長揚停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.073846,
+   "lon": 121.576251,
+   "aliases": [
+    "長揚停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3635673679",
+   "name": "景新分館地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.989952,
+   "lon": 121.542186,
+   "aliases": [
+    "景新分館地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3645402231",
+   "name": "詮營耕莘醫院停車場",
+   "nameEn": "Parkinsys Parking",
+   "kind": "parking",
+   "lat": 24.97605,
+   "lon": 121.535981,
+   "aliases": [
+    "詮營耕莘醫院停車場",
+    "Parkinsys Parking",
+    "parkinsysparking"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3727152545",
+   "name": "華視光復停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.043146,
+   "lon": 121.557237,
+   "aliases": [
+    "華視光復停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3763974840",
+   "name": "承德公園地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.089782,
+   "lon": 121.522319,
+   "aliases": [
+    "承德公園地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n3939158033",
+   "name": "新生國小地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.029487,
+   "lon": 121.533392,
+   "aliases": [
+    "新生國小地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4031297492",
+   "name": "臺灣聯通",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.052403,
+   "lon": 121.5355,
+   "aliases": [
+    "臺灣聯通",
+    "台灣聯通"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4108947178",
+   "name": "Smile 速邁樂 台大長興停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.017379,
+   "lon": 121.545749,
+   "aliases": [
+    "Smile 速邁樂 台大長興停車場",
+    "smile速邁樂台大長興停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4149587186",
+   "name": "師大運動場區地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.026359,
+   "lon": 121.525371,
+   "aliases": [
+    "師大運動場區地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4298876983",
+   "name": "永固便利停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.992323,
+   "lon": 121.543809,
+   "aliases": [
+    "永固便利停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4298897643",
+   "name": "重慶南路室內停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.044694,
+   "lon": 121.512983,
+   "aliases": [
+    "重慶南路室內停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4325694179",
+   "name": "良友八德停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.043173,
+   "lon": 121.531058,
+   "aliases": [
+    "良友八德停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4338628221",
+   "name": "台灣聯通衡陽場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.042357,
+   "lon": 121.511888,
+   "aliases": [
+    "台灣聯通衡陽場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4338628222",
+   "name": "台灣聯通重慶場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.044637,
+   "lon": 121.51406,
+   "aliases": [
+    "台灣聯通重慶場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4338628224",
+   "name": "台灣聯通誠品場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.045143,
+   "lon": 121.505558,
+   "aliases": [
+    "台灣聯通誠品場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4338628225",
+   "name": "台灣聯通停車場",
+   "nameEn": "Taiwan Parking",
+   "kind": "parking",
+   "lat": 25.043051,
+   "lon": 121.505174,
+   "aliases": [
+    "台灣聯通停車場",
+    "Taiwan Parking",
+    "taiwanparking"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4340649184",
+   "name": "厚德國民小學地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.071731,
+   "lon": 121.490043,
+   "aliases": [
+    "厚德國民小學地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4340649392",
+   "name": "正義國小地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.064631,
+   "lon": 121.495276,
+   "aliases": [
+    "正義國小地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4448603115",
+   "name": "永福國小地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.077445,
+   "lon": 121.47969,
+   "aliases": [
+    "永福國小地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4524318973",
+   "name": "花卉市場地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.00485,
+   "lon": 121.540404,
+   "aliases": [
+    "花卉市場地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4524863976",
+   "name": "福華大飯店附設停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.036979,
+   "lon": 121.542291,
+   "aliases": [
+    "福華大飯店附設停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4524864157",
+   "name": "市民大道停車場塔城段",
+   "nameEn": "Civic Boulevard Car Park (Tacheng)",
+   "kind": "parking",
+   "lat": 25.050312,
+   "lon": 121.509553,
+   "aliases": [
+    "市民大道停車場塔城段",
+    "Civic Boulevard Car Park (Tacheng)",
+    "civicboulevardcarpark(tacheng)"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4716078881",
+   "name": "文山運動中心停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.996985,
+   "lon": 121.559202,
+   "aliases": [
+    "文山運動中心停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4717630765",
+   "name": "福和國中地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.004706,
+   "lon": 121.522823,
+   "aliases": [
+    "福和國中地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4721803326",
+   "name": "玉成公園停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.04203,
+   "lon": 121.587027,
+   "aliases": [
+    "玉成公園停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4721810390",
+   "name": "玉成國小地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.053275,
+   "lon": 121.592945,
+   "aliases": [
+    "玉成國小地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4730177930",
+   "name": "大湖公園地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.083238,
+   "lon": 121.602077,
+   "aliases": [
+    "大湖公園地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4761932378",
+   "name": "汽車停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.000643,
+   "lon": 121.575277,
+   "aliases": [
+    "汽車停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4837986352",
+   "name": "臺北市府公務停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.038465,
+   "lon": 121.564577,
+   "aliases": [
+    "臺北市府公務停車場",
+    "台北市府公務停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4837986379",
+   "name": "臺灣聯通八德場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.049841,
+   "lon": 121.56411,
+   "aliases": [
+    "臺灣聯通八德場",
+    "台灣聯通八德場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4837986433",
+   "name": "樂業停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.023816,
+   "lon": 121.550208,
+   "aliases": [
+    "樂業停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4853097954",
+   "name": "新北市三重區三張地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.070358,
+   "lon": 121.489344,
+   "aliases": [
+    "新北市三重區三張地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n4969864550",
+   "name": "國雲停車 鴻金寶停車場",
+   "nameEn": "Parc! here",
+   "kind": "parking",
+   "lat": 25.023035,
+   "lon": 121.424601,
+   "aliases": [
+    "國雲停車 鴻金寶停車場",
+    "國雲停車鴻金寶停車場",
+    "Parc! here",
+    "parc!here"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n5097128281",
+   "name": "永建國小地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.989335,
+   "lon": 121.555916,
+   "aliases": [
+    "永建國小地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n5108706590",
+   "name": "俥停停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.98343,
+   "lon": 121.537719,
+   "aliases": [
+    "俥停停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n5108706594",
+   "name": "台北矽谷國際會議中心停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.98562,
+   "lon": 121.539899,
+   "aliases": [
+    "台北矽谷國際會議中心停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n5108706595",
+   "name": "台北矽谷停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.98464,
+   "lon": 121.539981,
+   "aliases": [
+    "台北矽谷停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n5110245046",
+   "name": "吉拾台大尊賢場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.013553,
+   "lon": 121.536239,
+   "aliases": [
+    "吉拾台大尊賢場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n5110348205",
+   "name": "松山車站地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.048474,
+   "lon": 121.578208,
+   "aliases": [
+    "松山車站地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n5110348813",
+   "name": "五分埔公園地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.046874,
+   "lon": 121.580259,
+   "aliases": [
+    "五分埔公園地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n5249515030",
+   "name": "松山高中地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.044032,
+   "lon": 121.564046,
+   "aliases": [
+    "松山高中地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n5271075499",
+   "name": "深坑兒童遊戲場地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.001419,
+   "lon": 121.615747,
+   "aliases": [
+    "深坑兒童遊戲場地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n5295049482",
+   "name": "光興國小地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.06013,
+   "lon": 121.49929,
+   "aliases": [
+    "光興國小地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n5302745070",
+   "name": "聯合醫院三重院區第三地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.060875,
+   "lon": 121.490477,
+   "aliases": [
+    "聯合醫院三重院區第三地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n5377255527",
+   "name": "仁愛公園地下停車場(保安路出入口)",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.012425,
+   "lon": 121.506222,
+   "aliases": [
+    "仁愛公園地下停車場(保安路出入口)"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n5382846204",
+   "name": "地下停車場＿",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.096485,
+   "lon": 121.520815,
+   "aliases": [
+    "地下停車場＿"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n5716821721",
+   "name": "停車場行人出入口",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.01173,
+   "lon": 121.506343,
+   "aliases": [
+    "停車場行人出入口"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n5814886514",
+   "name": "京王停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.023673,
+   "lon": 121.424457,
+   "aliases": [
+    "京王停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n6151326418",
+   "name": "福林公園地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.095993,
+   "lon": 121.53067,
+   "aliases": [
+    "福林公園地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n6159136685",
+   "name": "合宜ㄧ路A6西D停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.996694,
+   "lon": 121.442978,
+   "aliases": [
+    "合宜ㄧ路A6西D停車場",
+    "合宜ㄧ路a6西d停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n6513767050",
+   "name": "員工停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.120092,
+   "lon": 121.520673,
+   "aliases": [
+    "員工停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n6725632028",
+   "name": "臺北醫學大學大安校區停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.026302,
+   "lon": 121.554096,
+   "aliases": [
+    "臺北醫學大學大安校區停車場",
+    "台北醫學大學大安校區停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n6741640233",
+   "name": "國泰置地廣場停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.040229,
+   "lon": 121.56639,
+   "aliases": [
+    "國泰置地廣場停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n6780010550",
+   "name": "明德敦品停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.104499,
+   "lon": 121.519437,
+   "aliases": [
+    "明德敦品停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n7166330086",
+   "name": "新北市三重區五常地下停車場(出口)",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.080704,
+   "lon": 121.495887,
+   "aliases": [
+    "新北市三重區五常地下停車場(出口)"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n7890666803",
+   "name": "景美愛買地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.991989,
+   "lon": 121.542547,
+   "aliases": [
+    "景美愛買地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n8104143567",
+   "name": "臺大醫院地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.040793,
+   "lon": 121.518517,
+   "aliases": [
+    "臺大醫院地下停車場",
+    "台大醫院地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n8104143568",
+   "name": "臺大醫院國際會議中心停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.040272,
+   "lon": 121.520518,
+   "aliases": [
+    "臺大醫院國際會議中心停車場",
+    "台大醫院國際會議中心停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n8190008317",
+   "name": "第一運動場地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.011525,
+   "lon": 121.469015,
+   "aliases": [
+    "第一運動場地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n8494661625",
+   "name": "基泰台大地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.017382,
+   "lon": 121.532169,
+   "aliases": [
+    "基泰台大地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n8949509422",
+   "name": "停車場出入口",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.064071,
+   "lon": 121.640229,
+   "aliases": [
+    "停車場出入口"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n9110645194",
+   "name": "員和公園地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.978993,
+   "lon": 121.442806,
+   "aliases": [
+    "員和公園地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n924215099",
+   "name": "國立台灣科技大學研揚大樓停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.015023,
+   "lon": 121.542772,
+   "aliases": [
+    "國立台灣科技大學研揚大樓停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n9274739290",
+   "name": "大港墘公園地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.078594,
+   "lon": 121.574525,
+   "aliases": [
+    "大港墘公園地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n9307980656",
+   "name": "新北市政府公務停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.012445,
+   "lon": 121.464485,
+   "aliases": [
+    "新北市政府公務停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n9652391299",
+   "name": "健康大樓機車停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.043716,
+   "lon": 121.518456,
+   "aliases": [
+    "健康大樓機車停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n9652391301",
+   "name": "健康大樓汽車停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.043622,
+   "lon": 121.518426,
+   "aliases": [
+    "健康大樓汽車停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n9654394171",
+   "name": "臺大兒醫停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.044063,
+   "lon": 121.518476,
+   "aliases": [
+    "臺大兒醫停車場",
+    "台大兒醫停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n9660475224",
+   "name": "水森館地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.04187,
+   "lon": 121.522706,
+   "aliases": [
+    "水森館地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n9931956607",
+   "name": "光榮國小地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.072218,
+   "lon": 121.500372,
+   "aliases": [
+    "光榮國小地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-n9948657543",
+   "name": "捷運新北產業園區站轉乘停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.060612,
+   "lon": 121.459531,
+   "aliases": [
+    "捷運新北產業園區站轉乘停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-r16771157",
+   "name": "大安森林公園地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.032459,
+   "lon": 121.53648,
+   "aliases": [
+    "大安森林公園地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-r19978094",
+   "name": "頂溪國小地下停車場",
+   "nameEn": "Dingxi Elementary School Underground Parking Lot",
+   "kind": "parking",
+   "lat": 25.015084,
+   "lon": 121.510701,
+   "aliases": [
+    "頂溪國小地下停車場",
+    "Dingxi Elementary School Underground Parking Lot",
+    "dingxielementaryschoolundergroundparkinglot"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w1100987529",
+   "name": "忠孝國中地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.003867,
+   "lon": 121.46191,
+   "aliases": [
+    "忠孝國中地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w1124074723",
+   "name": "興隆公園地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.000214,
+   "lon": 121.551328,
+   "aliases": [
+    "興隆公園地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w115493256",
+   "name": "臺北市災害應變中心地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.029056,
+   "lon": 121.566272,
+   "aliases": [
+    "臺北市災害應變中心地下停車場",
+    "台北市災害應變中心地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w1293787486",
+   "name": "綠湖公園地下停車場",
+   "nameEn": "Liuhu Park Underground Parking Lot",
+   "kind": "parking",
+   "lat": 24.979256,
+   "lon": 121.547042,
+   "aliases": [
+    "綠湖公園地下停車場",
+    "Liuhu Park Underground Parking Lot",
+    "liuhuparkundergroundparkinglot"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w1350697420",
+   "name": "捷運木柵站轉乘停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.998262,
+   "lon": 121.573392,
+   "aliases": [
+    "捷運木柵站轉乘停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w1416219232",
+   "name": "樹林長壽公園地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.992106,
+   "lon": 121.421933,
+   "aliases": [
+    "樹林長壽公園地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w1455969256",
+   "name": "二重公園停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.06662,
+   "lon": 121.474761,
+   "aliases": [
+    "二重公園停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w1480460219",
+   "name": "興穀國小操場地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.049654,
+   "lon": 121.474964,
+   "aliases": [
+    "興穀國小操場地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w204711163",
+   "name": "K區地下街停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.046834,
+   "lon": 121.51686,
+   "aliases": [
+    "K區地下街停車場",
+    "k區地下街停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w204711209",
+   "name": "臺北車站東地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.04739,
+   "lon": 121.51864,
+   "aliases": [
+    "臺北車站東地下停車場",
+    "台北車站東地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w262078806",
+   "name": "三張里地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.03098,
+   "lon": 121.566817,
+   "aliases": [
+    "三張里地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w332016447",
+   "name": "捷運新店站轉乘停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.957879,
+   "lon": 121.537663,
+   "aliases": [
+    "捷運新店站轉乘停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w338626421",
+   "name": "長安國小地下停車場",
+   "nameEn": "Changan School Car Park",
+   "kind": "parking",
+   "lat": 25.049822,
+   "lon": 121.531255,
+   "aliases": [
+    "長安國小地下停車場",
+    "Changan School Car Park",
+    "changanschoolcarpark"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w361491770",
+   "name": "振興公園地下停車場",
+   "nameEn": "Zhanxing Car Park",
+   "kind": "parking",
+   "lat": 25.118386,
+   "lon": 121.523433,
+   "aliases": [
+    "振興公園地下停車場",
+    "Zhanxing Car Park",
+    "zhanxingcarpark"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w363983115",
+   "name": "台灣大學新生南路地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.018635,
+   "lon": 121.534953,
+   "aliases": [
+    "台灣大學新生南路地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w373245310",
+   "name": "景美國小地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.98867,
+   "lon": 121.540298,
+   "aliases": [
+    "景美國小地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w400582384",
+   "name": "長揚停車場松江2站",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.050692,
+   "lon": 121.533442,
+   "aliases": [
+    "長揚停車場松江2站"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w507996671",
+   "name": "嘉興公園地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.021357,
+   "lon": 121.552089,
+   "aliases": [
+    "嘉興公園地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w611723197",
+   "name": "力行地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.077638,
+   "lon": 121.482713,
+   "aliases": [
+    "力行地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w697566926",
+   "name": "景華公園停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.995591,
+   "lon": 121.543743,
+   "aliases": [
+    "景華公園停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w712494255",
+   "name": "永齡生醫工程館地下停車場 (汽車)",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.013623,
+   "lon": 121.547351,
+   "aliases": [
+    "永齡生醫工程館地下停車場 (汽車)",
+    "永齡生醫工程館地下停車場(汽車)"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w722639803",
+   "name": "台大辛亥地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.020521,
+   "lon": 121.542294,
+   "aliases": [
+    "台大辛亥地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w736665520",
+   "name": "前港公園地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.085895,
+   "lon": 121.520199,
+   "aliases": [
+    "前港公園地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w753696069",
+   "name": "臺北偶戲館地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.047305,
+   "lon": 121.561507,
+   "aliases": [
+    "臺北偶戲館地下停車場",
+    "台北偶戲館地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w772708554",
+   "name": "古亭國中地下停車場",
+   "nameEn": "Kuting Junior High School Undergroud Parking",
+   "kind": "parking",
+   "lat": 25.024114,
+   "lon": 121.510402,
+   "aliases": [
+    "古亭國中地下停車場",
+    "Kuting Junior High School Undergroud Parking",
+    "kutingjuniorhighschoolundergroudparking"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w772708559",
+   "name": "大稻埕公園地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.058759,
+   "lon": 121.510398,
+   "aliases": [
+    "大稻埕公園地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w773559114",
+   "name": "西湖公園地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.083631,
+   "lon": 121.570357,
+   "aliases": [
+    "西湖公園地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w773594708",
+   "name": "榮星花園公園地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.06345,
+   "lon": 121.538575,
+   "aliases": [
+    "榮星花園公園地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w773820274",
+   "name": "中山堂地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.043153,
+   "lon": 121.510186,
+   "aliases": [
+    "中山堂地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w773820285",
+   "name": "新店高中地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.974507,
+   "lon": 121.533541,
+   "aliases": [
+    "新店高中地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w783791335",
+   "name": "鼎晟停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.045953,
+   "lon": 121.515831,
+   "aliases": [
+    "鼎晟停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w783791340",
+   "name": "嘟嘟房林森公園場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.053055,
+   "lon": 121.526405,
+   "aliases": [
+    "嘟嘟房林森公園場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w787209789",
+   "name": "興雅國中地下停車場",
+   "nameEn": "Xingya Junior High School Underground Parking Garage",
+   "kind": "parking",
+   "lat": 25.035263,
+   "lon": 121.5722,
+   "aliases": [
+    "興雅國中地下停車場",
+    "Xingya Junior High School Underground Parking Garage",
+    "xingyajuniorhighschoolundergroundparkinggarage"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w797083838",
+   "name": "景美集應廟文化願景館地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.991543,
+   "lon": 121.542375,
+   "aliases": [
+    "景美集應廟文化願景館地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w808480742",
+   "name": "新北市市民廣場地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.013192,
+   "lon": 121.464935,
+   "aliases": [
+    "新北市市民廣場地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w812899985",
+   "name": "中崙高中地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.049806,
+   "lon": 121.56189,
+   "aliases": [
+    "中崙高中地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w824570175",
+   "name": "辛亥國小地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.006158,
+   "lon": 121.55886,
+   "aliases": [
+    "辛亥國小地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w828307293",
+   "name": "臺北市政府青年局地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.039129,
+   "lon": 121.522467,
+   "aliases": [
+    "臺北市政府青年局地下停車場",
+    "台北市政府青年局地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w830629148",
+   "name": "大安高工地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.032107,
+   "lon": 121.541309,
+   "aliases": [
+    "大安高工地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w834272128",
+   "name": "大安國宅地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.030145,
+   "lon": 121.538714,
+   "aliases": [
+    "大安國宅地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w834673867",
+   "name": "龍門國中地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.023841,
+   "lon": 121.538353,
+   "aliases": [
+    "龍門國中地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w837734049",
+   "name": "塔城公園地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.050825,
+   "lon": 121.510829,
+   "aliases": [
+    "塔城公園地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w916913286",
+   "name": "新光摩天大樓停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.045968,
+   "lon": 121.515305,
+   "aliases": [
+    "新光摩天大樓停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w916913293",
+   "name": "永盛公園地下停車場",
+   "nameEn": "Yongsheng Cark Park",
+   "kind": "parking",
+   "lat": 25.059023,
+   "lon": 121.52488,
+   "aliases": [
+    "永盛公園地下停車場",
+    "Yongsheng Cark Park",
+    "yongshengcarkpark"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w936161475",
+   "name": "日月亭希望園區場",
+   "nameEn": "youparking",
+   "kind": "parking",
+   "lat": 25.044651,
+   "lon": 121.532194,
+   "aliases": [
+    "日月亭希望園區場",
+    "youparking"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w957751464",
+   "name": "進安公園地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 25.045927,
+   "lon": 121.537507,
+   "aliases": [
+    "進安公園地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "pk-w999820271",
+   "name": "重慶公園地下停車場",
+   "nameEn": null,
+   "kind": "parking",
+   "lat": 24.999916,
+   "lon": 121.464335,
+   "aliases": [
+    "重慶公園地下停車場"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "R01",
+   "name": "廣慈/奉天宮",
+   "nameEn": "Guangci/Fengtian Temple Station (Under construction)",
+   "kind": "metro",
+   "lat": 25.037468,
+   "lon": 121.582311,
+   "aliases": [
+    "廣慈/奉天宮",
+    "Guangci/Fengtian Temple Station (Under construction)",
+    "guangci/fengtiantemplestation(underconstruction)",
+    "R01",
+    "r01"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.03746,
+     "lon": 121.581826,
+     "x": 0,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.038285,
+     "lon": 121.583359,
+     "x": 1,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 180,
+    "across": 0
+   }
+  },
+  {
+   "id": "R02",
+   "name": "象山",
+   "nameEn": "Xiangshan",
+   "kind": "metro",
+   "lat": 25.032868,
+   "lon": 121.569758,
+   "aliases": [
+    "象山",
+    "Xiangshan",
+    "xiangshan",
+    "R02",
+    "r02"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運象山站1號出口",
+     "landmark": null,
+     "lat": 25.032999,
+     "lon": 121.569303,
+     "x": 0,
+     "y": 1
+    },
+    {
+     "code": "2",
+     "name": "捷運象山站2號出口",
+     "landmark": null,
+     "lat": 25.032271,
+     "lon": 121.56995,
+     "x": 0.482,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": "捷運象山站3號出口",
+     "landmark": null,
+     "lat": 25.032961,
+     "lon": 121.570674,
+     "x": 1,
+     "y": 0.9762
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 138,
+    "across": 80
+   }
+  },
+  {
+   "id": "R03",
+   "name": "台北101/世貿",
+   "nameEn": "Taipei 101/World Trade Center",
+   "kind": "metro",
+   "lat": 25.032979,
+   "lon": 121.562445,
+   "aliases": [
+    "台北101/世貿",
+    "Taipei 101/World Trade Center",
+    "taipei101/worldtradecenter",
+    "R03",
+    "r03"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運台北101/世貿站1號出口",
+     "landmark": null,
+     "lat": 25.033126,
+     "lon": 121.561742,
+     "x": 0.0132,
+     "y": 1
+    },
+    {
+     "code": "2",
+     "name": "捷運台北101/世貿站2號出口",
+     "landmark": null,
+     "lat": 25.032839,
+     "lon": 121.561745,
+     "x": 0,
+     "y": 0.4096
+    },
+    {
+     "code": "3",
+     "name": "捷運台北101/世貿站3號出口",
+     "landmark": null,
+     "lat": 25.032798,
+     "lon": 121.563166,
+     "x": 0.5157,
+     "y": 0
+    },
+    {
+     "code": "4",
+     "name": "捷運台北101/世貿站4號出口",
+     "landmark": null,
+     "lat": 25.033341,
+     "lon": 121.564421,
+     "x": 1,
+     "y": 0.8246
+    },
+    {
+     "code": "5",
+     "name": "捷運台北101/世貿站5號出口 (電梯)",
+     "landmark": "電梯",
+     "lat": 25.033134,
+     "lon": 121.563243,
+     "x": 0.5602,
+     "y": 0.6719
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 275,
+    "across": 54
+   }
+  },
+  {
+   "id": "R04",
+   "name": "信義安和",
+   "nameEn": "Xinyi Anhe",
+   "kind": "metro",
+   "lat": 25.03313,
+   "lon": 121.552733,
+   "aliases": [
+    "信義安和",
+    "Xinyi Anhe",
+    "xinyianhe",
+    "R04",
+    "r04"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.03362,
+     "lon": 121.552578,
+     "x": 0.3536,
+     "y": 1
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.033075,
+     "lon": 121.552085,
+     "x": 0,
+     "y": 0.2664
+    },
+    {
+     "code": "2A",
+     "name": null,
+     "landmark": null,
+     "lat": 25.032889,
+     "lon": 121.552564,
+     "x": 0.3315,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": null,
+     "landmark": null,
+     "lat": 25.033042,
+     "lon": 121.553223,
+     "x": 0.794,
+     "y": 0.1907
+    },
+    {
+     "code": "4",
+     "name": null,
+     "landmark": null,
+     "lat": 25.03304,
+     "lon": 121.553454,
+     "x": 0.9552,
+     "y": 0.1818
+    },
+    {
+     "code": "5",
+     "name": null,
+     "landmark": null,
+     "lat": 25.033351,
+     "lon": 121.553511,
+     "x": 1,
+     "y": 0.6066
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 144,
+    "across": 81
+   }
+  },
+  {
+   "id": "R06",
+   "name": "大安森林公園",
+   "nameEn": "Daan Park",
+   "kind": "metro",
+   "lat": 25.033562,
+   "lon": 121.535279,
+   "aliases": [
+    "大安森林公園",
+    "Daan Park",
+    "daanpark",
+    "R06",
+    "r06"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "大安森林公園站1號出口",
+     "landmark": null,
+     "lat": 25.033783,
+     "lon": 121.534444,
+     "x": 0,
+     "y": 0.8098
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.033309,
+     "lon": 121.53452,
+     "x": 0.0545,
+     "y": 0.1471
+    },
+    {
+     "code": "3",
+     "name": null,
+     "landmark": null,
+     "lat": 25.033179,
+     "lon": 121.535087,
+     "x": 0.3595,
+     "y": 0
+    },
+    {
+     "code": "4",
+     "name": null,
+     "landmark": null,
+     "lat": 25.033159,
+     "lon": 121.535578,
+     "x": 0.6216,
+     "y": 0.0032
+    },
+    {
+     "code": "5",
+     "name": null,
+     "landmark": null,
+     "lat": 25.033248,
+     "lon": 121.536294,
+     "x": 1,
+     "y": 0.1736
+    },
+    {
+     "code": "6",
+     "name": null,
+     "landmark": null,
+     "lat": 25.033846,
+     "lon": 121.536023,
+     "x": 0.8385,
+     "y": 1
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 189,
+    "across": 79
+   }
+  },
+  {
+   "id": "R09",
+   "name": "台大醫院",
+   "nameEn": "NTU Hospital",
+   "kind": "metro",
+   "lat": 25.041646,
+   "lon": 121.516181,
+   "aliases": [
+    "台大醫院",
+    "NTU Hospital",
+    "ntuhospital",
+    "R09",
+    "r09"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.040999,
+     "lon": 121.515781,
+     "x": 0,
+     "y": 1
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.041183,
+     "lon": 121.516731,
+     "x": 0.1621,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": "出口 3",
+     "landmark": null,
+     "lat": 25.042916,
+     "lon": 121.516701,
+     "x": 1,
+     "y": 0.3957
+    },
+    {
+     "code": "4",
+     "name": "出口 4",
+     "landmark": null,
+     "lat": 25.042766,
+     "lon": 121.51626,
+     "x": 0.8934,
+     "y": 0.847
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 226,
+    "across": 91
+   }
+  },
+  {
+   "id": "R12",
+   "name": "雙連",
+   "nameEn": "Shuanglian",
+   "kind": "metro",
+   "lat": 25.057632,
+   "lon": 121.520699,
+   "aliases": [
+    "雙連",
+    "Shuanglian",
+    "shuanglian",
+    "R12",
+    "r12"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.057506,
+     "lon": 121.520591,
+     "x": 0,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.057823,
+     "lon": 121.520601,
+     "x": 1,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 35,
+    "across": 0
+   }
+  },
+  {
+   "id": "R14",
+   "name": "圓山",
+   "nameEn": "Yuanshan",
+   "kind": "metro",
+   "lat": 25.071417,
+   "lon": 121.520136,
+   "aliases": [
+    "圓山",
+    "Yuanshan",
+    "yuanshan",
+    "R14",
+    "r14"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運圓山站出口1",
+     "landmark": null,
+     "lat": 25.070913,
+     "lon": 121.52007,
+     "x": 0,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "捷運圓山站出口2",
+     "landmark": null,
+     "lat": 25.071585,
+     "lon": 121.52009,
+     "x": 1,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 75,
+    "across": 0
+   }
+  },
+  {
+   "id": "R15",
+   "name": "劍潭",
+   "nameEn": "Jiantan",
+   "kind": "metro",
+   "lat": 25.084291,
+   "lon": 121.524981,
+   "aliases": [
+    "劍潭",
+    "Jiantan",
+    "jiantan",
+    "R15",
+    "r15"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運劍潭站 一號出口",
+     "landmark": null,
+     "lat": 25.085127,
+     "lon": 121.525198,
+     "x": 1,
+     "y": 0
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.083282,
+     "lon": 121.524741,
+     "x": 0,
+     "y": 0.1849
+    },
+    {
+     "code": "3",
+     "name": null,
+     "landmark": null,
+     "lat": 25.084507,
+     "lon": 121.524933,
+     "x": 0.6528,
+     "y": 1
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 210,
+    "across": 12
+   }
+  },
+  {
+   "id": "R16",
+   "name": "士林",
+   "nameEn": "Shilin",
+   "kind": "metro",
+   "lat": 25.093495,
+   "lon": 121.526247,
+   "aliases": [
+    "士林",
+    "Shilin",
+    "shilin",
+    "R16",
+    "r16"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.094227,
+     "lon": 121.525976,
+     "x": 0,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.092826,
+     "lon": 121.526445,
+     "x": 1,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 163,
+    "across": 0
+   }
+  },
+  {
+   "id": "R17",
+   "name": "芝山",
+   "nameEn": "Zhishan",
+   "kind": "metro",
+   "lat": 25.103003,
+   "lon": 121.52252,
+   "aliases": [
+    "芝山",
+    "Zhishan",
+    "zhishan",
+    "R17",
+    "r17"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "芝山站1號出口",
+     "landmark": null,
+     "lat": 25.102309,
+     "lon": 121.522642,
+     "x": 1,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "芝山站2號出口",
+     "landmark": null,
+     "lat": 25.103835,
+     "lon": 121.52238,
+     "x": 0,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 172,
+    "across": 0
+   }
+  },
+  {
+   "id": "R18",
+   "name": "明德",
+   "nameEn": "Mingde",
+   "kind": "metro",
+   "lat": 25.109859,
+   "lon": 121.518769,
+   "aliases": [
+    "明德",
+    "Mingde",
+    "mingde",
+    "R18",
+    "r18"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "1號出口",
+     "landmark": null,
+     "lat": 25.109443,
+     "lon": 121.51902,
+     "x": 1,
+     "y": 0.4938
+    },
+    {
+     "code": "2",
+     "name": "2號出口",
+     "landmark": null,
+     "lat": 25.110055,
+     "lon": 121.518733,
+     "x": 0.0083,
+     "y": 1
+    },
+    {
+     "code": "3",
+     "name": "3號出口",
+     "landmark": null,
+     "lat": 25.109967,
+     "lon": 121.518559,
+     "x": 0,
+     "y": 0
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 74,
+    "across": 20
+   }
+  },
+  {
+   "id": "R19",
+   "name": "石牌",
+   "nameEn": "Shipai",
+   "kind": "metro",
+   "lat": 25.114607,
+   "lon": 121.515523,
+   "aliases": [
+    "石牌",
+    "Shipai",
+    "shipai",
+    "R19",
+    "r19"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.114832,
+     "lon": 121.515347,
+     "x": 0,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.113531,
+     "lon": 121.516246,
+     "x": 1,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 171,
+    "across": 0
+   }
+  },
+  {
+   "id": "R20",
+   "name": "唭哩岸",
+   "nameEn": "Qilian",
+   "kind": "metro",
+   "lat": 25.120905,
+   "lon": 121.50613,
+   "aliases": [
+    "唭哩岸",
+    "Qilian",
+    "qilian",
+    "R20",
+    "r20"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運唭哩岸站出口1",
+     "landmark": null,
+     "lat": 25.120717,
+     "lon": 121.506968,
+     "x": 1,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "捷運唭哩岸站出口2",
+     "landmark": null,
+     "lat": 25.120831,
+     "lon": 121.506025,
+     "x": 0,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 96,
+    "across": 0
+   }
+  },
+  {
+   "id": "R21",
+   "name": "奇岩",
+   "nameEn": "Qiyan",
+   "kind": "metro",
+   "lat": 25.125603,
+   "lon": 121.501137,
+   "aliases": [
+    "奇岩",
+    "Qiyan",
+    "qiyan",
+    "R21",
+    "r21"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "1",
+     "landmark": null,
+     "lat": 25.126079,
+     "lon": 121.501001,
+     "x": 0,
+     "y": 0.5029
+    },
+    {
+     "code": "2",
+     "name": "2",
+     "landmark": null,
+     "lat": 25.12528,
+     "lon": 121.501078,
+     "x": 0.9962,
+     "y": 0
+    },
+    {
+     "code": "3",
+     "name": "3",
+     "landmark": null,
+     "lat": 25.12531,
+     "lon": 121.501265,
+     "x": 1,
+     "y": 1
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 89,
+    "across": 19
+   }
+  },
+  {
+   "id": "R22",
+   "name": "北投",
+   "nameEn": "Beitou",
+   "kind": "metro",
+   "lat": 25.131931,
+   "lon": 121.498593,
+   "aliases": [
+    "北投",
+    "Beitou",
+    "beitou",
+    "R22",
+    "r22"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "1號出口",
+     "landmark": null,
+     "lat": 25.132201,
+     "lon": 121.498362,
+     "x": 0,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "2號入口",
+     "landmark": null,
+     "lat": 25.131023,
+     "lon": 121.49929,
+     "x": 1,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 161,
+    "across": 0
+   }
+  },
+  {
+   "id": "R22A",
+   "name": "新北投",
+   "nameEn": "Xinbeitou",
+   "kind": "metro",
+   "lat": 25.136964,
+   "lon": 121.503169,
+   "aliases": [
+    "新北投",
+    "Xinbeitou",
+    "xinbeitou",
+    "R22A",
+    "r22a"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "1號出口",
+     "landmark": null,
+     "lat": 25.136956,
+     "lon": 121.503521,
+     "x": 1,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "2號出口",
+     "landmark": null,
+     "lat": 25.136859,
+     "lon": 121.502386,
+     "x": 0,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 115,
+    "across": 0
+   }
+  },
+  {
+   "id": "R23",
+   "name": "復興崗",
+   "nameEn": "Fuxinggang",
+   "kind": "metro",
+   "lat": 25.13749,
+   "lon": 121.485498,
+   "aliases": [
+    "復興崗",
+    "Fuxinggang",
+    "fuxinggang",
+    "R23",
+    "r23"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "一號出口",
+     "landmark": null,
+     "lat": 25.137609,
+     "lon": 121.485342,
+     "x": 1,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "二號出口",
+     "landmark": null,
+     "lat": 25.137346,
+     "lon": 121.485098,
+     "x": 0,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 38,
+    "across": 0
+   }
+  },
+  {
+   "id": "R24",
+   "name": "忠義",
+   "nameEn": "Zhongyi",
+   "kind": "metro",
+   "lat": 25.130951,
+   "lon": 121.473374,
+   "aliases": [
+    "忠義",
+    "Zhongyi",
+    "zhongyi",
+    "R24",
+    "r24"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "1號出口 (中央北路)",
+     "landmark": "中央北路",
+     "lat": 25.131065,
+     "lon": 121.473185,
+     "x": 0,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "2號出口 (和信醫院)",
+     "landmark": "和信醫院",
+     "lat": 25.130933,
+     "lon": 121.473513,
+     "x": 1,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 36,
+    "across": 0
+   }
+  },
+  {
+   "id": "R25",
+   "name": "關渡",
+   "nameEn": "Guandu",
+   "kind": "metro",
+   "lat": 25.125701,
+   "lon": 121.467142,
+   "aliases": [
+    "關渡",
+    "Guandu",
+    "guandu",
+    "R25",
+    "r25"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.12548,
+     "lon": 121.46723,
+     "x": 1,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.125456,
+     "lon": 121.466836,
+     "x": 0,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 40,
+    "across": 0
+   }
+  },
+  {
+   "id": "R26",
+   "name": "竹圍",
+   "nameEn": "Zhuwei",
+   "kind": "metro",
+   "lat": 25.136973,
+   "lon": 121.45951,
+   "aliases": [
+    "竹圍",
+    "Zhuwei",
+    "zhuwei",
+    "R26",
+    "r26"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.136949,
+     "lon": 121.459715,
+     "x": 1,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.136896,
+     "lon": 121.459388,
+     "x": 0,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 34,
+    "across": 0
+   }
+  },
+  {
+   "id": "R27",
+   "name": "紅樹林",
+   "nameEn": "Hongshulin",
+   "kind": "metro",
+   "lat": 25.154409,
+   "lon": 121.458832,
+   "aliases": [
+    "紅樹林",
+    "Hongshulin",
+    "hongshulin",
+    "R27",
+    "r27"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運紅樹林站1號出口",
+     "landmark": null,
+     "lat": 25.154476,
+     "lon": 121.459064,
+     "x": 1,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": "捷運紅樹林站2號出口",
+     "landmark": null,
+     "lat": 25.154264,
+     "lon": 121.458744,
+     "x": 0,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 40,
+    "across": 0
+   }
+  },
+  {
+   "id": "R28",
+   "name": "淡水",
+   "nameEn": "Tamsui",
+   "kind": "metro",
+   "lat": 25.167783,
+   "lon": 121.445574,
+   "aliases": [
+    "淡水",
+    "Tamsui",
+    "tamsui",
+    "R28",
+    "r28"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.168082,
+     "lon": 121.445398,
+     "x": 0,
+     "y": 0.2002
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.167839,
+     "lon": 121.445721,
+     "x": 0.6669,
+     "y": 1
+    },
+    {
+     "code": "3",
+     "name": null,
+     "landmark": null,
+     "lat": 25.16761,
+     "lon": 121.445503,
+     "x": 1,
+     "y": 0
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 53,
+    "across": 29
+   }
+  },
+  {
+   "id": "ug-03972c",
+   "name": "西門地下街",
+   "nameEn": null,
+   "kind": "underground",
+   "lat": 25.044472,
+   "lon": 121.509188,
+   "aliases": [
+    "西門地下街"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "西門地下街1號出入口",
+     "landmark": null,
+     "lat": 25.043632,
+     "lon": 121.509363,
+     "x": 0,
+     "y": 0
+    },
+    {
+     "code": "2",
+     "name": "西門地下街2號出入口",
+     "landmark": null,
+     "lat": 25.043979,
+     "lon": 121.509099,
+     "x": 0.2261,
+     "y": 0.9255
+    },
+    {
+     "code": "3",
+     "name": "西門地下街3號出入口",
+     "landmark": null,
+     "lat": 25.044129,
+     "lon": 121.509094,
+     "x": 0.3325,
+     "y": 1
+    },
+    {
+     "code": "4",
+     "name": "西門地下街4號出入口",
+     "landmark": null,
+     "lat": 25.044631,
+     "lon": 121.509244,
+     "x": 0.7014,
+     "y": 0.7578
+    },
+    {
+     "code": "5",
+     "name": "西門地下街5號出入口",
+     "landmark": null,
+     "lat": 25.044658,
+     "lon": 121.509469,
+     "x": 0.7385,
+     "y": 0.1013
+    },
+    {
+     "code": "6",
+     "name": "西門地下街6號出入口",
+     "landmark": null,
+     "lat": 25.045035,
+     "lon": 121.509391,
+     "x": 1,
+     "y": 0.4868
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 155,
+    "across": 34
+   }
+  },
+  {
+   "id": "ug-07541a",
+   "name": "龍山寺地下街",
+   "nameEn": null,
+   "kind": "underground",
+   "lat": 25.03633,
+   "lon": 121.500223,
+   "aliases": [
+    "龍山寺地下街"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "ug-2271d4",
+   "name": "中山地下街",
+   "nameEn": null,
+   "kind": "underground",
+   "lat": 25.055065,
+   "lon": 121.520517,
+   "aliases": [
+    "中山地下街"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "ug-26e96b",
+   "name": "臺北地下街",
+   "nameEn": null,
+   "kind": "underground",
+   "lat": 25.049315,
+   "lon": 121.514465,
+   "aliases": [
+    "臺北地下街",
+    "台北地下街"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "ug-4bdfdb",
+   "name": "東區地下街",
+   "nameEn": null,
+   "kind": "underground",
+   "lat": 25.041529,
+   "lon": 121.548515,
+   "aliases": [
+    "東區地下街"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "東區地下街出入口1",
+     "landmark": null,
+     "lat": 25.041633,
+     "lon": 121.550528,
+     "x": 0.8142,
+     "y": 0.6022
+    },
+    {
+     "code": "2",
+     "name": "東區地下街出入口2",
+     "landmark": null,
+     "lat": 25.041615,
+     "lon": 121.551702,
+     "x": 1,
+     "y": 0.5827
+    },
+    {
+     "code": "9",
+     "name": "東區地下街出入口9",
+     "landmark": null,
+     "lat": 25.041982,
+     "lon": 121.548548,
+     "x": 0.501,
+     "y": 0.9942
+    },
+    {
+     "code": "10",
+     "name": "東區地下街10號出入口",
+     "landmark": null,
+     "lat": 25.041098,
+     "lon": 121.548542,
+     "x": 0.5001,
+     "y": 0
+    },
+    {
+     "code": "11",
+     "name": "東區地下街11號出入口",
+     "landmark": null,
+     "lat": 25.041692,
+     "lon": 121.547695,
+     "x": 0.3662,
+     "y": 0.6672
+    },
+    {
+     "code": "12",
+     "name": "東區地下街12號出入口",
+     "landmark": null,
+     "lat": 25.041136,
+     "lon": 121.547811,
+     "x": 0.3845,
+     "y": 0.0418
+    },
+    {
+     "code": "13",
+     "name": "東區地下街13號出入口",
+     "landmark": null,
+     "lat": 25.041418,
+     "lon": 121.546584,
+     "x": 0.1904,
+     "y": 0.3585
+    },
+    {
+     "code": "14",
+     "name": "東區地下街14號出入口",
+     "landmark": null,
+     "lat": 25.041988,
+     "lon": 121.546366,
+     "x": 0.156,
+     "y": 1
+    },
+    {
+     "code": "15",
+     "name": "東區地下街15號出入口",
+     "landmark": null,
+     "lat": 25.041433,
+     "lon": 121.54593,
+     "x": 0.087,
+     "y": 0.3761
+    },
+    {
+     "code": "16",
+     "name": "東區地下街16號出入口",
+     "landmark": null,
+     "lat": 25.041752,
+     "lon": 121.54538,
+     "x": 0,
+     "y": 0.7344
+    },
+    {
+     "code": "17",
+     "name": "東區地下街17號出入口",
+     "landmark": null,
+     "lat": 25.04144,
+     "lon": 121.545444,
+     "x": 0.0102,
+     "y": 0.3831
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 638,
+    "across": 99
+   }
+  },
+  {
+   "id": "ug-9d4233",
+   "name": "站前地下街",
+   "nameEn": null,
+   "kind": "underground",
+   "lat": 25.047256,
+   "lon": 121.513235,
+   "aliases": [
+    "站前地下街"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "ug-c29567",
+   "name": "K區地下街",
+   "nameEn": null,
+   "kind": "underground",
+   "lat": 25.046834,
+   "lon": 121.51686,
+   "aliases": [
+    "K區地下街",
+    "k區地下街"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "ug-ce2124",
+   "name": "東森廣場K區地下街",
+   "nameEn": null,
+   "kind": "underground",
+   "lat": 25.047057,
+   "lon": 121.516254,
+   "aliases": [
+    "東森廣場K區地下街",
+    "東森廣場k區地下街"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "ug-d4bfcc",
+   "name": "臺北車站K區地下街",
+   "nameEn": null,
+   "kind": "underground",
+   "lat": 25.046946,
+   "lon": 121.517704,
+   "aliases": [
+    "臺北車站K區地下街",
+    "台北車站k區地下街"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "ug-dd7229",
+   "name": "Y區地下街",
+   "nameEn": null,
+   "kind": "underground",
+   "lat": 25.049397,
+   "lon": 121.513673,
+   "aliases": [
+    "Y區地下街",
+    "y區地下街"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "ug-df4806",
+   "name": "凱薩飯店美食地下街",
+   "nameEn": null,
+   "kind": "underground",
+   "lat": 25.046176,
+   "lon": 121.516487,
+   "aliases": [
+    "凱薩飯店美食地下街"
+   ],
+   "exits": [],
+   "exitsAvailable": false,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "Y08",
+   "name": "十四張",
+   "nameEn": "Shisizhang",
+   "kind": "metro",
+   "lat": 24.98447,
+   "lon": 121.527589,
+   "aliases": [
+    "十四張",
+    "Shisizhang",
+    "shisizhang",
+    "Y08",
+    "y08"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運十四張站1號出口",
+     "landmark": null,
+     "lat": 24.983181,
+     "lon": 121.52977,
+     "x": 0.5,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "Y09",
+   "name": "秀朗橋",
+   "nameEn": "Xiulang Bridge",
+   "kind": "metro",
+   "lat": 24.990331,
+   "lon": 121.524901,
+   "aliases": [
+    "秀朗橋",
+    "Xiulang Bridge",
+    "xiulangbridge",
+    "Y09",
+    "y09"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運秀朗橋站1號出口",
+     "landmark": null,
+     "lat": 24.990551,
+     "lon": 121.525356,
+     "x": 1,
+     "y": 0
+    },
+    {
+     "code": "2",
+     "name": "捷運秀朗橋站2號出口",
+     "landmark": null,
+     "lat": 24.990556,
+     "lon": 121.524952,
+     "x": 0.5369,
+     "y": 1
+    },
+    {
+     "code": "天橋",
+     "name": "捷運秀朗橋站天橋",
+     "landmark": null,
+     "lat": 24.990178,
+     "lon": 121.524824,
+     "x": 0,
+     "y": 0.048
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 68,
+    "across": 26
+   }
+  },
+  {
+   "id": "Y10",
+   "name": "景平",
+   "nameEn": "Jingping",
+   "kind": "metro",
+   "lat": 24.99215,
+   "lon": 121.516173,
+   "aliases": [
+    "景平",
+    "Jingping",
+    "jingping",
+    "Y10",
+    "y10"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運景平站1號出口",
+     "landmark": null,
+     "lat": 24.991965,
+     "lon": 121.516247,
+     "x": 0.5,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "Y12",
+   "name": "中和",
+   "nameEn": "Zhonghe",
+   "kind": "metro",
+   "lat": 25.002317,
+   "lon": 121.49585,
+   "aliases": [
+    "中和",
+    "Zhonghe",
+    "zhonghe",
+    "Y12",
+    "y12"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運中和站1號出口",
+     "landmark": null,
+     "lat": 25.002217,
+     "lon": 121.496499,
+     "x": 0.5,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "Y13",
+   "name": "橋和",
+   "nameEn": "Qiaohe",
+   "kind": "metro",
+   "lat": 25.004604,
+   "lon": 121.490246,
+   "aliases": [
+    "橋和",
+    "Qiaohe",
+    "qiaohe",
+    "Y13",
+    "y13"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運橋和站1號出口",
+     "landmark": null,
+     "lat": 25.004773,
+     "lon": 121.490261,
+     "x": 0.5,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "Y14",
+   "name": "中原",
+   "nameEn": "Zhongyuan",
+   "kind": "metro",
+   "lat": 25.008178,
+   "lon": 121.484274,
+   "aliases": [
+    "中原",
+    "Zhongyuan",
+    "zhongyuan",
+    "Y14",
+    "y14"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運中原站1號出口",
+     "landmark": null,
+     "lat": 25.008197,
+     "lon": 121.484434,
+     "x": 0.5,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "Y15",
+   "name": "板新",
+   "nameEn": "Banxin",
+   "kind": "metro",
+   "lat": 25.014531,
+   "lon": 121.472418,
+   "aliases": [
+    "板新",
+    "Banxin",
+    "banxin",
+    "Y15",
+    "y15"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運板新站1號出口",
+     "landmark": null,
+     "lat": 25.014484,
+     "lon": 121.472086,
+     "x": 0.5,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "Y17",
+   "name": "新埔民生",
+   "nameEn": "Xinpu Minsheng",
+   "kind": "metro",
+   "lat": 25.026127,
+   "lon": 121.466666,
+   "aliases": [
+    "新埔民生",
+    "Xinpu Minsheng",
+    "xinpuminsheng",
+    "Y17",
+    "y17"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": "捷運新埔站4號出口",
+     "landmark": null,
+     "lat": 25.026181,
+     "lon": 121.466936,
+     "x": 0.5,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "Y19",
+   "name": "幸福",
+   "nameEn": "Xingfu",
+   "kind": "metro",
+   "lat": 25.049989,
+   "lon": 121.459967,
+   "aliases": [
+    "幸福",
+    "Xingfu",
+    "xingfu",
+    "Y19",
+    "y19"
+   ],
+   "exits": [
+    {
+     "code": "1",
+     "name": null,
+     "landmark": null,
+     "lat": 25.050079,
+     "lon": 121.460316,
+     "x": 0,
+     "y": 0.5
+    },
+    {
+     "code": "2",
+     "name": null,
+     "landmark": null,
+     "lat": 25.049797,
+     "lon": 121.460324,
+     "x": 1,
+     "y": 0.5
+    }
+   ],
+   "exitsAvailable": true,
+   "spanM": {
+    "along": 31,
+    "across": 0
+   }
+  }
+ ]
+}

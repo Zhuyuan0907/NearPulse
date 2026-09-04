@@ -45,6 +45,25 @@ export const config = {
     maxPhotoBase64: 2_000_000, // ~1.5MB 壓縮後照片
   },
 
+  /**
+   * Vision advisor（地下視覺錨點辨識）。
+   * provider 為可插拔表格（見 pipeline/advisors/vision.js）：
+   *   'openai' —— GPT-4o-mini Vision，detail: low（微型圖足夠讀柱號/燈箱）
+   *   'none'   —— 不呼叫任何外部服務，一律回 pending（降級形狀）
+   * 未設 OPENAI_API_KEY 時自動落到 'none'，因此本機/展示環境零設定即可跑。
+   * 日後接小型地端 OCR 只需在 provider 表新增一個 entry，回傳形狀不變。
+   */
+  vision: {
+    provider: process.env.VISION_PROVIDER ?? 'openai',
+    model: process.env.VISION_MODEL ?? 'gpt-4o-mini',
+    /** 逾時上限：規格目標是 1 秒內回，這是「絕不卡住使用者」的保險絲 */
+    timeoutMs: Number(process.env.VISION_TIMEOUT_MS ?? 6_000),
+    /** low detail：成本與延遲最低，對柱號/招牌/燈箱文字已足夠 */
+    detail: 'low',
+    /** 照片暫存（/api/vision → 回報帶 photoRef，省掉第二次上傳）存活時間 */
+    photoRefTtlMs: 10 * 60_000,
+  },
+
   /** 態勢卡靜態檔的最大建議大小（位元組），超過時記 warning（不擋） */
   situationCardTargetBytes: 50_000,
 };

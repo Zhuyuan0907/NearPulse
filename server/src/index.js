@@ -20,6 +20,8 @@ import { startBatchWorker } from './pipeline/batchWorker.js';
 import { createReportsRouter } from './routes/reports.js';
 import { createEventsRouter } from './routes/events.js';
 import { createSituationRouter } from './routes/situation.js';
+import { createVisionRouter } from './routes/vision.js';
+import { createVenuesRouter } from './routes/venues.js';
 
 const app = express();
 
@@ -32,6 +34,8 @@ const store = createStore();
 app.use('/api/reports', createReportsRouter(store));
 app.use('/api/events', createEventsRouter(store));
 app.use('/api/situation', createSituationRouter(store));
+app.use('/api/vision', createVisionRouter(store));
+app.use('/api/venues', createVenuesRouter());
 
 // ---- 健康檢查（部署與測試用） ----
 app.get('/healthz', (_req, res) => res.json({ ok: true, ts: Date.now() }));

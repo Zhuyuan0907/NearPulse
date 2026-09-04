@@ -18,7 +18,6 @@
 import { useEffect, useState } from 'react';
 import { fetchEvents, confirmEvent } from '../modules/api.js';
 import { resolveLocation } from '../modules/location.js';
-import { stationDisplayName } from '../data/stations.js';
 
 export default function ConfirmPage({ eventId }) {
   const [events, setEvents] = useState([]);
@@ -88,7 +87,7 @@ export default function ConfirmPage({ eventId }) {
         <div className="confirm-box">
           {step === 'location' && (
             <>
-              <h2>你現在在 {stationDisplayName(target.stationId)} 嗎？</h2>
+              <h2>你現在在 {target.stationName} 嗎？</h2>
               <p className="muted">據回報，附近疑似有【{target.typeLabel}】狀況。</p>
               <div className="confirm-actions">
                 <button className="primary-btn big" onClick={() => answerLocation(true)}>在</button>
@@ -124,7 +123,7 @@ export default function ConfirmPage({ eventId }) {
           onClick={() => { setTarget(ev); setStep('location'); }}
         >
           <div className="event-title">
-            {stationDisplayName(ev.stationId)} · {ev.typeLabel}
+            {ev.stationName} · {ev.typeLabel}
           </div>
           <div className="muted">
             {ev.status === 'candidate' ? '未經確認 — 需要現場回覆' : '已確認 — 歡迎補充回覆'}

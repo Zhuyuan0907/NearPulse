@@ -19,9 +19,14 @@ import { config } from '../config.js';
  *   sessionId: string,        // 本次造訪的 session UUID（獨立性計數用）
  *   type: 'fire'|'medical'|'crush'|'other',
  *   locationClaim: { source: 'gps'|'manual'|'session', stationId, confidence, timestamp },
+ *   nearExitCode?: string|null, // 事件最接近的出口代碼（如 'M3'），由照片辨識或使用者點選
+ *   photoRoi?: 'A1'~'C3'|null,  // 照片九宮格中「有地點標示」的那一格（僅供追溯）
+ *   note?: string,              // 文字補充（選配，≤140 字）
  *   attachToEventId?: string, // 使用者點了「同一件」時帶入
  *   audio?: { base64, mimeType },  // 選配：hold-to-talk 語音
- *   photo?: { base64 },            // 選配：壓縮後照片
+ *   photo?: { base64, mimeType },   // 選配：1024px WebP（<50KB）
+ *   photoRef?: string,          // 選配：/api/vision 已收下該圖時改帶 ref（免重傳）
+ *   photoAnalysis?: object,     // 選配：client 已取得的 Vision 結果（免重複分析）
  * }
  */
 export function validateReport(body) {
@@ -37,6 +42,30 @@ export function validateReport(body) {
   }
   if (claim && !['gps', 'manual', 'session'].includes(claim.source)) {
     errors.push(`無效的位置聲明來源: ${claim.source}`);
+  }
+
+  // 出口代碼：正規化成大寫短字串；不存在的代碼由 venueService 查表時自然落空，
+  // 這裡只擋形狀（不擋回報）
+  if (typeof body.nearExitCode === 'string') {
+    const code = body.nearExitCode.trim().toUpperCase();
+    body.nearExitCode = code && code.length <= 6 ? code : null;
+  } else if (body.nearExitCode != null) {
+    body.nearExitCode = null;
+  }
+
+  // 照片九宮格：只是「哪一格有地點標示」的追溯資訊，不參與任何位置計算
+  if (body.photoRoi != null && !/^[ABC][123]$/.test(body.photoRoi)) body.photoRoi = null;
+
+  // 文字補充：超長截斷（不擋）
+  if (typeof body.note === 'string' && body.note.length > 140) body.note = body.note.slice(0, 140);
+  if (body.note != null && typeof body.note !== 'string') body.note = null;
+
+  // photoRef：只接受字串，其餘收斂為 null（查無此 ref 由路由層靜默略過）
+  if (body.photoRef != null && typeof body.photoRef !== 'string') body.photoRef = null;
+
+  // photoAnalysis：只接受物件（client 已拿到的 Vision 結果），其餘丟棄
+  if (body.photoAnalysis != null && typeof body.photoAnalysis !== 'object') {
+    body.photoAnalysis = null;
   }
 
   // 附件大小防呆（base64 字元數）
@@ -57,9 +86,14 @@ export function normalizeReport(body) {
     sessionId: body.sessionId,
     type: body.type,
     locationClaim: body.locationClaim,
+    nearExitCode: body.nearExitCode ?? null, // 場域錨點（確定性查表得出）
+    photoRoi: body.photoRoi ?? null,         // 照片九宮格（僅供追溯）
+    note: body.note ?? null,                 // 文字補充（選配）
     attachToEventId: body.attachToEventId ?? null,
     audio: body.audio ?? null,
     photo: body.photo ?? null,
+    /** client 已取得的 Vision 結果——有值就不必在 batch 端重複分析同一張圖 */
+    photoAnalysis: body.photoAnalysis ?? null,
     receivedAt: Date.now(),
   };
 }

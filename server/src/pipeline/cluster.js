@@ -67,6 +67,10 @@ export function countOnSiteNegatives(event) {
  * @returns 'promote' | 'cancel' | 'freeze' | 'expire' | 'stay'
  */
 export function evaluateEvent(event, config, now = Date.now()) {
+  // cancelled / frozen 是終態——先擋掉，否則否證規則會讓已取消的事件
+  // 每個 batch tick 都再「取消」一次（log 洗版 + 態勢卡每輪被判髒重算）。
+  if (event.status === 'cancelled' || event.status === 'frozen') return 'stay';
+
   const positives = countIndependentPositives(event);
   const negatives = countOnSiteNegatives(event);
   const threshold = config.eventTypes[event.type].threshold;

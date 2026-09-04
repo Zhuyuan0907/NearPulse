@@ -27,7 +27,10 @@ export function createCandidateEvent(report, stationName) {
     status: 'candidate', // 事件狀態機初始態
     createdAt: Date.now(),
     updatedAt: Date.now(),
-    /** 併入此事件的原始回報（含附件） */
+    /** 事件錨點：最接近的出口代碼（如 'M3'）。由照片辨識或使用者點選，
+     *  再經 venueService 確定性查表得出——不是 AI 猜的座標。疏散建議的輸入。 */
+    nearExitCode: report.nearExitCode ?? null,
+    /** 併入此事件的原始回報（含附件與補充） */
     reports: [report],
     /** 兩段式確認的回覆 */
     confirmations: [],
@@ -82,6 +85,7 @@ export function toEventSummary(event) {
     stationName: event.stationName,
     status: event.status,
     severity: config.eventTypes[event.type]?.severity ?? 'low',
+    nearExitCode: event.nearExitCode ?? null, // 場域錨點（疏散建議用）
     reportCount: event.reports.length,
     confirmationCount: event.confirmations.filter((c) => c.atStation).length,
     createdAt: event.createdAt,

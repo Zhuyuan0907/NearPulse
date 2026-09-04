@@ -52,12 +52,19 @@ export async function llmNarrate(event) {
   // TODO: 接 GPT-4o-mini——把 reports + confirmations 餵給 LLM，
   //   產出 1-2 句時間線敘事；失敗時 fallback：直接回傳結構化字串。
   const firstReport = event.reports[0];
+  const zonePart = event.nearExitCode ? `（近 ${event.nearExitCode} 出口）` : '';
+  const notes = event.reports
+    .map((r) => r.note)
+    .filter(Boolean)
+    .slice(0, 2); // 最多帶兩則補充，避免敘事暴肥
+
   const summary =
-    `${event.stationName}（${event.stationId}）於 ` +
+    `${event.stationName}（${event.stationId}）${zonePart}於 ` +
     `${new Date(firstReport?.receivedAt ?? event.createdAt).toLocaleTimeString('zh-TW')} ` +
     `收到首筆【${config.eventTypes[event.type]?.label ?? event.type}】回報` +
     `，目前已累積 ${event.reports.length} 筆回報、` +
-    `${event.confirmations.length} 筆確認回覆。`;
+    `${event.confirmations.length} 筆確認回覆` +
+    (notes.length > 0 ? `。補充：「${notes.join('」／「')}」` : '。');
 
   return { summary, pending: true };
 }

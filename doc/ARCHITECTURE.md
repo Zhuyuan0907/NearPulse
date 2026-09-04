@@ -1,4 +1,4 @@
-# NearPulse 系統架構（v0.1.0 實作版）
+# NearPulse 系統架構（v0.3.0 實作版）
 
 > 地下通勤場域的非同步災情儀表板——極簡寫入、批次聚合、超輕量讀取。
 
@@ -6,16 +6,27 @@
 
 ```
 [回報頁 #/]
-  │ POST /api/reports（UUID 冪等 + 位置聲明 + 選配語音/照片）
+  │
+  ├─ 【地下視覺定位】拍照 ──▶ 前端壓縮（EXIF 轉正、1024px WebP、<50KB）
+  │    │
+  │    ├─ ① POST /api/vision?stage=locate（整張圖）
+  │    │      → 哪一格（A1~C3）看得到站名/出口牌 + photoRef
+  │    ├─ ② 使用者在九宮格上確認或改點（零打字、即時）
+  │    ├─ ③ **從原圖裁那一格** ──▶ stage=read → 只讀字（不猜座標）
+  │    ├─ ④ venueService 確定性查表：文字 → 場域 + 出口 + 精確經緯度
+  │    └─ ⑤ 示意圖上高亮，使用者一眼確認或改點別的出口
+  │       （任一步失敗 → 靜默降級回手選，絕不擋回報）
+  │
+  │ POST /api/reports（UUID 冪等 + 位置聲明 + 選配 nearExitCode/語音/文字/photoRef）
   ▼
 [API Gateway/驗證] ──▶ [記憶體佇列]（未來：Redis Stream）
                           │ 每 10 秒
                           ▼
                     [批次 Worker]
-                      ├─ 歸屬：同站同類型 → 併入既有事件（或開新 candidate）
+                      ├─ 歸屬：同場域同類型 → 併入既有事件（或開新 candidate）
                       ├─ 狀態機：candidate→active→frozen / cancelled
-                      └─ AI advisor（STT/Vision/LLM）＝ stub，不在關鍵路徑
-                          │
+                      └─ AI advisor（STT/LLM）fire-and-forget，不在關鍵路徑
+                          │  （視覺定位在回報端已完成，batch 端不重複付費）
               ┌───────────┴───────────┐
               ▼                       ▼
       [靜態態勢卡 + ETag]        [確認循環]
@@ -29,9 +40,10 @@
 
 | 原則 | 實作位置 |
 |---|---|
-| 零打字：粗粒度用點的、細粒度用說的、永遠不用打的 | `ReportPage` 狀態機按鈕 + `voiceRecorder` hold-to-talk |
-| 零 GPS 依賴：GPS 是加速器不是必要條件 | `location.js` L1 GPS → L2 session 記憶 → L3 路網圖手選（最終仲裁） |
-| LLM 不在關鍵路徑上 | 態勢卡由確定性模板生成；advisor 全部 stub 且 fire-and-forget |
+| 零打字：粗粒度用點的、細粒度用說的、永遠不用打的 | 類型大按鈕 + `PhotoRoiPicker` 影像九宮格 + `VenueMap` 出口點選 + hold-to-talk（文字輸入與搜尋框皆為併行後備，非必經） |
+| 零 GPS 依賴：GPS 是加速器不是必要條件 | 粗略 GPS（±300~500m 就夠）→ `/api/venues/nearby` 收斂成點選清單 → 視覺錨點定到出口。地下無 GPS 時整條路徑照走 |
+| AI 只讀字、不猜座標 | Vision 只回「哪一格有牌子」與「牌子上的字」；位置由 `venueService.resolveAnchors` 確定性查表得出 |
+| LLM 不在關鍵路徑上 | 態勢卡由確定性模板生成；advisor 全部 fire-and-forget，失敗一律回同一種降級形狀 |
 | 非同步批次（10 秒） | `batchWorker.js`：歸屬 → 門檻 → 狀態機 → 卡片重算 |
 | 弱網優先讀取 | 態勢卡由 worker 預算 + ETag 304 + Page Visibility 前台輪詢 |
 | 冪等（防恐慌連點） | client UUID + server `seenReportUuids` |
@@ -53,11 +65,19 @@
 
 | 層 | 訊號 | 存活期 | 信心 |
 |---|---|---|---|
-| L1 | `getCurrentPosition` 一次 | 即時 | accuracy ≥300m 不信任（地下常為過期快取） |
-| L2 | session 內上次確認站點（sessionStorage） | 30 分鐘 | 0.6 |
-| L3 | 路網圖手選（兩層：路線→站） | 即時 | 1.0（最終仲裁） |
+| L1 | `getCurrentPosition` 一次（粗略即可） | 即時 | 只用來收斂鄰近清單，不作為位置聲明 |
+| L2 | session 內上次確認場域（sessionStorage） | 30 分鐘 | 0.6 |
+| L3 | 場域點選（鄰近清單，搜尋為後備） | 即時 | 1.0（最終仲裁） |
+| L4 | 視覺錨點 → 出口代碼（`nearExitCode`） | 即時 | 選配——疏散建議的輸入 |
 
-每筆回報附帶：`{ source: gps|manual|session, stationId, confidence, timestamp }`。
+每筆回報附帶：`{ source: gps|manual|session, stationId, confidence, timestamp }`，
+外加選配的 `nearExitCode`（如 `M3`）。
+
+**L1 的門檻答對了問題**：±300~500m 對「我在哪個月台」沒用，對「我在哪一站」卻綽綽有餘
+（站距普遍大於 300m）。v0.2 以前把 accuracy ≥300m 的定位整個丟棄，等於浪費了這個訊號。
+
+> 場域（venue）是通用模型：捷運站體、地下街、地下停車場皆可掛入，
+> 條件只有「地下、無可靠 GPS」。資料由 OSM 產生，見 §8。
 
 ## 5. 網頁平台約束（設計已內化，不依賴）
 
@@ -70,27 +90,37 @@
 
 ```
 server/src/
-  config.js                 全域參數（門檻/凍結/批次間隔/上限）
+  config.js                 全域參數（門檻/凍結/批次間隔/上限/vision 供應商）
+  data/venues.json          OSM 場域快照（產生物，進版控；見 §8）
   store/index.js            儲存層工廠（介面）
-  store/memoryStore.js      記憶體實作（日後換 Redis/PG）
+  store/memoryStore.js      記憶體實作 + 照片短 TTL 暫存（日後換 Redis/PG）
   pipeline/cluster.js       分群/門檻/狀態判斷（純函式）
   pipeline/batchWorker.js   10 秒批次主循環
-  pipeline/advisors/        STT/Vision/LLM stub（介面穩定、日後接真服務）
+  pipeline/advisors/stt.js     STT stub（介面穩定、日後接 Whisper）
+  pipeline/advisors/vision.js  兩段式（locate/read）+ 可插拔 provider（openai / none）
+  pipeline/advisors/llm.js     確定性避難建議模板 + 時間線敘事 stub
   services/reportService.js ingest 驗證與正規化
   services/eventService.js  狀態機執行 + 事件摘要
-  services/situationCardService.js  態勢卡建構 + ETag
+  services/anchorParser.js  出口代碼／站名解析（建表與查表共用，避免規則漂移）
+  services/venueService.js  場域查表、鄰近搜尋、錨點解析、示意幾何
+  services/evacuationService.js  疏散向量（真實公尺距離，純函式）
+  services/situationCardService.js  態勢卡建構 + ETag（含預算好的疏散文字）
   routes/reports.js         POST /api/reports、GET /api/reports/context
   routes/events.js          GET /api/events、POST /api/events/:id/confirm
   routes/situation.js       GET /api/situation（ETag/304）
+  routes/vision.js          POST /api/vision（兩段式分析 + 錨點候選 + photoRef）
+  routes/venues.js          GET /api/venues/nearby|search|:id
+scripts/build-venues.mjs    離線產生 OSM 快照（非 server 依賴）
 
 client/src/
   modules/session.js        無身份 session UUID
-  modules/location.js       L1/L2/L3 位置狀態機
+  modules/location.js       粗略定位 + session 記憶（client 不持有任何圖資）
   modules/api.js            API client + ETag 輪詢器
   modules/voiceRecorder.js hold-to-talk（iOS 無 SpeechRecognition → 上傳制）
-  modules/photoCompressor.js canvas 壓縮 <200KB
-  data/stations.js          路網圖 subset（正式版換完整路網 JSON）
-  components/StationPicker.jsx  路網圖點選（零打字）
+  modules/photoCompressor.js EXIF 轉正、壓到 <50KB、**從原圖裁九宮格的一格**
+  components/VenuePicker.jsx    鄰近場域點選（搜尋為後備）
+  components/PhotoRoiPicker.jsx 照片九宮格：標出有站名/出口牌的那一格
+  components/VenueMap.jsx       出口示意圖（SVG，無圖磚）
   pages/ReportPage.jsx      回報 3 秒流程
   pages/ConfirmPage.jsx     兩段式確認
   pages/SituationPage.jsx   態勢卡（讀取端）
@@ -106,4 +136,44 @@ client/src/
 | `/api/events?station=` | GET | 可確認事件清單 |
 | `/api/events/:id/confirm` | POST | 兩段式確認（session 一票） |
 | `/api/situation` | GET | 態勢卡（ETag → 304） |
+| `/api/vision` | POST | 兩段式視覺分析（`stage=locate|read`）+ 錨點候選 + `photoRef`（⚠️ 無防濫用） |
+| `/api/venues/nearby?lat=&lon=` | GET | 鄰近場域（零打字選擇的主路徑） |
+| `/api/venues/search?q=` | GET | 場域搜尋（後備路徑） |
+| `/api/venues/:id` | GET | 出口清單 + 示意幾何（畫 SVG 用） |
 | `/healthz` | GET | 健康檢查 |
+
+### 照片只上傳一次
+
+`POST /api/vision` 收下照片後會暫存 10 分鐘並回一個 `photoRef`。
+回報改帶 `photoRef` 取代 `photo.base64`，3G 下省掉第二次 50KB 上傳；
+視覺定位在回報端就完成了，batch 端不再對同一張圖呼叫第二次 Vision。
+ref 過期或遺失時 server 靜默略過——照片是選配，不擋回報。
+
+## 8. 場域圖資（OpenStreetMap）
+
+手工維護出口圖資不只是麻煩，是會錯而且錯得安靜——v0.2 的示範資料裡
+`R09`（實為台大醫院）被寫成台北101、`BL13`（實為善導寺）被寫成忠孝復興。
+v0.3 改由 OSM 產生：
+
+```
+scripts/build-venues.mjs   分區查詢 Overpass（一次抓全台會斷線）
+   ├─ 捷運：station 節點依「站名 + 600m」合併轉乘站，
+   │        出口以「到任一組成節點的最短距離」歸屬（≤400m）
+   ├─ 地下街：無車站節點可歸屬，由出口名稱反推場域（「西門地下街1號出入口」）
+   ├─ 停車場：OSM 只有一個帶名字的點 → 僅建到場域層級
+   └─ 出口點雲以 PCA 主軸對齊後正規化到 0~1（純服務繪圖，不帶語意）
+        ↓
+server/src/data/venues.json   519 場域 / 614 出口 / 165KB，進版控
+```
+
+**為什麼是離線 script 而非啟動時抓**：Overpass 是共用免費服務，不適合逐請求查詢；
+回報路徑上多一個外部依賴就多一個失敗模式。server 執行時完全不碰外部網路。
+
+**資料分兩級**（依實測覆蓋率，不是設計偏好）：
+
+| 級別 | 場域 | OSM 有什麼 | 能做什麼 |
+|---|---|---|---|
+| 完整級 | 捷運、地下街 | 出口節點（`ref` 編號 + 座標） | 錨點辨識、地圖確認、疏散距離 |
+| 場域級 | 地下停車場 | 只有一個帶名字的點 | 僅能回報「在某停車場」，UI 自動降級 |
+
+資料授權：OSM 為 ODbL，`venues.json` 內含姓名標示，UI 頁尾顯示。

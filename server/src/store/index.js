@@ -14,6 +14,11 @@
  *   listEvents()               # 全部事件（批次 worker 掃描用）
  *   markCardDirty() / isCardDirty()
  *   setCard(card) / getCard()  # 態勢卡快取（與 ETag 一起快取）
+ *   putPhoto(photo) / takePhoto(ref)  # 照片短 TTL 暫存（見下）
+ *
+ * 關於 putPhoto/takePhoto：回報端拍完照會先打 /api/vision 取區域建議，
+ * 若接著又把同一張圖塞進 report payload，等於在 3G 下白傳第二次。
+ * vision 回一個 ref，回報只帶 ref，server 端還原——純加速，遺失可退回原路徑。
  */
 
 import { createMemoryStore } from './memoryStore.js';

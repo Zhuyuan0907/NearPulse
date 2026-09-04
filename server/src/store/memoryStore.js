@@ -9,9 +9,19 @@
  * 只負責「存」與「取」——業務邏輯全部在 pipeline 層，方便測試與替換。
  */
 
+import { config } from '../config.js';
+
 export function createMemoryStore() {
   /** 已見過的回報 UUID → 冪等去重（同一 UUID 重送不重複處理） */
   const seenReportUuids = new Map(); // uuid -> { result }（第一次處理的結果）
+
+  /**
+   * 照片暫存：ref -> { photo, expiresAt }
+   * 用途——回報端拍完照會先送 /api/vision 拿區域建議，若接著再把同一張圖
+   * 塞進 report payload 等於在 3G 下白傳第二次。改由 vision 回一個 ref，
+   * 回報只帶 ref，server 端還原。純加速用，過期或遺失都能退回帶 base64 的路徑。
+   */
+  const photoRefs = new Map();
 
   /** 待批次處理的回報佇列（對應架構中的 Redis Stream 角色） */
   let pendingReports = [];
@@ -59,6 +69,27 @@ export function createMemoryStore() {
 
     listEvents() {
       return [...events.values()];
+    },
+
+    // ---- 照片暫存（/api/vision → 回報帶 photoRef，省掉第二次上傳） ----
+
+    /** 存一張照片並回傳 ref；順手清掉過期項目（量小，不需背景 timer） */
+    putPhoto(photo) {
+      const now = Date.now();
+      for (const [key, entry] of photoRefs) {
+        if (entry.expiresAt <= now) photoRefs.delete(key);
+      }
+      const ref = `ph_${now.toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+      photoRefs.set(ref, { photo, expiresAt: now + config.vision.photoRefTtlMs });
+      return ref;
+    },
+
+    /** 取出並移除一張暫存照片；ref 無效/過期回 null（呼叫端須容忍） */
+    takePhoto(ref) {
+      const entry = photoRefs.get(ref);
+      if (!entry) return null;
+      photoRefs.delete(ref);
+      return entry.expiresAt > Date.now() ? entry.photo : null;
     },
 
     // ---- 態勢卡快取 ----

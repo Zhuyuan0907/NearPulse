@@ -11,7 +11,6 @@
 
 import { useEffect, useState } from 'react';
 import { startSituationPolling } from '../modules/api.js';
-import { stationDisplayName } from '../data/stations.js';
 
 export default function SituationPage() {
   const [card, setCard] = useState(null);
@@ -43,11 +42,12 @@ export default function SituationPage() {
 
       {card.stations.map((station) => (
         <div key={station.stationId} className="station-group">
-          <h3 className="station-name">📍 {stationDisplayName(station.stationId)}</h3>
+          <h3 className="station-name">📍 {station.stationName}</h3>
           {station.events.map((ev) => (
             <div key={ev.id} className={`event-card ${ev.status === 'active' ? 'event-active' : 'event-candidate'}`}>
               <div className="event-title">
                 {ev.typeLabel}
+                {ev.nearExitCode && <span className="chip zone-chip">近 {ev.nearExitCode} 出口</span>}
                 <span className={`threat threat-${ev.threatLevel}`}>
                   {ev.threatLevel === 'high' ? '高警戒' :
                    ev.threatLevel === 'medium' ? '中警戒' :
@@ -55,6 +55,10 @@ export default function SituationPage() {
                 </span>
               </div>
               <p className="advice">{ev.advice}</p>
+              {/* 疏散向量由 server 依真實出口距離算好；無出口圖資時回 null */}
+              <p className="evac-line">
+                🧭 {ev.evacuation ?? '依現場人員指示，使用最近可用出口。'}
+              </p>
               <p className="muted">
                 {ev.reportCount} 筆回報 · {ev.independentSignals} 個獨立訊號 ·
                 更新 {new Date(ev.updatedAt).toLocaleTimeString('zh-TW')}
@@ -76,7 +80,7 @@ export default function SituationPage() {
               onClick={() => { window.location.hash = `#/confirm?event=${p.eventId}`; }}
             >
               <div className="event-title">
-                {stationDisplayName(p.stationId)} · {p.typeLabel}
+                {p.stationName} · {p.typeLabel}
               </div>
               <div className="muted">{p.message}（點擊協助確認）</div>
             </button>

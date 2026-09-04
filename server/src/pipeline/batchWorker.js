@@ -26,8 +26,8 @@ import {
   applyTransition,
 } from '../services/eventService.js';
 import { buildSituationCard } from '../services/situationCardService.js';
+import { findVenue } from '../services/venueService.js';
 import { transcribeAudio } from './advisors/stt.js';
-import { verifyPhoto } from './advisors/vision.js';
 import { llmNarrate } from './advisors/llm.js';
 
 export function startBatchWorker(store, { log = console.log } = {}) {
@@ -63,17 +63,24 @@ export function startBatchWorker(store, { log = console.log } = {}) {
 
       // 2c. 都沒有 → 開新 candidate
       if (!event) {
-        event = createCandidateEvent(report, report.locationClaim.stationName);
+        // 場域名稱由 server 的圖資解析，不再依賴 client 帶上來——
+        // 站務台、報告書等非本 client 的消費端才拿得到可讀名稱。
+        // client 若有帶名稱則作為未知場域的後備。
+        const claim = report.locationClaim;
+        const resolved = findVenue(claim.stationId);
+        event = createCandidateEvent(report, resolved?.name ?? claim.stationName);
         log(`[batch] 新事件 ${event.id}：${event.stationId} ${event.type}`);
       } else {
         event.reports.push(report);
+        // 錨點：最新一筆帶出口代碼的回報覆寫（疏散建議用）
+        if (report.nearExitCode) event.nearExitCode = report.nearExitCode;
       }
 
       event.updatedAt = now; // 有新訊號進來，重置凍結計時
       store.upsertEvent(event);
 
       // ---- 步驟 3：觸發 advisor（不 await——不在關鍵路徑上） ----
-      runAdvisors(event, report);
+      runAdvisors(store, event, report);
 
       store.markCardDirty();
     }
@@ -102,9 +109,9 @@ export function startBatchWorker(store, { log = console.log } = {}) {
 
 /**
  * 對一筆剛歸屬的回報觸發 AI advisor（fire-and-forget）。
- * 萃取結果只「補充」事件資訊（timeline / 標籤），永不影響狀態。
+ * 萃取結果只「補充」事件資訊（timeline / 標籤 / 區域建議），永不影響狀態。
  */
-function runAdvisors(event, report) {
+function runAdvisors(store, event, report) {
   if (report.audio?.base64) {
     transcribeAudio(report.audio.base64, report.audio.mimeType)
       .then((res) => {
@@ -114,13 +121,18 @@ function runAdvisors(event, report) {
       })
       .catch(() => {}); // advisor 失敗靜默——補充層失敗不是錯誤
   }
-  if (report.photo?.base64) {
-    verifyPhoto(report.photo.base64).catch(() => {});
-  }
+  // 視覺錨點分析在回報端就跑完了（/api/vision 兩階段），結果以 nearExitCode
+  // 隨回報帶上來——這裡不需要、也不應該再對同一張圖付第二次錢。
+  //
+  // 注意這裡刻意沒有「AI 補寫位置」的路徑：v0.2 曾讓 Vision 回傳的格位直接
+  // 寫進事件並驅動疏散方向，而那個格位其實是影像座標。位置一律走
+  // 「讀字 → venueService 查表 → 使用者在地圖上確認」這條確定性路徑。
+
   // LLM 時間線敘事：每次有新回報都重產一次（stub 為確定性字串）
   llmNarrate(event)
     .then((res) => {
       event.timeline = res.summary;
+      store.markCardDirty(); // 敘事是非同步回來的，要讓下一輪重算卡片才看得到
     })
     .catch(() => {});
 }
