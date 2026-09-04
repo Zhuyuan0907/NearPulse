@@ -39,10 +39,10 @@ const ENDPOINT = process.env.OVERPASS_URL ?? 'https://overpass-api.de/api/interp
  * 分成幾個小區塊各自查再合併，成功率高很多，也對這個共用免費服務友善。
  * 只涵蓋有軌道系統的都會區——其餘地區沒有地下通勤場域。
  */
+// 註：台南目前無營運中的捷運系統，不查（省一次對共用服務的請求）
 const REGIONS = [
   { name: '北北基桃', bbox: [24.80, 121.15, 25.35, 121.90] },
   { name: '台中',     bbox: [23.95, 120.55, 24.35, 120.80] },
-  { name: '台南',     bbox: [22.85, 120.10, 23.15, 120.35] },
   { name: '高雄',     bbox: [22.45, 120.20, 22.85, 120.45] },
 ];
 const BBOX_TAIPEI = [24.95, 121.40, 25.20, 121.68];
@@ -83,15 +83,15 @@ async function overpass(query, attempt = 1) {
     });
 
     if (!res.ok) {
-      // 429/504 是 Overpass 忙碌時的常態
+      // 429 = 併發槽用完（公開實例只給 2 個），504 = 忙碌。都要退避重試
       if ([429, 502, 503, 504].includes(res.status)) throw new Error(`HTTP ${res.status}`);
       throw new Error(`Overpass 回應 ${res.status}`);
     }
     return await res.json();
   } catch (err) {
     // 連線中斷同樣要退避重試——大範圍查詢時是常見的失敗模式
-    if (attempt < 3) {
-      const wait = attempt * 20;
+    if (attempt < 5) {
+      const wait = attempt * 25;
       console.warn(`  ${err.message}，${wait}s 後重試（第 ${attempt + 1} 次）`);
       await sleep(wait);
       return overpass(query, attempt + 1);
@@ -197,6 +197,106 @@ function fnv1a(str) {
 }
 
 // ---------------------------------------------------------------------------
+// 方向地標補完（最近的有名街道）
+// ---------------------------------------------------------------------------
+
+/**
+ * OSM 的 exit_to 與名稱括號只覆蓋約四分之一的出口——而且剛好在最重要的大站
+ * （台北車站 27 個出口、北門 13 個、民權西路 10 個）全部是空的。
+ *
+ * 補完方式：取**最近的有名街道**。台北捷運的出口牌本來就大量以路名導引
+ * （「M7 出口 忠孝西路」），所以這個推導出的方向資訊跟現場指標是同一件事。
+ *
+ * 只在缺地標時才補；已有 exit_to / 名稱括號的以原始標註為準。
+ */
+
+/** 願意當作方向指引的道路類別（依可辨識度排序，數字小者優先） */
+const ROAD_RANK = {
+  trunk: 0, primary: 1, secondary: 2, tertiary: 3,
+  pedestrian: 4, residential: 5, living_street: 6,
+};
+
+const MAX_STREET_DIST_M = 70;
+
+/** 點到線段的距離（先投影到公尺平面，站體尺度下誤差可忽略） */
+function pointToSegmentM(p, a, b) {
+  const k = 111_320;
+  const c = Math.cos((p.lat * Math.PI) / 180);
+  const to = (q) => ({ x: q.lon * k * c, y: q.lat * k });
+  const P = to(p); const A = to(a); const B = to(b);
+  const dx = B.x - A.x; const dy = B.y - A.y;
+  const L = dx * dx + dy * dy;
+  const t = L === 0 ? 0 : Math.max(0, Math.min(1, ((P.x - A.x) * dx + (P.y - A.y) * dy) / L));
+  return Math.hypot(P.x - (A.x + t * dx), P.y - (A.y + t * dy));
+}
+
+/**
+ * 路名清理：出口牌不會寫「市民大道高架道路」，只會寫「市民大道」。
+ * 巷弄與括號註記（「公園路 (大客車專用道)」）不是方向指引，直接排除。
+ */
+function cleanStreetName(name) {
+  if (!name) return null;
+  if (/[巷弄()（）]/.test(name)) return null;
+  return name.replace(/高架(道路|橋)$/, '').trim() || null;
+}
+
+async function enrichLandmarks(venues, stats) {
+  const targets = venues.filter(
+    (v) => v.exitsAvailable && v.exits.some((e) => !e.landmark)
+  );
+  console.log(`[build-venues] 補方向地標：${targets.length} 個場域缺少出口方向資訊`);
+
+  for (const [i, v] of targets.entries()) {
+    const lats = v.exits.map((e) => e.lat);
+    const lons = v.exits.map((e) => e.lon);
+    const pad = 0.0008; // 約 90m，足以涵蓋出口周邊街廓
+    const bbox = [
+      Math.min(...lats) - pad, Math.min(...lons) - pad,
+      Math.max(...lats) + pad, Math.max(...lons) + pad,
+    ].join(',');
+
+    let streets = [];
+    try {
+      const data = await overpass(
+        `[out:json][timeout:60][bbox:${bbox}];way["highway"]["name"];out tags geom;`
+      );
+      streets = (data.elements ?? []).filter(
+        (w) => ROAD_RANK[w.tags?.highway] !== undefined && cleanStreetName(w.tags?.name)
+      );
+    } catch {
+      stats.landmarkQueryFailed++;
+      continue; // 補完失敗不是錯誤——缺方向資訊只是少一個提示，不影響出口編號
+    }
+
+    for (const exit of v.exits) {
+      if (exit.landmark) continue;
+      let best = null;
+      for (const w of streets) {
+        const rank = ROAD_RANK[w.tags.highway];
+        const g = w.geometry ?? [];
+        for (let j = 0; j < g.length - 1; j++) {
+          const d = pointToSegmentM(exit, g[j], g[j + 1]);
+          if (d > MAX_STREET_DIST_M) continue;
+          // 先比道路等級（大路才是指標會寫的），同級再比距離
+          if (!best || rank < best.rank || (rank === best.rank && d < best.dist)) {
+            best = { rank, dist: d, name: cleanStreetName(w.tags.name) };
+          }
+        }
+      }
+      if (best) {
+        exit.landmark = best.name;
+        exit.landmarkSource = 'nearest_street'; // 標明是推導的，不是官方出口標示
+        stats.landmarkFromStreet++;
+      }
+    }
+
+    if ((i + 1) % 20 === 0) console.log(`  … ${i + 1}/${targets.length}`);
+    // Overpass 公開實例只有 2 個併發槽，連發會被 429。3 秒是實測可穩定跑完的節奏。
+    await sleep(3);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // 場域組裝
 // ---------------------------------------------------------------------------
 
@@ -264,6 +364,7 @@ function buildMetro(stations, entrances, stats) {
       code: exitCodeFromTags(en.tags),
       name: en.tags.name ?? null,
       landmark: landmarkFromTags(en.tags),
+      landmarkSource: landmarkFromTags(en.tags) ? 'osm_tag' : null,
       lat: c.lat,
       lon: c.lon,
     });
@@ -400,7 +501,10 @@ async function main() {
   const ugRaw = els.filter((e) => (e.tags?.name ?? '').includes('地下街'));
   const pkRaw = els.filter((e) => e.tags?.amenity === 'parking');
 
-  const stats = { orphanEntrances: 0, droppedUnnumbered: 0, ugVenueAnchors: 0, mergedStations: 0 };
+  const stats = {
+    orphanEntrances: 0, droppedUnnumbered: 0, ugVenueAnchors: 0, mergedStations: 0,
+    landmarkFromStreet: 0, landmarkQueryFailed: 0,
+  };
 
   // 地下街的出口不該同時被捷運吸走（西門地下街緊鄰西門站）
   const ugIds = new Set(ugRaw.map((e) => `${e.type}${e.id}`));
@@ -430,6 +534,11 @@ async function main() {
       })),
     };
   });
+
+  // 方向地標補完（需要額外的 Overpass 查詢，放在最後一次做完）
+  if (!process.argv.includes('--no-landmarks')) {
+    await enrichLandmarks(venues, stats);
+  }
 
   // 沒有出口的捷運站代表 OSM 資料不全，保留但標記；停車場則本來就沒有
   venues.sort((a, b) => a.id.localeCompare(b.id));
@@ -461,13 +570,16 @@ async function main() {
   console.log(`  捷運站無出口  ${metroNoExits.length}${metroNoExits.length ? ` ← ${metroNoExits.slice(0, 5).map((v) => v.name).join('、')}（OSM 未標出入口）` : ''}`);
   console.log(`  無主出口      ${stats.orphanEntrances}（距離所有車站 > ${MAX_ENTRANCE_DIST_M}m）`);
   console.log(`  無編號被丟棄  ${stats.droppedUnnumbered}`);
+  const withLm = venues.reduce((n, v) => n + v.exits.filter((e) => e.landmark).length, 0);
+  console.log(`  有方向地標    ${withLm}/${totalExits}（${Math.round((withLm / totalExits) * 100)}%）—— 其中 ${stats.landmarkFromStreet} 個由最近街道推導`);
+  if (stats.landmarkQueryFailed) console.log(`  地標查詢失敗  ${stats.landmarkQueryFailed} 個場域`);
   console.log(`  檔案          ${OUT_PATH}  (${(JSON.stringify(snapshot).length / 1024).toFixed(0)} KB)`);
 
   const sample = venues.filter((v) => v.exits.length >= 4).slice(0, 2);
   for (const v of sample) {
     console.log(`\n  範例 ${v.name}（${v.id}，${v.exits.length} 出口，主軸 ${v.spanM.along}m）`);
     for (const e of v.exits.slice(0, 5)) {
-      console.log(`     ${e.code.padEnd(4)} x=${e.x} y=${e.y}  ${e.landmark ?? e.name ?? ''}`);
+      console.log(`     ${e.code.padEnd(4)} ${(e.landmark ? '往' + e.landmark : '(無方向資訊)').padEnd(18)} ${e.landmarkSource ?? ''}`);
     }
   }
 }
