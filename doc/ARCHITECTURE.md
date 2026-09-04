@@ -1,4 +1,4 @@
-# NearPulse 系統架構（v0.3.0 實作版）
+# NearPulse 系統架構（v0.4.0 實作版）
 
 > 地下通勤場域的非同步災情儀表板——極簡寫入、批次聚合、超輕量讀取。
 
@@ -7,7 +7,12 @@
 ```
 [回報頁 #/]
   │
-  ├─ 【地下視覺定位】拍照 ──▶ 前端壓縮（EXIF 轉正、1024px WebP、<50KB）
+  ├─ 【事件位置】三條路徑，能用哪條就用哪條，全失敗也不擋回報
+  │    ├─ GPS      訊號好（誤差 ≤60m）時一鍵採用——地面層與出入口附近可用
+  │    ├─ 地圖點選  真實 OpenStreetMap 底圖上直接點出位置（最精確）
+  │    └─ 照片辨識  ↓
+  │
+  ├─ 拍照 ──▶ 前端壓縮（EXIF 轉正、1024px WebP、<50KB）
   │    │
   │    ├─ ① POST /api/vision?stage=locate（整張圖）
   │    │      → 哪一格（A1~C3）看得到站名/出口牌 + photoRef
@@ -120,7 +125,7 @@ client/src/
   modules/photoCompressor.js EXIF 轉正、壓到 <50KB、**從原圖裁九宮格的一格**
   components/VenuePicker.jsx    鄰近場域點選（搜尋為後備）
   components/PhotoRoiPicker.jsx 照片九宮格：標出有站名/出口牌的那一格
-  components/VenueMap.jsx       出口示意圖（SVG，無圖磚）
+  components/VenueMap.jsx       真實 OSM 地圖（Leaflet，動態載入不進首屏）
   pages/ReportPage.jsx      回報 3 秒流程
   pages/ConfirmPage.jsx     兩段式確認
   pages/SituationPage.jsx   態勢卡（讀取端）
@@ -139,7 +144,7 @@ client/src/
 | `/api/vision` | POST | 兩段式視覺分析（`stage=locate|read`）+ 錨點候選 + `photoRef`（⚠️ 無防濫用） |
 | `/api/venues/nearby?lat=&lon=` | GET | 鄰近場域（零打字選擇的主路徑） |
 | `/api/venues/search?q=` | GET | 場域搜尋（後備路徑） |
-| `/api/venues/:id` | GET | 出口清單 + 示意幾何（畫 SVG 用） |
+| `/api/venues/:id` | GET | 出口清單 + 真實經緯度（地圖標記用） |
 | `/healthz` | GET | 健康檢查 |
 
 ### 照片只上傳一次
@@ -177,3 +182,31 @@ server/src/data/venues.json   519 場域 / 614 出口 / 165KB，進版控
 | 場域級 | 地下停車場 | 只有一個帶名字的點 | 僅能回報「在某停車場」，UI 自動降級 |
 
 資料授權：OSM 為 ODbL，`venues.json` 內含姓名標示，UI 頁尾顯示。
+
+## 9. 地圖（v0.4 修訂）
+
+v0.3 用自繪 SVG 示意圖，理由是圖磚太重。v0.4 改為**真實的 OpenStreetMap 底圖**
+（Leaflet），因為示意圖無法回答「我到底在哪」——沒有街景參照，使用者無從
+確認系統猜的位置對不對，而確認正是這一步存在的理由。
+
+頻寬問題改用兩個手段解決，而不是放棄地圖：
+
+| 手段 | 效果 |
+|---|---|
+| 動態載入（`React.lazy`） | Leaflet 與圖磚 CSS 切成獨立 chunk（約 45KB gzip），只有展開「補充細節」的人才下載。首屏維持 55KB gzip |
+| 讀取端不載入地圖 | 態勢卡（弱網下最需要開得起來的頁面）完全不碰 Leaflet |
+
+底圖用 CARTO 而非 `tile.openstreetmap.org`：OSM 官方圖磚的使用政策明文不供
+應用程式正式流量使用。CARTO 的底圖同樣是 OpenStreetMap 資料（姓名標示照給），
+深色版也與本專案的深色 UI 一致。要換回官方圖磚只需改 `VenueMap.jsx` 的 `TILE` 常數。
+
+### 事件位置的三條路徑
+
+| 路徑 | 精度 | 何時可用 |
+|---|---|---|
+| GPS | 誤差 ≤60m 才採用 | 地面層、出入口附近；地下多半失敗（設計中的常態） |
+| 照片辨識 | 出口級 | 畫面中有站名牌／出口編號牌 |
+| 地圖點選 | 任意精度 | 永遠可用——事件不在出口旁（月台中段、通道）時尤其重要 |
+
+三者寫入同一組欄位：`incidentPoint`（座標）或 `nearExitCode`（出口代碼），
+疏散計算的原點優先序為 **選點 → 出口 → 場域中心**。

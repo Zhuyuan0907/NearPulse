@@ -33,14 +33,18 @@ const PREFER_MIN_DIST_M = 80;
  * 計算疏散選項。
  * @param {string} venueId
  * @param {string|null} nearExitCode - 事件所在（或最接近）的出口代碼
+ * @param {{lat, lon}|null} point - 使用者在地圖上點的事件位置（比出口更精確時）
  * @returns {{away: Array, avoid: Array}|null} 資料不足時回 null
  */
-export function suggestExits(venueId, nearExitCode) {
+export function suggestExits(venueId, nearExitCode, point = null) {
   const venue = findVenue(venueId);
   if (!venue?.exits?.length) return null;
 
-  // 事件原點：辨識到的出口優先，否則用場域中心
-  const origin = findExit(venue.id, nearExitCode) ?? { lat: venue.lat, lon: venue.lon };
+  // 事件原點的優先序：地圖選點（最精確）→ 辨識到的出口 → 場域中心
+  const origin =
+    (Number.isFinite(point?.lat) && Number.isFinite(point?.lon) ? point : null) ??
+    findExit(venue.id, nearExitCode) ??
+    { lat: venue.lat, lon: venue.lon };
 
   const scored = venue.exits
     .filter((e) => e.code !== nearExitCode) // 事件所在的出口本身不列為去處
@@ -71,8 +75,8 @@ function label(exit) {
  * 產生一行疏散建議文字。
  * @returns {string|null} 無出口圖資時回 null，由呼叫端退回通用建議
  */
-export function evacuationLine(venueId, nearExitCode) {
-  const s = suggestExits(venueId, nearExitCode);
+export function evacuationLine(venueId, nearExitCode, point = null) {
+  const s = suggestExits(venueId, nearExitCode, point);
   if (!s) return null;
 
   const away = s.away.map((x) => `${label(x.exit)}（約 ${x.dist}m）`).join('、');

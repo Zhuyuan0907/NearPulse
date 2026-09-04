@@ -1,72 +1,160 @@
 /**
  * ============================================================================
- * VenueMap.jsx —— 場域示意圖：確認「我在哪個出口」
+ * VenueMap.jsx —— 真實 OpenStreetMap 地圖：確認事件位置
  * ============================================================================
- * 刻意不用真實圖磚地圖。一個圖磚視野 4~9 張、100~400KB，是整張態勢卡預算
- * （50KB）的 8 倍，在壅塞的地下網路上違反本專案的核心原則；OSM 官方圖磚
- * 也有使用政策限制。而對「確認我在哪個出口」這個用途，街道幾何不增加資訊。
+ * 三種指定事件位置的方式，愈上面愈精確：
+ *   1. 點出口圖釘 —— 視覺辨識讀到出口編號時會自動高亮，確認一下即可
+ *   2. 點地圖任一處 —— 事件不在出口旁（月台中段、通道中間）時用
+ *   3. GPS 定位 —— 訊號夠好時（地面層、出入口附近）一鍵採用
  *
- * 改由 server 回傳正規化後的示意幾何（出口投影到 0~1，主軸已對齊），
- * 這裡畫成幾 KB 的 SVG。client 不持有任何圖資、不做幾何運算。
+ * 為什麼底圖用 CARTO 而非 tile.openstreetmap.org：
+ * OSM 官方圖磚的使用政策明文不供應用程式正式流量使用。CARTO 的底圖同樣是
+ * OpenStreetMap 資料（姓名標示照給），且深色版與本專案的深色 UI 一致，
+ * 在地下昏暗環境也較不刺眼。要換回官方圖磚只需改 TILE 常數。
  *
- * 用途有二：
- *   1. 確認 —— 辨識出的出口高亮，使用者一眼看出對不對
- *   2. 更正 —— 認錯了就點別的出口；出口編號歧義時也在這裡化解
+ * 頻寬：圖磚只在使用者真的展開地圖時才載入，且縮放層級鎖在站體尺度，
+ * 一次視野約 4~6 張圖磚。讀取端態勢卡完全不載入本元件。
  */
 
-const PAD = 0.1; // 邊界留白，避免出口點被畫到框線上
+import { useEffect, useRef } from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
-export default function VenueMap({ venue, selectedCode, onSelect }) {
+const TILE = {
+  url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+  attribution: '© OpenStreetMap contributors © CARTO',
+  maxZoom: 20,
+};
+
+/** 出口圖釘：直接把編號寫在釘子上，不必點開才知道是幾號出口 */
+function exitIcon(code, selected) {
+  return L.divIcon({
+    className: '',
+    html: `<div class="map-exit${selected ? ' map-exit-on' : ''}">${code}</div>`,
+    iconSize: [34, 34],
+    iconAnchor: [17, 17],
+  });
+}
+
+const incidentIcon = L.divIcon({
+  className: '',
+  html: '<div class="map-incident">✕</div>',
+  iconSize: [30, 30],
+  iconAnchor: [15, 15],
+});
+
+export default function VenueMap({
+  venue,
+  selectedCode,
+  incidentPoint,
+  userFix,
+  onSelectExit,
+  onPickPoint,
+}) {
+  const hostRef = useRef(null);
+  const mapRef = useRef(null);
+  const layersRef = useRef({ exits: [], incident: null, user: null, accuracy: null });
+  // onPickPoint 放進 ref，避免每次 render 都要重綁地圖事件
+  const pickRef = useRef(onPickPoint);
+  pickRef.current = onPickPoint;
+
+  // ---- 建立地圖（只做一次） ----
+  useEffect(() => {
+    if (!hostRef.current || mapRef.current) return;
+    const map = L.map(hostRef.current, {
+      zoomControl: true,
+      attributionControl: true,
+      // 恐慌情境下雙指縮放不好操作，保留捲動縮放
+      scrollWheelZoom: true,
+    });
+    L.tileLayer(TILE.url, { attribution: TILE.attribution, maxZoom: TILE.maxZoom }).addTo(map);
+    map.on('click', (e) => pickRef.current?.({ lat: e.latlng.lat, lon: e.latlng.lng }));
+    mapRef.current = map;
+    return () => { map.remove(); mapRef.current = null; };
+  }, []);
+
+  // ---- 場域換了：重畫出口、重新框定視野 ----
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !venue) return;
+
+    layersRef.current.exits.forEach((m) => m.remove());
+    layersRef.current.exits = [];
+
+    for (const e of venue.exits ?? []) {
+      const marker = L.marker([e.lat, e.lon], {
+        icon: exitIcon(e.code, e.code === selectedCode),
+        keyboard: false,
+      })
+        .addTo(map)
+        .bindTooltip(e.landmark ? `${e.code} 出口（${e.landmark}）` : `${e.code} 出口`)
+        .on('click', (ev) => {
+          L.DomEvent.stopPropagation(ev); // 別讓點擊穿透成「在地圖上選點」
+          onSelectExit(e.code === selectedCode ? null : e.code);
+        });
+      layersRef.current.exits.push(marker);
+    }
+
+    const pts = (venue.exits ?? []).map((e) => [e.lat, e.lon]);
+    if (pts.length > 1) map.fitBounds(L.latLngBounds(pts).pad(0.25), { maxZoom: 18 });
+    else map.setView([venue.lat ?? pts[0]?.[0], venue.lon ?? pts[0]?.[1]], 17);
+    // selectedCode 變動時只需換圖示，由下一個 effect 處理
+  }, [venue]);
+
+  // ---- 選取狀態變動：只換圖示，不動視野 ----
+  useEffect(() => {
+    (venue?.exits ?? []).forEach((e, i) => {
+      layersRef.current.exits[i]?.setIcon(exitIcon(e.code, e.code === selectedCode));
+    });
+  }, [selectedCode, venue]);
+
+  // ---- 自由選點的標記 ----
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    layersRef.current.incident?.remove();
+    layersRef.current.incident = null;
+    if (incidentPoint) {
+      layersRef.current.incident = L.marker([incidentPoint.lat, incidentPoint.lon], {
+        icon: incidentIcon,
+      })
+        .addTo(map)
+        .bindTooltip('事件位置');
+    }
+  }, [incidentPoint]);
+
+  // ---- GPS 位置與誤差圈 ----
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    layersRef.current.user?.remove();
+    layersRef.current.accuracy?.remove();
+    layersRef.current.user = null;
+    layersRef.current.accuracy = null;
+    if (!userFix) return;
+
+    layersRef.current.accuracy = L.circle([userFix.lat, userFix.lon], {
+      radius: userFix.accuracy,
+      className: 'map-accuracy',
+    }).addTo(map);
+    layersRef.current.user = L.circleMarker([userFix.lat, userFix.lon], {
+      radius: 6,
+      className: 'map-user',
+    })
+      .addTo(map)
+      .bindTooltip(`你的位置（誤差約 ${Math.round(userFix.accuracy)}m）`);
+  }, [userFix]);
+
   if (!venue) return null;
-
-  if (!venue.exitsAvailable || venue.exits.length === 0) {
-    return (
-      <p className="muted">
-        {venue.name}：OSM 沒有這個場域的出口圖資，只能記錄到場域層級。
-      </p>
-    );
-  }
-
-  // 0~1 正規化座標 → SVG viewBox 座標
-  const px = (v) => (PAD + v * (1 - PAD * 2)) * 100;
 
   return (
     <div className="venue-map">
-      <p className="muted">
-        {venue.name} · {venue.exits.length} 個出口
-        {venue.spanM?.along > 0 && ` · 約 ${venue.spanM.along}m`}
-        {selectedCode ? ` · 已選 ${selectedCode}` : ' —— 點一下確認你在哪個出口附近'}
-      </p>
-
-      <svg className="venue-map-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
-        {/* 場域範圍示意（不是真實輪廓，只是給出口一個參考框） */}
-        <rect x={px(0)} y={px(0)} width={px(1) - px(0)} height={px(1) - px(0)}
-              className="venue-map-bounds" rx="3" />
-
-        {venue.exits.map((e) => {
-          const on = e.code === selectedCode;
-          return (
-            <g key={e.code} className={`venue-exit${on ? ' venue-exit-on' : ''}`}
-               onClick={() => onSelect(on ? null : e.code)}>
-              <title>{e.landmark ? `${e.code}（${e.landmark}）` : e.code}</title>
-              {/* 放大的透明點擊區——手指比圓點大得多 */}
-              <circle cx={px(e.x)} cy={px(e.y)} r="7" className="venue-exit-hit" />
-              <circle cx={px(e.x)} cy={px(e.y)} r={on ? 4 : 2.6} className="venue-exit-dot" />
-              <text x={px(e.x)} y={px(e.y) - 5.5} className="venue-exit-label">{e.code}</text>
-            </g>
-          );
-        })}
-      </svg>
-
-      {selectedCode && (
-        <p className="ok-note">
-          {(() => {
-            const e = venue.exits.find((x) => x.code === selectedCode);
-            return e?.landmark ? `${e.code} 出口（${e.landmark}）` : `${selectedCode} 出口`;
-          })()}
+      <div ref={hostRef} className="venue-map-canvas" />
+      {!venue.exitsAvailable && (
+        <p className="muted">
+          OSM 沒有這個場域的出口圖資——請直接在地圖上點出事件位置。
         </p>
       )}
-      <p className="attribution">{venue.attribution}</p>
     </div>
   );
 }

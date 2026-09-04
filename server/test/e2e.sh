@@ -108,7 +108,20 @@ ETAG=$(curl -sI "$BASE/api/situation" | grep -i '^etag:' | tr -d '\r' | cut -d' 
 CODE=$(curl -s -o /dev/null -w "%{http_code}" -H "If-None-Match: $ETAG" "$BASE/api/situation")
 check "ETag 命中 → 304（$CODE）" test "$CODE" = "304"
 
-echo "== 7. 否證否決：在場「沒看到」>=3 → cancelled =="
+echo "== 7. 地圖選點驅動疏散（比出口錨點更精確的位置） =="
+curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/json' -d '{
+  "uuid":"e2e-uuid-003","sessionId":"sess-H","type":"crush",
+  "incidentPoint":{"lat":25.04505,"lon":121.52302},
+  "locationClaim":{"source":"manual","stationId":"BL13","confidence":1.0,"timestamp":1}}' > /dev/null
+wait_batch
+EVT3=$(curl -s "$BASE/api/reports/context?station=BL13&type=crush" | json "d['events'][0]['id']")
+EV3=$(curl -s "$BASE/api/events/$EVT3")
+check "事件保留地圖選點座標" \
+  test "$(echo "$EV3" | json "abs(d['event']['incidentPoint']['lat'] - 25.04505) < 1e-6")" = "True"
+check "疏散建議以選點為原點（不是場域中心）" \
+  test "$(curl -s "$BASE/api/situation" | json "any('3 出口（成功高中）（約 96m）' in (e.get('evacuation') or '') for s in d['stations'] for e in s['events'])")" = "True"
+
+echo "== 8. 否證否決：在場「沒看到」>=3 → cancelled =="
 curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/json' -d '{
   "uuid":"e2e-uuid-002","sessionId":"sess-D","type":"other",
   "locationClaim":{"source":"manual","stationId":"G13","confidence":1.0,"timestamp":1}}' > /dev/null

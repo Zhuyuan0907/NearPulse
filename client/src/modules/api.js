@@ -27,12 +27,13 @@ const VISION_DEGRADED = { pending: true, roiCell: null, texts: [], anomalies: []
  *   - photoRef：拍照時已打過 /api/vision，server 那邊還留著這張圖 → 只帶 ref，
  *     3G 下省掉第二次 50KB 上傳（首選）
  *   - photo：沒有 ref 時（分析失敗／ref 過期）才帶完整 base64（後備）
- * photoAnalysis 則讓 server 免於對同一張圖再付一次 Vision 費用。
+ *
+ * 事件位置同樣擇一：incidentPoint（地圖選點，最精確）或 nearExitCode（出口錨點）。
  */
 export async function postReport({
   uuid, type, locationClaim, attachToEventId = null,
-  nearExitCode = null, photoRoi = null, note = null, audio = null,
-  photo = null, photoRef = null,
+  nearExitCode = null, incidentPoint = null, photoRoi = null,
+  note = null, audio = null, photo = null, photoRef = null,
 }) {
   const res = await fetch('/api/reports', {
     method: 'POST',
@@ -44,6 +45,7 @@ export async function postReport({
       locationClaim,
       attachToEventId,
       nearExitCode,               // 場域錨點（出口代碼，確定性查表得出）
+      incidentPoint,              // 地圖選點 { lat, lon }（最精確的事件位置）
       photoRoi,                   // 照片九宮格（影像座標，僅供追溯）
       note,                       // 文字補充（≤140 字，選配）
       audio,                      // { base64, mimeType } | null

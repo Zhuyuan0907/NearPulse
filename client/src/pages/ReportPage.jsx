@@ -1,47 +1,54 @@
 /**
  * ============================================================================
- * ReportPage —— 回報頁（恐慌 3 秒流程 + 地下視覺定位）
+ * ReportPage —— 回報頁
  * ============================================================================
- * 流程（與設計原則一一對應）：
+ * 版面順序刻意等同「恐慌時的思考順序」：
  *
- *   ┌─ 頂欄：場域聲明（L2 session 記憶 → [變更] 開場域選擇）
- *   ├─ 首屏：四顆事件大按鈕（狀態機選類型，1 次點擊）
- *   ├─ 歸屬確認：同場域同類型已有進行中事件 → [同一件] [另一件]
- *   ├─ 補充區（全選配）：🎤 按住說話 / ✍️ 文字補充 / 📷 拍照
- *   │   └─ 拍照後啟動【地下視覺定位】：
- *   │        1. 整張圖送 locate → AI 建議「哪一格有站名/出口牌」
- *   │        2. 使用者點該格（或自己改點）
- *   │        3. **從原圖裁那一格**送 read → 只讀字
- *   │        4. server 拿讀到的字確定性查表 → 場域 + 出口候選
- *   │        5. 示意圖上高亮，使用者一眼確認或改點別的出口
- *   └─ 送出：UUID 冪等 + 按鈕鎖定 → 樂觀 UI「已通報」
+ *   ① 我在哪    頂欄一行，已知就不必動它
+ *   ② 發生什麼  四顆大按鈕，一次點擊即完成一筆有效回報
+ *   ③ （選配）補充細節：位置更精確、語音、文字、照片
+ *   ④ 送出      固定在畫面底部的拇指區，隨時可按
  *
- * 位置永遠不擋回報；整條視覺定位鏈路任一步失敗都靜默降級。
+ * 三種指定事件位置的方式，能用哪個就用哪個，全部失敗也不擋回報：
+ *   GPS 定位   訊號好時（地面層、出入口附近）一鍵採用
+ *   照片辨識   拍照 → 標出有站名/出口牌的那格 → 裁切放大讀字 → 查表
+ *   地圖點選   在真實 OpenStreetMap 上直接點出事件位置
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { resolveLocation, rememberStation, manualClaim, coarseFix } from '../modules/location.js';
 import { postReport, fetchEventsContext, analyzePhoto, fetchVenue } from '../modules/api.js';
 import { isVoiceSupported, createRecorder } from '../modules/voiceRecorder.js';
 import { compressPhoto, cropCell } from '../modules/photoCompressor.js';
 import VenuePicker from '../components/VenuePicker.jsx';
 import PhotoRoiPicker from '../components/PhotoRoiPicker.jsx';
-import VenueMap from '../components/VenueMap.jsx';
+
+/**
+ * 地圖動態載入：Leaflet 加圖磚樣式約 150KB，但只有展開「補充細節」的人才需要。
+ * 首屏（位置列 + 四顆類型按鈕 + 送出）是恐慌路徑，必須維持輕量——
+ * 一次點擊就完成的回報，不該為了一張可能沒人打開的地圖付這個代價。
+ */
+const VenueMap = lazy(() => import('../components/VenueMap.jsx'));
 
 /** 四種事件類型（與 server config 對應；高嚴重度排前面） */
 const TYPES = [
-  { id: 'fire',    label: '火警', emoji: '🔥', cls: 'type-high' },
-  { id: 'medical', label: '急救', emoji: '🚑', cls: 'type-high' },
-  { id: 'crush',   label: '推擠', emoji: '👥', cls: 'type-medium' },
-  { id: 'other',   label: '其他', emoji: '⚠️', cls: 'type-low' },
+  { id: 'fire',    label: '火警', emoji: '🔥', cls: 'type-high',   hint: '煙、火、燒焦味' },
+  { id: 'medical', label: '急救', emoji: '🚑', cls: 'type-high',   hint: '有人倒下、受傷' },
+  { id: 'crush',   label: '推擠', emoji: '👥', cls: 'type-medium', hint: '人潮擠壓、動線堵塞' },
+  { id: 'other',   label: '其他', emoji: '⚠️', cls: 'type-low',    hint: '積水、異味、可疑物' },
 ];
+
+/** GPS 誤差小於這個值才值得拿來當事件位置（否則只用於收斂場域清單） */
+const GPS_USABLE_ACCURACY_M = 60;
 
 export default function ReportPage() {
   // ---- 定位 ----
-  const [claim, setClaim] = useState(null);          // 場域位置聲明
-  const [venueName, setVenueName] = useState(null);  // 顯示名（server 給）
-  const [venue, setVenue] = useState(null);          // 出口清單 + 示意幾何
-  const [nearExitCode, setNearExitCode] = useState(null); // 場域錨點（疏散的輸入）
+  const [claim, setClaim] = useState(null);
+  const [venueName, setVenueName] = useState(null);
+  const [venue, setVenue] = useState(null);
+  const [nearExitCode, setNearExitCode] = useState(null);
+  const [incidentPoint, setIncidentPoint] = useState(null);
+  const [fix, setFix] = useState(null);          // 目前的 GPS 定位
   const [showPicker, setShowPicker] = useState(false);
 
   // ---- 回報狀態 ----
@@ -56,42 +63,47 @@ export default function ReportPage() {
   const [note, setNote] = useState('');
   const [audioClip, setAudioClip] = useState(null);
   const [recording, setRecording] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
 
   // ---- 照片與視覺定位 ----
-  const [photo, setPhoto] = useState(null);          // 壓縮後的整張圖
-  const [photoRef, setPhotoRef] = useState(null);    // server 暫存代號（免重傳）
+  const [photo, setPhoto] = useState(null);
+  const [photoRef, setPhotoRef] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [roiCell, setRoiCell] = useState(null);      // 使用者選的影像格
-  const [suggestedCell, setSuggestedCell] = useState(null); // AI 建議的影像格
+  const [roiCell, setRoiCell] = useState(null);
+  const [suggestedCell, setSuggestedCell] = useState(null);
   const [visionBusy, setVisionBusy] = useState(false);
-  const [visionOff, setVisionOff] = useState(false); // 供應商未啟用
-  const [readTexts, setReadTexts] = useState([]);    // 讀到的字
-  const [candidates, setCandidates] = useState([]);  // 查表得出的場域/出口候選
+  const [visionOff, setVisionOff] = useState(false);
+  const [readTexts, setReadTexts] = useState([]);
+  const [candidates, setCandidates] = useState([]);
 
   const recorderRef = useRef(null);
   const photoInputRef = useRef(null);
-  const rawFileRef = useRef(null);                   // 保留原圖，裁切要用
+  const rawFileRef = useRef(null); // 保留原圖：裁切要從原圖裁才有解析度紅利
 
-  const supplementOpen = Boolean(selectedType && claim && (!matchEvent || attachChoice));
+  const readyToSubmit = Boolean(claim && selectedType && (!matchEvent || attachChoice));
 
-  // ---- 啟動時解析位置（L2 → null） ----
-  useEffect(() => {
-    resolveLocation().then(({ claim }) => claim && applyVenue(claim.stationId, null, claim));
-  }, []);
-
-  // 預覽 URL 用完要釋放，否則連拍幾張就漏一堆記憶體
-  useEffect(() => () => { if (previewUrl) URL.revokeObjectURL(previewUrl); }, [previewUrl]);
-
-  /** 設定當前場域：更新聲明、取出口圖資、寫入 L2 記憶 */
-  async function applyVenue(venueId, name = null, existingClaim = null) {
+  /** 設定當前場域：更新聲明、取出口圖資、寫入 session 記憶 */
+  const applyVenue = useCallback(async (venueId, name = null, existingClaim = null) => {
     setClaim(existingClaim ?? manualClaim(venueId));
     setVenueName(name);
     setNearExitCode(null);
+    setIncidentPoint(null);
     rememberStation(venueId);
     const v = await fetchVenue(venueId);
     setVenue(v);
     if (v?.name) setVenueName(v.name);
-  }
+  }, []);
+
+  // ---- 啟動：先取 session 記憶，同時背景要一次粗略定位 ----
+  useEffect(() => {
+    resolveLocation().then(({ claim }) => {
+      if (claim) applyVenue(claim.stationId, null, claim);
+    });
+    coarseFix().then(setFix);
+  }, [applyVenue]);
+
+  // 預覽 URL 用完要釋放，否則連拍幾張就漏一堆記憶體
+  useEffect(() => () => { if (previewUrl) URL.revokeObjectURL(previewUrl); }, [previewUrl]);
 
   /** 查同場域同類型是否已有進行中事件（「同一件/另一件」的資料來源） */
   async function refreshMatch(stationId, type) {
@@ -104,31 +116,37 @@ export default function ReportPage() {
   function handlePicked(venueId, name) {
     applyVenue(venueId, name);
     setShowPicker(false);
-    // 「先點類型、後選場域」的順序若不補這一步，會整個跳過歸屬確認而永遠開新事件
+    // 「先點類型、後選場域」的順序若不補這一步，會跳過歸屬確認而永遠開新事件
     refreshMatch(venueId, selectedType);
   }
 
   async function handleType(type) {
     setSelectedType(type);
     setError(null);
-    if (!claim) { setShowPicker(true); return; } // 類型已記住，選完場域由 handlePicked 續行
+    if (!claim) { setShowPicker(true); return; }
     await refreshMatch(claim.stationId, type);
   }
 
-  // ===================== 地下視覺定位 =====================
+  // ===================== 位置精確化 =====================
+
+  /** GPS 夠準時直接當事件位置。地下多半失敗，那是設計中的常態 */
+  async function useGps() {
+    const f = await coarseFix();
+    setFix(f);
+    if (f && f.accuracy <= GPS_USABLE_ACCURACY_M) {
+      setIncidentPoint({ lat: f.lat, lon: f.lon });
+      setNearExitCode(null);
+    }
+  }
 
   /** 拍完照：壓縮整張 → 背景問 AI「哪一格有地點標示」 */
   async function handlePhoto(file) {
     rawFileRef.current = file;
-    setRoiCell(null);
-    setSuggestedCell(null);
-    setReadTexts([]);
-    setCandidates([]);
-
+    setRoiCell(null); setSuggestedCell(null); setReadTexts([]); setCandidates([]);
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(URL.createObjectURL(file));
 
-    const compressed = await compressPhoto(file); // <50KB 或 null
+    const compressed = await compressPhoto(file);
     if (!compressed) return;
     setPhoto(compressed);
     setVisionBusy(true);
@@ -142,8 +160,7 @@ export default function ReportPage() {
 
   /**
    * 選定影像格：從**原圖**裁那一格送去讀字。
-   * 裁切是整個機制的關鍵——整張圖降到 512px 後出口牌的字只有 20~40px 高，
-   * 裁切後同一塊牌子可達 120px 以上。
+   * 整張圖降到 512px 後出口牌的字只有 20~40px 高；裁切後可達 120px 以上。
    */
   async function handleRoiPick(cell) {
     setRoiCell(cell);
@@ -151,9 +168,8 @@ export default function ReportPage() {
 
     setVisionBusy(true);
     const crop = await cropCell(rawFileRef.current, cell);
-    if (!crop) { setVisionBusy(false); return; } // 裁切失敗 → 靜默放棄，不擋回報
+    if (!crop) { setVisionBusy(false); return; }
 
-    const fix = claim ? null : await coarseFix(); // 沒選場域時才需要位置線索收斂
     const res = await analyzePhoto({
       ...crop,
       stage: 'read',
@@ -166,11 +182,10 @@ export default function ReportPage() {
     setReadTexts(res.result.texts ?? []);
     setCandidates(res.candidates ?? []);
 
-    // 最高信心的候選直接採用；使用者可在示意圖上改
     const top = res.candidates?.[0];
     if (top) {
       if (top.venueId !== claim?.stationId) await applyVenue(top.venueId, top.venueName);
-      if (top.exitCode) setNearExitCode(top.exitCode);
+      if (top.exitCode) { setNearExitCode(top.exitCode); setIncidentPoint(null); }
     }
     setVisionBusy(false);
   }
@@ -178,7 +193,7 @@ export default function ReportPage() {
   // ===================== 送出 =====================
 
   async function handleSubmit() {
-    if (!claim || !selectedType) return;
+    if (!readyToSubmit) return;
     setSubmitting(true);
     try {
       await postReport({
@@ -187,13 +202,14 @@ export default function ReportPage() {
         locationClaim: { ...claim, timestamp: Date.now() },
         attachToEventId: attachChoice === 'same' ? matchEvent?.id ?? null : null,
         nearExitCode,
+        incidentPoint,
         photoRoi: roiCell,
         note: note.trim() || null,
         audio: audioClip,
         photo,
-        photoRef,                            // 有 ref 就不重傳整張圖
+        photoRef,
       });
-      setDone(true); // 樂觀 UI：不等 AI、不問結果
+      setDone(true); // 樂觀 UI：不等批次、不等 AI
     } catch {
       setError('送出失敗，請再試一次');
     } finally {
@@ -203,9 +219,9 @@ export default function ReportPage() {
 
   function resetDraft() {
     setSelectedType(null); setMatchEvent(null); setAttachChoice(null);
-    setNote(''); setAudioClip(null);
+    setNote(''); setAudioClip(null); setShowDetails(false);
     setPhoto(null); setPhotoRef(null); setRoiCell(null); setSuggestedCell(null);
-    setReadTexts([]); setCandidates([]); setNearExitCode(null);
+    setReadTexts([]); setCandidates([]); setNearExitCode(null); setIncidentPoint(null);
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null); rawFileRef.current = null;
   }
@@ -229,16 +245,19 @@ export default function ReportPage() {
     if (clip) setAudioClip(clip);
   }
 
-  // ===================== 送出成功畫面 =====================
+  // ===================== 送出完成 =====================
   if (done) {
     return (
       <div className="page">
         <div className="done-box">
           <div className="done-icon">✅</div>
           <h2>已通報</h2>
-          <p>已記錄您的回報。若現場有其他人確認，事件將升級並顯示在態勢卡上。</p>
+          <p className="muted">
+            已記錄你的回報。若現場有其他人確認，事件會升級並顯示在態勢卡上，
+            同時附上依實際出口距離算出的疏散建議。
+          </p>
           <div className="done-actions">
-            <a className="primary-btn" href="#/situation">查看態勢卡（含疏散建議）</a>
+            <a className="primary-btn btn-lg" href="#/situation">查看態勢卡與疏散建議</a>
             <button className="ghost-btn" onClick={() => { setDone(false); resetDraft(); }}>
               再回報一筆
             </button>
@@ -248,160 +267,227 @@ export default function ReportPage() {
     );
   }
 
-  return (
-    <div className="page">
-      {/* ===== 頂欄：場域位置聲明 ===== */}
-      <header className="loc-bar">
-        {claim ? (
-          <>
-            <span>📍 {venueName ?? claim.stationId}{nearExitCode && ` · 近 ${nearExitCode} 出口`}</span>
-            <small className="loc-src">
-              {claim.source === 'session' ? '（上次確認位置）' : '（已確認）'}
-            </small>
-          </>
-        ) : (
-          <span>📍 位置未確認</span>
-        )}
-        <button className="chip" onClick={() => setShowPicker(true)}>
-          {claim ? '變更' : '選擇場域'}
-        </button>
-      </header>
+  // ---- 位置摘要文字 ----
+  const locSub = !claim
+    ? '點此選擇你所在的場域'
+    : [
+        nearExitCode && `近 ${nearExitCode} 出口`,
+        incidentPoint && !nearExitCode && '已在地圖上標記位置',
+        claim.source === 'session' && '上次確認的位置',
+      ].filter(Boolean).join(' · ') || '已確認';
 
-      {/* ===== 首屏：事件類型大按鈕 ===== */}
-      <h2 className="headline">發生什麼事？</h2>
+  return (
+    <div className={`page${selectedType ? ' page-with-dock' : ''}`}>
+      {/* ===== ① 我在哪 ===== */}
+      <button
+        className={`loc-bar${claim ? '' : ' loc-unset'}`}
+        onClick={() => setShowPicker(true)}
+      >
+        <span className="loc-pin">📍</span>
+        <span className="loc-body">
+          <span className="loc-title">{venueName ?? (claim ? claim.stationId : '尚未選擇場域')}</span>
+          <span className="loc-sub">{locSub}</span>
+        </span>
+        <span className="loc-action">{claim ? '變更' : '選擇'}</span>
+      </button>
+
+      {/* ===== ② 發生什麼事 ===== */}
+      <h1 className="headline">發生什麼事？</h1>
+      <p className="subhead">點一下就完成通報，其他都是選配。</p>
       <div className="type-grid">
         {TYPES.map((t) => (
           <button
             key={t.id}
-            className={`type-btn ${t.cls} ${selectedType === t.id ? 'type-selected' : ''}`}
+            className={`type-btn ${t.cls}${selectedType === t.id ? ' type-selected' : ''}`}
             onClick={() => handleType(t.id)}
           >
             <span className="type-emoji">{t.emoji}</span>
             {t.label}
+            <span className="type-hint">{t.hint}</span>
           </button>
         ))}
       </div>
 
-      {/* ===== 歸屬確認 ===== */}
+      {/* ===== 歸屬確認：同場域同類型已有進行中事件 ===== */}
       {matchEvent && (
-        <div className="match-box">
-          <p>
-            附近有一則進行中的事件：
-            <b>【{matchEvent.stationName} {matchEvent.typeLabel}】</b>
-          </p>
-          <p className="muted">您要回報的是——</p>
-          {/* 選完不直接送出：兩條路徑都往下走補充區，
-              因為「補一筆到既有事件」往往正是最需要位置資訊的時候 */}
-          <div className="match-actions">
-            <button
-              className={attachChoice === 'same' ? 'primary-btn' : 'ghost-btn'}
-              disabled={submitting}
-              onClick={() => setAttachChoice('same')}
-            >
-              同一件
+        <>
+          <h2 className="section-title">附近已有一則進行中的事件</h2>
+          <div className="card card-warn">
+            <b>{matchEvent.stationName} · {matchEvent.typeLabel}</b>
+            <p className="muted" style={{ margin: '4px 0 0' }}>
+              已有 {matchEvent.reportCount} 筆回報。你要回報的是——
+            </p>
+            {/* 選完不直接送出：兩條路徑都往下走補充區，
+                因為「補一筆到既有事件」往往正是最需要位置資訊的時候 */}
+            <div className="match-actions">
+              <button
+                className={attachChoice === 'same' ? 'primary-btn' : 'ghost-btn'}
+                onClick={() => setAttachChoice('same')}
+              >
+                同一件
+              </button>
+              <button
+                className={attachChoice === 'separate' ? 'primary-btn' : 'ghost-btn'}
+                onClick={() => setAttachChoice('separate')}
+              >
+                另一件
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ===== ③ 選配補充 ===== */}
+      {readyToSubmit && (
+        <>
+          <h2 className="section-title">補充細節（全部選配）</h2>
+
+          {!showDetails ? (
+            <button className="ghost-btn btn-block" onClick={() => setShowDetails(true)}>
+              ＋ 加上位置、語音、照片或文字
             </button>
+          ) : (
+            <div className="stack">
+              {/* --- 位置精確化 --- */}
+              <div className="card">
+                <b>事件的確切位置</b>
+                <p className="muted" style={{ margin: '2px 0 10px' }}>
+                  愈精確，疏散建議就愈有用。
+                </p>
+
+                <div className="supp-row" style={{ marginBottom: 10 }}>
+                  <button className="ghost-btn" onClick={useGps}>
+                    🛰️ 用 GPS 定位
+                  </button>
+                  <button className="ghost-btn" onClick={() => photoInputRef.current?.click()}>
+                    📷 拍照辨識
+                  </button>
+                </div>
+
+                {fix && fix.accuracy > GPS_USABLE_ACCURACY_M && (
+                  <p className="muted">
+                    GPS 誤差約 {Math.round(fix.accuracy)}m——地下常態。
+                    請改用拍照辨識或直接在地圖上點。
+                  </p>
+                )}
+
+                {venue && (
+                  <Suspense fallback={<p className="muted">載入地圖…</p>}>
+                    <VenueMap
+                      venue={venue}
+                      selectedCode={nearExitCode}
+                      incidentPoint={incidentPoint}
+                      userFix={fix}
+                      onSelectExit={(code) => { setNearExitCode(code); setIncidentPoint(null); }}
+                      onPickPoint={(p) => { setIncidentPoint(p); setNearExitCode(null); }}
+                    />
+                  </Suspense>
+                )}
+                <p className="muted" style={{ marginTop: 6 }}>
+                  點出口圖釘，或直接點地圖上事件發生的位置。
+                </p>
+              </div>
+
+              {/* --- 照片九宮格 ROI --- */}
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                hidden
+                onChange={(e) => {
+                  if (e.target.files[0]) { setShowDetails(true); handlePhoto(e.target.files[0]); }
+                  e.target.value = '';
+                }}
+              />
+              {previewUrl && (
+                <div className="card">
+                  <PhotoRoiPicker
+                    previewUrl={previewUrl}
+                    cell={roiCell}
+                    suggested={suggestedCell}
+                    busy={visionBusy}
+                    onPick={handleRoiPick}
+                  />
+                  {visionOff && (
+                    <p className="muted">（視覺辨識未啟用——照片仍會附上，位置請用地圖確認）</p>
+                  )}
+                  {readTexts.length > 0 && (
+                    <p className="ok-note">
+                      讀到：{readTexts.map((t) => `${t.label}「${t.value}」`).join('、')}
+                    </p>
+                  )}
+                  {candidates.length > 1 && (
+                    <p className="muted">
+                      有 {candidates.length} 個可能的位置——請在地圖上點選正確的出口。
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* --- 語音與文字 --- */}
+              <div className="card stack">
+                <b>補充描述</b>
+                {isVoiceSupported() ? (
+                  <button
+                    className={`mic-btn${recording ? ' mic-recording' : ''}`}
+                    onPointerDown={handleMicDown}
+                    onPointerUp={handleMicUp}
+                    onPointerLeave={handleMicUp}
+                  >
+                    {recording ? '🔴 放開送出' : '🎤 按住說話'}
+                  </button>
+                ) : (
+                  <p className="muted">（此瀏覽器不支援錄音，可改用文字）</p>
+                )}
+                {audioClip && <p className="ok-note">已收錄語音補充</p>}
+                <textarea
+                  className="note-input"
+                  placeholder="或輸入文字（140 字內）"
+                  maxLength={140}
+                  rows={2}
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {error && <p className="error-note" style={{ marginTop: 12 }}>{error}</p>}
+
+      <footer className="page-footer">
+        <a href="#/situation">查看態勢卡 →</a>
+        {venue?.attribution && <p className="attribution">{venue.attribution}</p>}
+      </footer>
+
+      {/* ===== ④ 送出：固定在拇指區 ===== */}
+      {selectedType && (
+        <div className="dock">
+          <div className="dock-inner">
             <button
-              className={attachChoice === 'separate' ? 'primary-btn' : 'ghost-btn'}
-              disabled={submitting}
-              onClick={() => setAttachChoice('separate')}
+              className="primary-btn btn-block btn-lg"
+              disabled={submitting || !readyToSubmit}
+              onClick={handleSubmit}
             >
-              另一件
+              {submitting
+                ? '送出中…'
+                : !claim
+                  ? '請先選擇場域'
+                  : matchEvent && !attachChoice
+                    ? '請先選「同一件／另一件」'
+                    : attachChoice === 'same'
+                      ? '送出（補充到既有事件）'
+                      : '送出回報'}
             </button>
           </div>
         </div>
       )}
 
-      {/* ===== 補充區（全選配） ===== */}
-      {supplementOpen && (
-        <div className="supplement">
-          <p className="muted">補充細節（全選配）</p>
-
-          {isVoiceSupported() ? (
-            <button
-              className={`mic-btn ${recording ? 'mic-recording' : ''}`}
-              onPointerDown={handleMicDown}
-              onPointerUp={handleMicUp}
-              onPointerLeave={handleMicUp}
-            >
-              {recording ? '🔴 放開送出' : '🎤 按住說話'}
-            </button>
-          ) : (
-            <p className="muted">（此瀏覽器不支援錄音，可改用文字補充）</p>
-          )}
-          {audioClip && <p className="ok-note">已收錄語音補充</p>}
-
-          <textarea
-            className="note-input"
-            placeholder="或輸入文字補充（選配，140 字內）"
-            maxLength={140}
-            rows={2}
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-          />
-
-          <input
-            ref={photoInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            hidden
-            onChange={(e) => {
-              if (e.target.files[0]) handlePhoto(e.target.files[0]);
-              e.target.value = '';
-            }}
-          />
-          <button className="ghost-btn" onClick={() => photoInputRef.current?.click()}>
-            📷 拍照（可協助辨識你在哪個出口）
-          </button>
-
-          {/* ---- 地下視覺定位：影像九宮格 → 讀字 → 查表 ---- */}
-          {previewUrl && (
-            <PhotoRoiPicker
-              previewUrl={previewUrl}
-              cell={roiCell}
-              suggested={suggestedCell}
-              busy={visionBusy}
-              onPick={handleRoiPick}
-            />
-          )}
-          {previewUrl && visionOff && (
-            <p className="muted">（視覺辨識未啟用——照片仍會附上，位置請用下方地圖確認）</p>
-          )}
-          {readTexts.length > 0 && (
-            <p className="muted">
-              讀到：{readTexts.map((t) => `${t.label}「${t.value}」`).join('、')}
-            </p>
-          )}
-          {candidates.length > 1 && (
-            <p className="muted">
-              有 {candidates.length} 個可能的位置——請在地圖上點選正確的出口。
-            </p>
-          )}
-
-          {/* ---- 場域示意圖：確認 / 更正出口 ---- */}
-          {venue && (
-            <VenueMap venue={venue} selectedCode={nearExitCode} onSelect={setNearExitCode} />
-          )}
-
-          <button className="primary-btn big" disabled={submitting} onClick={handleSubmit}>
-            {submitting
-              ? '送出中…'
-              : attachChoice === 'same'
-                ? '送出（補充到既有事件）'
-                : '送出回報'}
-          </button>
-          {error && <p className="error-note">{error}</p>}
-        </div>
-      )}
-
-      {/* ===== 場域選擇器 ===== */}
       {showPicker && (
-        <VenuePicker onPicked={handlePicked} onCancel={() => setShowPicker(false)} />
+        <VenuePicker fix={fix} onPicked={handlePicked} onCancel={() => setShowPicker(false)} />
       )}
-
-      <footer className="page-footer">
-        <a href="#/situation">查看態勢卡 →</a>
-      </footer>
     </div>
   );
 }

@@ -43,7 +43,7 @@ export default function ConfirmPage({ eventId }) {
 
   /** 第一問答案 */
   async function answerLocation(atStation) {
-    const res = await confirmEvent(target.id, { step: 'location', atStation });
+    await confirmEvent(target.id, { step: 'location', atStation });
     if (!atStation) {
       setFinishedMsg('收到。若您之後抵達該站，歡迎協助確認。');
       setStep('done');
@@ -73,7 +73,7 @@ export default function ConfirmPage({ eventId }) {
           <div className="done-icon">🙏</div>
           <h2>{finishedMsg}</h2>
           <div className="done-actions">
-            <a className="primary-btn" href="#/situation">查看態勢卡</a>
+            <a className="primary-btn btn-lg" href="#/situation">查看態勢卡</a>
           </div>
         </div>
       </div>
@@ -87,22 +87,33 @@ export default function ConfirmPage({ eventId }) {
         <div className="confirm-box">
           {step === 'location' && (
             <>
+              <div className="done-icon">📍</div>
               <h2>你現在在 {target.stationName} 嗎？</h2>
-              <p className="muted">據回報，附近疑似有【{target.typeLabel}】狀況。</p>
+              <p className="muted">有人回報這裡疑似發生【{target.typeLabel}】。</p>
               <div className="confirm-actions">
-                <button className="primary-btn big" onClick={() => answerLocation(true)}>在</button>
-                <button className="ghost-btn big" onClick={() => answerLocation(false)}>不在</button>
+                <button className="primary-btn btn-lg" onClick={() => answerLocation(true)}>在</button>
+                <button className="ghost-btn btn-lg" onClick={() => answerLocation(false)}>不在</button>
               </div>
+              <p className="muted" style={{ marginTop: 16 }}>
+                不在現場的回覆不會計入驗證——這是為了讓「沒看到」真的有意義。
+              </p>
             </>
           )}
           {step === 'witness' && (
             <>
+              <div className="done-icon">👀</div>
               <h2>你有看到【{target.typeLabel}】嗎？</h2>
-              <p className="muted">您的回覆將影響事件驗證。</p>
-              <div className="confirm-actions">
-                <button className="primary-btn big" onClick={() => answerWitness('yes')}>有</button>
-                <button className="ghost-btn big" onClick={() => answerWitness('no')}>沒有</button>
-                <button className="ghost-btn big" onClick={() => answerWitness('unsure')}>沒注意</button>
+              <p className="muted">你的回覆會直接影響這則事件是否成立。</p>
+              <div className="confirm-actions" style={{ flexDirection: 'column' }}>
+                <button className="primary-btn btn-lg btn-block" onClick={() => answerWitness('yes')}>
+                  有，我看到了
+                </button>
+                <button className="ghost-btn btn-lg btn-block" onClick={() => answerWitness('no')}>
+                  沒有，現場正常
+                </button>
+                <button className="ghost-btn btn-block" onClick={() => answerWitness('unsure')}>
+                  不確定 / 沒注意
+                </button>
               </div>
             </>
           )}
@@ -114,20 +125,28 @@ export default function ConfirmPage({ eventId }) {
   // ===================== 事件清單（無 deep link 時） =====================
   return (
     <div className="page">
-      <h2 className="headline">需要您協助確認的事件</h2>
-      {events.length === 0 && <p className="muted">目前沒有待確認的事件。</p>}
+      <h1 className="headline">需要現場的人協助確認</h1>
+      <p className="subhead">只有在場的人，回答才會被計入。</p>
+      {events.length === 0 && (
+        <div className="empty-state">
+          <div className="empty-icon">🟢</div>
+          <p>目前沒有待確認的事件</p>
+        </div>
+      )}
       {events.map((ev) => (
         <button
           key={ev.id}
-          className={`event-card ${ev.status === 'active' ? 'event-active' : 'event-candidate'}`}
+          className="pending-btn"
           onClick={() => { setTarget(ev); setStep('location'); }}
         >
-          <div className="event-title">
+          <div className="event-title" style={{ fontSize: '1rem' }}>
             {ev.stationName} · {ev.typeLabel}
+            <span className={`threat threat-${ev.status === 'active' ? 'high' : 'unverified'}`}>
+              {ev.status === 'candidate' ? '未經確認' : '已確認'}
+            </span>
           </div>
           <div className="muted">
-            {ev.status === 'candidate' ? '未經確認 — 需要現場回覆' : '已確認 — 歡迎補充回覆'}
-            {' · '}回報 {ev.reportCount} 筆
+            {ev.status === 'candidate' ? '需要現場回覆' : '歡迎補充回覆'} · 回報 {ev.reportCount} 筆 →
           </div>
         </button>
       ))}

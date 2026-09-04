@@ -265,13 +265,10 @@ export function resolveAnchors({ texts = [], venueId = null, near = null } = {})
 // ---------------------------------------------------------------------------
 
 /**
- * 場域的示意幾何。
+ * 場域幾何：出口的真實經緯度（供 client 在 OpenStreetMap 上標記）。
  *
- * 刻意不回傳圖磚也不回傳街道：一個圖磚視野 4~9 張、100~400KB，是整張態勢卡
- * 預算（50KB）的 8 倍，在壅塞的地下網路上違反本專案的核心原則。
- * 而對「確認我在哪個出口」這個用途，街道幾何不增加任何資訊。
- *
- * x/y 是建表時以主軸對齊後正規化到 0~1 的座標，**純粹服務繪圖、不帶語意**。
+ * 同時保留建表時算好的正規化 x/y（主軸對齊後 0~1）。那組座標不帶語意，
+ * 只是給無圖磚環境的示意繪圖後備用——事件位置一律以出口代碼或經緯度表示。
  */
 export function venueGeometry(venueId) {
   const v = findVenue(venueId);
@@ -280,17 +277,36 @@ export function venueGeometry(venueId) {
     id: v.id,
     name: v.name,
     kind: v.kind,
+    lat: v.lat,
+    lon: v.lon,
     exitsAvailable: v.exitsAvailable,
     spanM: v.spanM ?? { along: 0, across: 0 },
     exits: (v.exits ?? []).map((e) => ({
       code: e.code,
       name: e.name,
       landmark: e.landmark,
+      lat: e.lat,
+      lon: e.lon,
       x: e.x,
       y: e.y,
     })),
     attribution: snapshot.attribution,
   };
+}
+
+/**
+ * 由座標找出最近的出口——地圖自由選點、或 GPS 定位後用來換算錨點。
+ * @returns {{code, name, landmark, lat, lon, distanceM}|null}
+ */
+export function nearestExit(venueId, lat, lon, { maxDistM = 400 } = {}) {
+  const v = findVenue(venueId);
+  if (!v?.exits?.length || !Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+  let best = null;
+  for (const e of v.exits) {
+    const d = distanceM({ lat, lon }, e);
+    if (!best || d < best.distanceM) best = { ...e, distanceM: Math.round(d) };
+  }
+  return best && best.distanceM <= maxDistM ? best : null;
 }
 
 export function venueMeta() {

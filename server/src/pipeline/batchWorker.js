@@ -72,8 +72,9 @@ export function startBatchWorker(store, { log = console.log } = {}) {
         log(`[batch] 新事件 ${event.id}：${event.stationId} ${event.type}`);
       } else {
         event.reports.push(report);
-        // 錨點：最新一筆帶出口代碼的回報覆寫（疏散建議用）
+        // 位置：最新一筆帶錨點/座標的回報覆寫（後到的回報通常更清楚）
         if (report.nearExitCode) event.nearExitCode = report.nearExitCode;
+        if (report.incidentPoint) event.incidentPoint = report.incidentPoint;
       }
 
       event.updatedAt = now; // 有新訊號進來，重置凍結計時

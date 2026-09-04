@@ -21,12 +21,12 @@ import { config } from '../config.js';
  *   locationClaim: { source: 'gps'|'manual'|'session', stationId, confidence, timestamp },
  *   nearExitCode?: string|null, // 事件最接近的出口代碼（如 'M3'），由照片辨識或使用者點選
  *   photoRoi?: 'A1'~'C3'|null,  // 照片九宮格中「有地點標示」的那一格（僅供追溯）
+ *   incidentPoint?: {lat, lon}, // 使用者在地圖上點的事件位置（比出口更精確時）
  *   note?: string,              // 文字補充（選配，≤140 字）
  *   attachToEventId?: string, // 使用者點了「同一件」時帶入
  *   audio?: { base64, mimeType },  // 選配：hold-to-talk 語音
  *   photo?: { base64, mimeType },   // 選配：1024px WebP（<50KB）
  *   photoRef?: string,          // 選配：/api/vision 已收下該圖時改帶 ref（免重傳）
- *   photoAnalysis?: object,     // 選配：client 已取得的 Vision 結果（免重複分析）
  * }
  */
 export function validateReport(body) {
@@ -56,17 +56,19 @@ export function validateReport(body) {
   // 照片九宮格：只是「哪一格有地點標示」的追溯資訊，不參與任何位置計算
   if (body.photoRoi != null && !/^[ABC][123]$/.test(body.photoRoi)) body.photoRoi = null;
 
+  // 事件座標：形狀不合就丟掉（不擋回報）。範圍檢查避免明顯的髒資料進入距離計算
+  const pt = body.incidentPoint;
+  const validPoint =
+    pt && Number.isFinite(pt.lat) && Number.isFinite(pt.lon) &&
+    Math.abs(pt.lat) <= 90 && Math.abs(pt.lon) <= 180;
+  body.incidentPoint = validPoint ? { lat: pt.lat, lon: pt.lon } : null;
+
   // 文字補充：超長截斷（不擋）
   if (typeof body.note === 'string' && body.note.length > 140) body.note = body.note.slice(0, 140);
   if (body.note != null && typeof body.note !== 'string') body.note = null;
 
   // photoRef：只接受字串，其餘收斂為 null（查無此 ref 由路由層靜默略過）
   if (body.photoRef != null && typeof body.photoRef !== 'string') body.photoRef = null;
-
-  // photoAnalysis：只接受物件（client 已拿到的 Vision 結果），其餘丟棄
-  if (body.photoAnalysis != null && typeof body.photoAnalysis !== 'object') {
-    body.photoAnalysis = null;
-  }
 
   // 附件大小防呆（base64 字元數）
   if (body.audio?.base64 && body.audio.base64.length > config.limits.maxAudioBase64) {
@@ -88,12 +90,11 @@ export function normalizeReport(body) {
     locationClaim: body.locationClaim,
     nearExitCode: body.nearExitCode ?? null, // 場域錨點（確定性查表得出）
     photoRoi: body.photoRoi ?? null,         // 照片九宮格（僅供追溯）
+    incidentPoint: body.incidentPoint ?? null, // 地圖選點（最精確的事件位置）
     note: body.note ?? null,                 // 文字補充（選配）
     attachToEventId: body.attachToEventId ?? null,
     audio: body.audio ?? null,
     photo: body.photo ?? null,
-    /** client 已取得的 Vision 結果——有值就不必在 batch 端重複分析同一張圖 */
-    photoAnalysis: body.photoAnalysis ?? null,
     receivedAt: Date.now(),
   };
 }

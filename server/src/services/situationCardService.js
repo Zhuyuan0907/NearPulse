@@ -50,7 +50,7 @@ export function buildSituationCard(events, now = Date.now()) {
       // 疏散向量在這裡就算好寫進卡片——與 advice 同一條路徑。
       // client 不持有圖資也不做幾何運算，只負責顯示。
       // 無出口圖資的場域回 null，UI 退回通用建議文字。
-      evacuation: evacuationLine(ev.stationId, ev.nearExitCode),
+      evacuation: evacuationLine(ev.stationId, ev.nearExitCode, ev.incidentPoint),
     });
   }
 
