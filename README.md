@@ -54,7 +54,26 @@ node server/scripts/build-venues.mjs            # 全台灣（分區查詢 Overp
 node server/scripts/build-venues.mjs --taipei   # 只做台北（快速驗證）
 ```
 
-資料授權：© OpenStreetMap contributors（ODbL）。
+資料授權：© OpenStreetMap contributors（ODbL）。詳見 `LICENSE`。
+
+## 授權與資料來源
+
+| 項目 | 授權 |
+|---|---|
+| 程式碼 | MIT（見 `LICENSE`） |
+| `server/src/data/venues.json` | ODbL —— OpenStreetMap 衍生資料庫，© OpenStreetMap contributors |
+| 底圖圖磚 | CARTO basemaps（資料同為 OpenStreetMap） |
+
+### 第三方相依
+
+| 套件 | 用途 |
+|---|---|
+| React 18 + Vite | 前端框架與建置 |
+| Express 4 | 後端 HTTP |
+| Leaflet 1.9 | 地圖繪製 |
+
+外部服務：Overpass API（離線建表用，執行時不呼叫）、
+OpenAI gpt-4o-mini Vision（選配；未設金鑰時自動停用，功能靜默降級）。
 
 ## 文件
 
