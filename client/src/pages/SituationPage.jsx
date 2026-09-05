@@ -318,6 +318,8 @@ export default function SituationPage() {
   const [here, setHere] = useState(null);
   /** 警示/雜項區塊的收合——平時只佔一行摘要 */
   const [alertsOpen, setAlertsOpen] = useState(false);
+  /** 目前顯示第幾則事件（分頁式：一屏一卡，不縱向堆疊） */
+  const [eventIndex, setEventIndex] = useState(0);
 
   useEffect(() => {
     const poller = startSituationPolling(setCard, { intervalMs: 12_000 });
@@ -413,7 +415,6 @@ export default function SituationPage() {
   const flatEvents = groups.flatMap((venue) =>
     venue.events.map((ev) => ({ venue, ev }))
   );
-  const [eventIndex, setEventIndex] = useState(0);
   const current = flatEvents[Math.min(eventIndex, flatEvents.length - 1)];
   const alertCount = inboundAlerts.length + nearbyAlerts.length + resolved.length;
 

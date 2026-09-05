@@ -541,7 +541,9 @@ export default function ReportPage() {
                     </span>
                   </button>
 
-                  <label className="where-opt where-freeform">
+                  {/* 自己描述：輸入框與麥克風包在**同一個邊框卡**裡——
+                      邊框延伸到麥克風，視覺上宣告「這兩個都是描述地點的方式」。 */}
+                  <label className="where-opt where-freeform where-say">
                     <Pictogram name="map" size={24} />
                     <span>
                       <b>自己描述</b>
@@ -556,28 +558,27 @@ export default function ReportPage() {
                           onChange={(e) => setPlaceText(e.target.value)}
                         />
                       </span>
+                      {/* 用說的——大麥克風圓鈕，與第 2 頁按住說話同款。
+                          恐慌中打字是懲罰，說一句只要兩秒。 */}
+                      {isDictationSupported() && (
+                        <span className="where-say-row">
+                          <button
+                            type="button"
+                            className={`holdtalk-btn holdtalk-sm${dictating ? ' holdtalk-rec' : ''}`}
+                            aria-label={dictating ? '停止語音輸入' : '按住說出地點'}
+                            onPointerDown={(e) => { e.preventDefault(); if (!dictating) toggleDictation(); }}
+                            onPointerUp={() => { if (dictationRef.current) dictationRef.current.stop(); }}
+                            onPointerLeave={() => { if (dictationRef.current) dictationRef.current.stop(); }}
+                          >
+                            <Pictogram name="mic" size={30} />
+                          </button>
+                          <span className={`holdtalk-state${dictating ? ' holdtalk-state-rec' : ''}`}>
+                            {dictating ? '正在聽…放開結束' : '按住說出地點'}
+                          </span>
+                        </span>
+                      )}
                     </span>
                   </label>
-
-                  {/* 用說的——大麥克風圓鈕，與第 2 頁按住說話同款。
-                      恐慌中打字是懲罰，說一句只要兩秒。 */}
-                  {isDictationSupported() && (
-                    <div className="holdtalk holdtalk-where">
-                      <button
-                        type="button"
-                        className={`holdtalk-btn holdtalk-sm${dictating ? ' holdtalk-rec' : ''}`}
-                        aria-label={dictating ? '停止語音輸入' : '按住說出地點'}
-                        onPointerDown={(e) => { e.preventDefault(); if (!dictating) toggleDictation(); }}
-                        onPointerUp={() => { if (dictationRef.current) dictationRef.current.stop(); }}
-                        onPointerLeave={() => { if (dictationRef.current) dictationRef.current.stop(); }}
-                      >
-                        <Pictogram name="mic" size={30} />
-                      </button>
-                      <div className={`holdtalk-state${dictating ? ' holdtalk-state-rec' : ''}`}>
-                        {dictating ? '正在聽…放開結束' : '按住說出地點'}
-                      </div>
-                    </div>
-                  )}
                 </div>
               )}
 

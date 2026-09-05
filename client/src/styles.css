@@ -1159,6 +1159,16 @@ button { cursor: pointer; }
 .where-opt span { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
 .where-sub { font-size: .76rem; font-weight: 400; color: var(--dim); }
 .where-freeform { margin-bottom: 0; }
+/* 自己描述＋麥克風同一卡：麥克風列置中排在輸入框下方，
+   邊框（where-opt 的 border）包住兩者——「打字或說都可以」的視覺宣告 */
+.where-say-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+  margin-top: 10px;
+}
+.where-say .holdtalk-state { margin-top: 8px; }
 .where-input {
   min-height: 40px;
   margin-top: 6px;
