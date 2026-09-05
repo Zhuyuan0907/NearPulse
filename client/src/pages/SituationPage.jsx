@@ -157,9 +157,7 @@ function EvacPlan({ plan, arrival, offMap }) {
   if (!plan) {
     return (
       <p className="plan-none">
-        {offMap
-          ? '這個地方不在我們的圖資裡，給不出出口層級的指引。請依現場逃生標示與人員指示行動。'
-          : '這個場域沒有出口圖資，給不出往哪個出口走。請依現場逃生標示與人員指示行動。'}
+        {offMap ? '此地點無出口資料——請依現場逃生標示行動。' : '此場域無出口資料——請依現場逃生標示行動。'}
       </p>
     );
   }
@@ -168,20 +166,13 @@ function EvacPlan({ plan, arrival, offMap }) {
     return (
       <div className="plan plan-shelter">
         <div className="plan-head plan-head-stop">你在車廂裡，沒有「出口」可去</div>
-        {/* 車廂內唯一有意義的「進度」：還要撐多久門才會開。
-            秒數來自 TDX 官方站間行車時間，不是估的。 */}
         {arrival && <ArrivalCountdown arrival={arrival} />}
 
-        {/* 開門側。**這是「哪一節車廂」問題的可行替代**——車廂↔樓梯的對應
-            沒有任何開放資料（日本的乗換案内是向民間購買人工實測資料），
-            但開門側是官方公開的，而且不需要知道車廂編號就能執行：
-            到站前先移動到會開門的那一側，門一開就出得去。 */}
         {arrival?.doorSide?.label && (
           <div className="door-side">
             <Pictogram name="door" size={22} />
             <span>
-              下一站是<b>{arrival.doorSide.label}開門</b>——
-              現在就往{arrival.doorSide.label}車門移動
+              下一站<b>{arrival.doorSide.label}開門</b>——先移到那一側
             </span>
           </div>
         )}
@@ -190,9 +181,9 @@ function EvacPlan({ plan, arrival, offMap }) {
 
         {arrival && (
           <p className="plan-note">
-            已通知 <b>{arrival.name}</b> 月台的人讓開車門動線。
+            已通知 <b>{arrival.name}</b> 月台讓開車門。
             {plan.stepFree && arrival.wheelchairCars?.length > 0 && (
-              <>{' '}輪椅席位於第 {arrival.wheelchairCars.join('、')} 節車廂。</>
+              <>{' '}輪椅席：第 {arrival.wheelchairCars.join('、')} 節。</>
             )}
           </p>
         )}
@@ -225,12 +216,10 @@ function EvacPlan({ plan, arrival, offMap }) {
       )}
 
       <p className="plan-note">
-        {/* 沒有錨點時「往這裡走」只是「這個場域有哪些出口」——
-            仍然有用，但不能講得像我們知道事發位置。 */}
         {plan.anchored === false
-          ? '尚未確認事件在站內的位置，以下是這個場域的出口，請依現場狀況選擇。'
+          ? '事件位置未確認——以下是此場域出口，依現場狀況選擇。'
           : plan.note}
-        {plan.unknownExits > 0 && `（另有 ${plan.unknownExits} 個出口無無障礙資訊）`}
+        {plan.unknownExits > 0 && `（${plan.unknownExits} 個出口無無障礙資訊）`}
       </p>
     </div>
   );
@@ -248,9 +237,8 @@ function InboundAlert({ alert }) {
       </div>
       <div className="inbound-where">
         <b>{alert.venueName}</b>（{alert.lineNo} 線 · 往{alert.towards}）
-        <span className="muted">　由 {alert.fromVenue} 方向駛來</span>
       </div>
-      <div className="inbound-what">車上有進行中的<b>{alert.typeLabel}</b>事件</div>
+      <div className="inbound-what">車上有<b>{alert.typeLabel}</b>事件</div>
       <p className="inbound-action">{eta.action}</p>
     </div>
   );
@@ -298,7 +286,7 @@ function EventMapToggle({ plan, incidentPoint, defaultOpen = false }) {
     return (
       <button className="chip map-toggle" onClick={() => setOpen(true)}>
         <Pictogram name="map" size={18} />
-        展開地圖看位置<span className="muted">（會用到額外流量）</span>
+        展開地圖
       </button>
     );
   }
@@ -308,7 +296,7 @@ function EventMapToggle({ plan, incidentPoint, defaultOpen = false }) {
       <Suspense fallback={<div className="incident-map-loading">地圖載入中…</div>}>
         <IncidentMap plan={plan} incidentPoint={incidentPoint} />
       </Suspense>
-      <button className="chip map-toggle" onClick={() => setOpen(false)}>收合地圖</button>
+      <button className="chip map-toggle" onClick={() => setOpen(false)}>收合</button>
     </>
   );
 }
@@ -429,19 +417,17 @@ export default function SituationPage() {
         {here ? (
           <span className="here-body">
             <b>{here.name}</b>
-            <span className="here-sub">你上次確認的位置</span>
+            <span className="here-sub">上次確認的位置</span>
           </span>
         ) : fix ? (
           <span className="here-body">
             <b>依目前定位</b>
-            <span className="here-sub">
-              誤差約 {Math.round(fix.accuracy)}m{fix.ageMin ? `　${fix.ageMin} 分鐘前` : ''}
-            </span>
+            <span className="here-sub">誤差約 {Math.round(fix.accuracy)}m</span>
           </span>
         ) : (
           <span className="here-body">
             <b>不知道你在哪</b>
-            <span className="here-sub">收不到定位——只能顯示全部事件</span>
+            <span className="here-sub">僅顯示全部事件</span>
           </span>
         )}
         <a className="here-action" href="#/">變更</a>
@@ -505,7 +491,7 @@ export default function SituationPage() {
             <p className="muted-2">收不到定位，無法依距離篩選。</p>
           )}
           {hiddenCount > 0 && (
-            <p className="muted-2">另有 {hiddenCount} 件在範圍外，改選「全部」可看。</p>
+            <p className="muted-2">{hiddenCount} 件在範圍外。</p>
           )}
         </div>
       )}
@@ -616,11 +602,11 @@ export default function SituationPage() {
                     {THREAT_LABEL[ev.threatLevel] ?? '未經確認'}
                   </span>
                 </div>
-                {/* 中間點串接的 meta 字串（A · B · C）讀起來像系統日誌。
-                    拆成有欄位名的小格，掃視時眼睛知道每個數字是什麼。 */}
+                {/* meta 只留「行動需要」的兩格：位置與更新時間。
+                    「獨立訊號 N」是系統的信任語彙，恐慌中的人不需要；
+                    信任已由「已確認/未經確認」徽章表達過了。 */}
                 <dl className="event-meta">
                   <div><dt>位置</dt><dd>{ev.nearExitCode ? `近 ${ev.nearExitCode} 出口` : '未確認'}</dd></div>
-                  <div><dt>獨立訊號</dt><dd>{ev.independentSignals}</dd></div>
                   <div><dt>更新</dt><dd>{time(ev.updatedAt)}</dd></div>
                 </dl>
 
@@ -628,22 +614,21 @@ export default function SituationPage() {
                 {ev.motion?.moving && (
                   <div className="flag flag-move">
                     {ev.motion.reason === 'erratic'
-                      ? '多處回報位置不一致 — 可能不只一處'
+                      ? '可能不只一處'
                       : `${wordingFor(ev.typeLabel).moving}${ev.motion.compass ? ` · 往${ev.motion.compass}方` : ''}`}
                     {ev.motion.confidence === 'low' && ' · 方向待確認'}
                   </div>
                 )}
                 {ev.assistanceReports > 0 && (
                   <div className="flag flag-assist">
-                    有人無法自行疏散 · {ev.assistanceReports} 筆回報
+                    有人需協助 · {ev.assistanceReports} 筆
                   </div>
                 )}
 
                 {ev.onTrain && <div className="flag flag-train">事件在列車上</div>}
 
                 {/* 通報者給的東西：照片與文字。
-                    **位置未確認時這是唯一有用的資訊**——只寫「位置待確認」
-                    等於什麼都沒說，而看的人可能一眼就認出照片裡是哪裡。 */}
+                    位置未確認時這是唯一有用的資訊——看的人可能一眼認出照片。 */}
                 {(ev.photoUrl || ev.note) && (
                   <div className={`evidence${venue.offMap ? ' evidence-key' : ''}`}>
                     {ev.photoUrl && (
@@ -654,22 +639,14 @@ export default function SituationPage() {
                     <div className="evidence-body">
                       {ev.note && <p className="evidence-note">「{ev.note}」</p>}
                       {venue.offMap && (
-                        <>
-                          <p className="evidence-hint">
-                            通報者說不出自己的位置，系統也認不出來。
-                          </p>
-                          {/* 之前這裡只寫「請協助確認」卻沒有可以指認的地方——
-                              點進去會問「你現在在『位置待確認』嗎？」，那是個
-                              無意義的問題。現在直接連到指認流程。 */}
-                          <a className="chip identify-cta" href={`#/confirm?event=${ev.id}`}>
-                            <Pictogram name="pin" size={16} />
-                            我認得這裡 · 幫忙指認
-                          </a>
-                        </>
+                        <a className="chip identify-cta" href={`#/confirm?event=${ev.id}`}>
+                          <Pictogram name="pin" size={16} />
+                          我認得這裡 · 幫忙指認
+                        </a>
                       )}
                       {ev.photoVenueGuesses?.length > 0 && (
                         <p className="evidence-hint">
-                          照片裡出現多個站名，可能在：{ev.photoVenueGuesses.join('、')}
+                          可能在：{ev.photoVenueGuesses.join('、')}
                         </p>
                       )}
                     </div>
@@ -679,7 +656,9 @@ export default function SituationPage() {
                 {/* ---- 疏散：結構化，不是一整段字 ---- */}
                 <EvacPlan plan={plan} arrival={ev.arrival} offMap={venue.offMap} />
 
-                <p className="advice">{ev.advice}</p>
+                {/* advice 只在**沒有結構化計畫可講**時顯示——
+                    plan 已經把「往哪走」講完了，再唸一段一般性建議是重複。 */}
+                {!plan && <p className="advice">{ev.advice}</p>}
 
                 {/* 地圖預設對**已確認的高警戒事件**展開——那正是「往哪個方向離開」
                     最需要看見空間關係的時候，而且值得那 190KB。其餘事件維持收合，
@@ -703,13 +682,11 @@ export default function SituationPage() {
                 {ev.status === 'candidate' ? (
                   <a className="chip sighting-cta cta-verify" href={`#/confirm?event=${ev.id}`}>
                     <Pictogram name="sighting" size={18} />
-                    你在現場嗎？幫忙確認這件事
+                    你在現場嗎？幫忙確認
                   </a>
                 ) : ev.threatLevel === 'high' ? (
                   <a className="chip sighting-cta" href={`#/confirm?event=${ev.id}`}>
                     <Pictogram name="sighting" size={18} />
-                    {/* 「往哪走」只適用於會走路的加害者。
-                        火警要問的是煙在哪，推擠要問的是哪裡最擠。 */}
                     {wordingFor(ev.typeLabel).cta}
                   </a>
                 ) : null}
@@ -722,7 +699,7 @@ export default function SituationPage() {
                     </button>
                   )}
                   <span className="muted">
-                    {ev.reportCount} 筆回報
+                    {ev.reportCount} 筆
                     {ev.hasPhoto && <Pictogram name="photo" size={15} className="foot-pict" />}
                     {ev.hasAudio && <Pictogram name="mic" size={15} className="foot-pict" />}
                   </span>

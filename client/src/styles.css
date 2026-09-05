@@ -1622,3 +1622,12 @@ button { cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   .holdtalk-rec { animation: none; }
 }
+
+/* GPS 已自動套用的一行回饋：讓人知道不必再按任何定位按鈕 */
+.gps-ok {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin: 6px 0 0;
+  font-weight: 600;
+}

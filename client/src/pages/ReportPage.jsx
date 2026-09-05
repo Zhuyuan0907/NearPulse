@@ -77,7 +77,6 @@ export default function ReportPage() {
   const [nextVenueId, setNextVenueId] = useState(null);
   const [noteDictating, setNoteDictating] = useState(false);
   const noteDictationRef = useRef(null);
-  const [gpsBusy, setGpsBusy] = useState(false);
 
   // ---- 照片與視覺定位 ----
   const [photo, setPhoto] = useState(null);
@@ -151,8 +150,19 @@ export default function ReportPage() {
     resolveLocation().then(({ claim, stationName }) => {
       if (claim) applyVenue(claim.stationId, stationName, claim);
     });
+    // GPS 已授權 → 靜默取定位。夠準（≤60m）就**直接當事件位置**，
+    // 「GPS 定位」按鈕沒有存在的理由——已經拿到東西了還要人按確認，
+    // 是多餘的一步。地下取不到或誤差大 → fix 為 null 或精度不足，
+    // 使用者看到的就只有拍照定位，與原本行為一致。
     geolocationPermission().then((state) => {
-      if (state === 'granted') coarseFix().then(setFix);
+      if (state !== 'granted') return;
+      coarseFix().then((f) => {
+        if (!f) return;
+        setFix(f);
+        if (f.accuracy <= GPS_USABLE_ACCURACY_M) {
+          setIncidentPoint({ lat: f.lat, lon: f.lon });
+        }
+      });
     });
   }, [applyVenue]);
 
@@ -224,17 +234,8 @@ export default function ReportPage() {
   }
 
   // ===================== 位置精確化 =====================
-
-  /** GPS 夠準時直接當事件位置 */
-  async function useGps() {
-    setGpsBusy(true);
-    const f = await ensureFix();
-    setGpsBusy(false);
-    if (f && f.accuracy <= GPS_USABLE_ACCURACY_M) {
-      setIncidentPoint({ lat: f.lat, lon: f.lon });
-      setNearExitCode(null);
-    }
-  }
+  // GPS 定位已在啟動 effect 自動套用（誤差 ≤60m 時直接當事件位置），
+  // 不再有手動「GPS 定位」按鈕——拍照定位是唯一需要使用者主動做的定位動作。
 
   /** 拍完照：壓縮整張 → 背景問 AI「哪一格有地點標示」 */
   async function handlePhoto(file) {
@@ -621,21 +622,26 @@ export default function ReportPage() {
                 </button>
               </div>
 
-              {/* 已有場域：拍照定位 / GPS */}
+              {/* 已有場域：只留拍照定位。
+                  GPS 已授權的話定位早就自動套用了（見啟動 effect），
+                  再給一顆「GPS 定位」按鈕是重複動作；地下取不到定位時
+                  那顆按鈕按了也只會失敗。一顆按鈕，一個動作。 */}
               {claim && (
-                <div className="supp-row">
-                  <button className="ghost-btn btn-lg" onClick={() => photoInputRef.current?.click()}>
-                    <Pictogram name="photo" size={18} />
-                    拍照定位
-                  </button>
-                  <button className="ghost-btn btn-lg" disabled={gpsBusy} onClick={useGps}>
-                    {gpsBusy ? '定位中…' : 'GPS 定位'}
-                  </button>
-                </div>
+                <button className="ghost-btn btn-lg btn-block" onClick={() => photoInputRef.current?.click()}>
+                  <Pictogram name="photo" size={18} />
+                  拍照定位
+                </button>
               )}
 
-              {gpsBusy && <p className="muted">正在取得定位（最多 5 秒）…</p>}
-              {!gpsBusy && fix && fix.accuracy > GPS_USABLE_ACCURACY_M && (
+              {/* GPS 自動套用的回饋：一行，不佔空間。
+                  看得到「已定位」就不會有人去按按鈕重複確認。 */}
+              {incidentPoint && !nearExitCode && (
+                <p className="ok-note gps-ok">
+                  <Pictogram name="pin" size={14} />
+                  已用 GPS 自動定位
+                </p>
+              )}
+              {fix && fix.accuracy > GPS_USABLE_ACCURACY_M && (
                 <div className="notice notice-warn">
                   GPS 誤差約 {Math.round(fix.accuracy)}m，定位不到出口。
                   請改用拍照定位，或直接在地圖上點。
