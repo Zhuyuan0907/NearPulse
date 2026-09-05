@@ -319,14 +319,13 @@ export default function SituationPage() {
   // 需要的人在回報頁勾過，來看狀況時不必再勾一次
   const [stepFree, setStepFree] = useState(() => sessionStorage.getItem('np_step_free') === '1');
   const [query, setQuery] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
   const [fix, setFix] = useState(() => lastKnownFix());
   // 沒有位置就沒有「附近」可言，預設只能是全部
   const [range, setRange] = useState(() => (lastKnownFix() ? 5000 : 0));
-  // 地圖預設展開——「哪邊有事」是進來第一個要回答的問題。
-  // 收合狀態記在 sessionStorage，使用者的選擇在這個 session 內有效。
-  const [mapOpen, setMapOpen] = useState(
-    () => sessionStorage.getItem('np_overview_map') !== '0'
-  );
+  // 地圖預設**收合**——進頁面先看文字（任何網路都到得了），
+  // 空間分佈是想看才開的補充視角，不該與事件卡的地圖搶注意力。
+  const [mapOpen, setMapOpen] = useState(false);
   /** 你在哪——決定了「附近」是什麼意思 */
   const [here, setHere] = useState(null);
 
@@ -354,9 +353,7 @@ export default function SituationPage() {
   }, []);
 
   function toggleMap() {
-    const next = !mapOpen;
-    setMapOpen(next);
-    sessionStorage.setItem('np_overview_map', next ? '1' : '0');
+    setMapOpen(!mapOpen);
   }
 
   /** 捲到某個場域區塊——地圖是索引，文字才是主體 */
@@ -444,25 +441,33 @@ export default function SituationPage() {
         ) : (
           <span className="here-body">
             <b>不知道你在哪</b>
-            <span className="here-sub">收不到定位——下方只能顯示全部事件</span>
+            <span className="here-sub">收不到定位——只能顯示全部事件</span>
           </span>
         )}
         <a className="here-action" href="#/">變更</a>
       </div>
 
+      {/* 無台階開關：獨立列，不與篩選混在一起。
+          它決定每張事件卡的疏散內容（電梯火災不可用 → 答案整個不同），
+          屬於「閱讀偏好」而不是「篩選條件」，放這裡、給滿寬、當下狀態清楚。 */}
       <button
-        className={`chip${stepFree ? ' chip-active' : ''}`}
-        style={{ marginTop: 10 }}
+        className={`acc-toggle${stepFree ? ' acc-on' : ''}`}
+        role="switch"
+        aria-checked={stepFree}
         onClick={toggleStepFree}
       >
-        <Pictogram name="stepFree" size={18} />
-        {stepFree ? '無台階路線（已開啟）' : '我需要無台階路線'}
+        <Pictogram name="stepFree" size={20} className="acc-pict" />
+        <span className="acc-body">
+          <b>無台階路線</b>
+          <span className="acc-sub">{stepFree ? '已開啟——疏散指示將避開樓梯' : '輪椅、嬰兒車、行動不便時開啟'}</span>
+        </span>
+        <span className="acc-knob" aria-hidden="true" />
       </button>
 
-      {/* ---- 範圍與搜尋 ----
-          條列全部事件在事件一多就讀不動了。先讓人限定到「跟我有關」的範圍，
-          再往下讀。拿不到位置時距離選項會停用——那時候「附近」是個
-          答不出來的問題，與其給一個假的答案不如說清楚。 */}
+      {/* ---- 範圍篩選：只留距離 chips，搜尋收合進「找特定地點」 ----
+          搜尋框對多數人是雜訊（他們要的是「附近有沒有大事」，不是找某站），
+          但趕著確認家人所在站的人需要它——所以收合成一顆按鈕，
+          要的人才展開，不要的人永遠不會看到輸入框。 */}
       {card.stations.length > 1 && (
         <div className="filter-bar">
           <div className="filter-ranges">
@@ -477,15 +482,27 @@ export default function SituationPage() {
               </button>
             ))}
           </div>
-          <input
-            className="note-input filter-search"
-            type="search"
-            placeholder="搜尋場域名稱"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
+          {searchOpen ? (
+            <div className="filter-search-row">
+              <input
+                className="note-input filter-search"
+                type="search"
+                placeholder="輸入場域名稱"
+                value={query}
+                autoFocus
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              <button className="chip" onClick={() => { setSearchOpen(false); setQuery(''); }}>
+                取消
+              </button>
+            </div>
+          ) : (
+            <button className="filter-more" onClick={() => setSearchOpen(true)}>
+              找特定地點
+            </button>
+          )}
           {!fix && (
-            <p className="muted-2">收不到定位，無法依距離篩選——可用搜尋。</p>
+            <p className="muted-2">收不到定位，無法依距離篩選。</p>
           )}
           {hiddenCount > 0 && (
             <p className="muted-2">另有 {hiddenCount} 件在範圍外，改選「全部」可看。</p>
@@ -493,10 +510,11 @@ export default function SituationPage() {
         </div>
       )}
 
-      {/* ---- 總覽地圖：先回答「哪邊有事」 ----
-          條列清單看得出有幾件事，看不出它們是集中在一站還是散在半個城市——
-          而那個差別決定了要不要跑。點標記會捲到對應區塊，
-          地圖是索引，文字仍然是主體。 */}
+      {/* ---- 總覽地圖：改為**預設收合**，與事件地圖互斥 ----
+          舊版總覽地圖預設展開、事件卡又各有一張地圖，上下兩張地圖
+          讓人不知道該看哪張。現在：進頁面先看文字（任何網路都到得了），
+          想看空間分佈再開總覽；事件卡的地圖仍然是獨立開關（點開才載入）。
+          地圖是補充視角，不是這頁的主體。 */}
       {groups.some((g) => Number.isFinite(g.lat)) && (
         mapOpen ? (
           <>
