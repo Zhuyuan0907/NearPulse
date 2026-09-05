@@ -29,7 +29,7 @@ import { startSituationPolling } from '../modules/api.js';
 import { isSpeechSupported, speak } from '../modules/speech.js';
 import OfflineBar from '../components/OfflineBar.jsx';
 import { etaOf } from '../modules/train.js';
-import { coarseFix, lastKnownFix } from '../modules/location.js';
+import { coarseFix, lastKnownFix, resolveLocation } from '../modules/location.js';
 import { wordingFor } from '../modules/incidentWording.js';
 import Pictogram from '../components/Pictogram.jsx';
 
@@ -327,10 +327,19 @@ export default function SituationPage() {
   const [mapOpen, setMapOpen] = useState(
     () => sessionStorage.getItem('np_overview_map') !== '0'
   );
+  /** 你在哪——決定了「附近」是什麼意思 */
+  const [here, setHere] = useState(null);
 
   useEffect(() => {
     const poller = startSituationPolling(setCard, { intervalMs: 12_000 });
     return () => poller.stop();
+  }, []);
+
+  // 上次確認過的場域（回報頁選的那個）——讓「附近」有具體的參照
+  useEffect(() => {
+    resolveLocation().then(({ claim, stationName }) => {
+      if (claim) setHere({ id: claim.stationId, name: stationName ?? claim.stationId });
+    });
   }, []);
 
   // 靜默試一次定位：拿得到就能篩「附近」，拿不到就維持全部（地下的常態）
@@ -411,6 +420,34 @@ export default function SituationPage() {
       <div className="card-head">
         <h1 className="headline" style={{ margin: 0 }}>目前狀況</h1>
         <span className="card-time">更新於 {time(card.generatedAt)}</span>
+      </div>
+
+      {/* 【你在哪】
+          這一頁通篇在講「附近」——1 公里內、5 公里內、鄰近場域警示——
+          但先前從來沒說過「附近」是相對於哪裡。使用者不知道基準點，
+          那些篩選就等於在猜。
+          三種基準，語氣依可信度遞減：手選的場域 → 定位 → 收不到。 */}
+      <div className="here-bar">
+        <Pictogram name="pin" size={18} className="here-icon" />
+        {here ? (
+          <span className="here-body">
+            <b>{here.name}</b>
+            <span className="here-sub">你上次確認的位置</span>
+          </span>
+        ) : fix ? (
+          <span className="here-body">
+            <b>依目前定位</b>
+            <span className="here-sub">
+              誤差約 {Math.round(fix.accuracy)}m{fix.ageMin ? `　${fix.ageMin} 分鐘前` : ''}
+            </span>
+          </span>
+        ) : (
+          <span className="here-body">
+            <b>不知道你在哪</b>
+            <span className="here-sub">收不到定位——下方只能顯示全部事件</span>
+          </span>
+        )}
+        <a className="here-action" href="#/">變更</a>
       </div>
 
       <button

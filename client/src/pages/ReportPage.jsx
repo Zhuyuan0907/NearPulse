@@ -840,8 +840,20 @@ export default function ReportPage() {
 
       {error && <p className="error-note" style={{ marginTop: 12 }}>{error}</p>}
 
+      {/* 這不是頁尾連結，是**另一半的功能**。
+          回報與查看是兩個對等的入口，把其中一個做成一行小字，
+          等於告訴使用者它不重要——而事實上多數人打開 App 是為了「看發生什麼事」，
+          不是為了通報。 */}
+      <a className="situation-cta" href="#/situation">
+        <Pictogram name="map" size={22} />
+        <span className="situation-cta-body">
+          <b>查看目前狀況</b>
+          <span className="situation-cta-sub">附近有什麼事、往哪個出口走</span>
+        </span>
+        <span className="situation-cta-go" aria-hidden="true">→</span>
+      </a>
+
       <footer className="page-footer">
-        <a href="#/situation">查看目前狀況</a>
         {venue?.attribution && <p className="attribution">{venue.attribution}</p>}
       </footer>
 
