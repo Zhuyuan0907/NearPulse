@@ -488,6 +488,31 @@ check "不相鄰的多站名仍然不猜" \
 check "最長匹配優先（中山國小 不會被判成 中山）" \
   test "$(anchors "['中山國小']" "null" | json "d['venue']")" = "中山國小"
 
+# 【月台上到處都是數字，但只有一種是出口】
+# 使用者實測拍忠孝敦化月台：車門貼「車廂3 Car 3」、看板寫「2月台」、
+# 站名牌是「BL16」。車廂編號被當成 3 號出口，會把人指到站內完全不同的位置。
+anchors2() { node -e "
+  import('./src/services/venueService.js').then(v=>{
+    const r=v.resolveAnchors({texts:$1, venueId:$2});
+    console.log(JSON.stringify({venue:r.venue?r.venue.name:null,
+      exits:r.candidates.map(c=>c.exitCode)}));
+  });" 2>/dev/null | tail -1; }
+
+check "車廂編號不會變成出口編號" \
+  test "$(anchors2 "[{label:'車廂',value:'車廂3'},{label:'站名',value:'忠孝敦化'}]" "null" | json "d['exits'] == [None]")" = "True"
+check "月台編號不會變成出口編號" \
+  test "$(anchors2 "[{label:'月台',value:'2月台'},{label:'站名',value:'忠孝敦化'}]" "null" | json "d['exits'] == [None]")" = "True"
+# 模型會把 BL16 的 16 單獨列出來還標成「出口」——不能只依賴模型標對
+check "站名代碼的數字（BL16 的 16）不會變成出口編號" \
+  test "$(anchors2 "[{label:'站名',value:'BL16 忠孝敦化'},{label:'出口',value:'16'}]" "null" | json "d['exits'] == [None]")" = "True"
+check "真正的出口牌仍然讀得出來" \
+  test "$(anchors2 "[{label:'站名',value:'善導寺'},{label:'出口',value:'出口3'}]" "null" | json "d['exits']")" = "['3']"
+check "帶字母前綴的出口代碼不受影響" \
+  test "$(anchors2 "[{label:'出口',value:'M3'}]" "'TPE-A1'" | json "d['exits']")" = "['M3']"
+# 短代碼用單詞邊界比對：R3 曾命中「Car 3」裡的 ar3，把忠孝敦化判到高雄小港
+check "路線代碼不會誤中普通英文字（Car 3 不是 R3）" \
+  test "$(anchors2 "[{label:'文字',value:'車廂3 Car 3'},{label:'站名',value:'忠孝敦化'}]" "null" | json "d['venue']")" = "忠孝敦化"
+
 echo "== 19. 指認位置：通報者說不出來，但看照片的人認得 =="
 # 【為什麼】態勢卡對圖資外的事件寫著「請協助確認」，但點進去卻是
 # 「你現在在『位置待確認』嗎？」——一個無意義的問題。通報者說不出自己在哪，

@@ -424,6 +424,20 @@ export function resolveAnchors({ texts = [], venueId = null, near = null } = {})
   const EXITISH_LABEL = /出口|出入口|exit/i;
   const NOT_EXIT_LABEL = /車廂|車門|月台|月臺|car\b|platform/i;
 
+  /**
+   * 站名代碼的數字部分（BL16 → 16）不可以當成出口編號。
+   *
+   * 實測使用者拍的忠孝敦化月台：站名牌是「BL16 忠孝敦化」，而模型把 `16`
+   * 單獨列出來、還標成「出口」。這次僥倖沒事（忠孝敦化沒有 16 號出口，
+   * 查表落空），但只要某站剛好有那個編號就會把人指到錯的地方。
+   *
+   * 用命中的場域代碼反推該排除哪些數字——這比要求模型永遠標對可靠得多。
+   */
+  const codeDigits = new Set();
+  for (const raw of values) {
+    for (const m of String(raw).matchAll(/\b[A-Za-z]{1,3}(\d{1,3})\b/g)) codeDigits.add(m[1]);
+  }
+
   const codes = [...new Set(
     texts
       .map((t) => {
@@ -438,6 +452,8 @@ export function resolveAnchors({ texts = [], venueId = null, near = null } = {})
         // 純數字（無字母前綴）→ 需要出口的佐證
         const bare = /^\d{1,3}$/.test(code);
         if (bare && !EXITISH_LABEL.test(label) && !EXITISH_LABEL.test(raw)) return null;
+        // 而且不能是站名代碼的數字部分（BL16 的 16）
+        if (bare && codeDigits.has(code)) return null;
         return code;
       })
       .filter(Boolean)
