@@ -1115,3 +1115,63 @@ button { cursor: pointer; }
 .foot-pict { display: inline-block; margin-left: 8px; vertical-align: -2px; color: var(--dim); }
 /* 空狀態不用大圖示——沒有事情發生時，一句話就夠了 */
 .empty-line { padding: 28px 0; font-size: .95rem; color: var(--dim); text-align: center; }
+
+/* ===========================================================================
+   「這是哪裡？」——位置是加分項，不是通行證
+   ---------------------------------------------------------------------------
+   三條路並行呈現（拍照／挑場域／自己描述），視覺重量相同：
+   任何一條看起來比較「正式」，都會讓走不了那條的人以為自己不能通報。
+   =========================================================================== */
+
+.where-panel {
+  padding: 12px;
+  margin-bottom: 12px;
+  background: var(--tunnel-2);
+  border: 1px solid var(--edge);
+  border-radius: var(--r-tap);
+}
+.where-lead {
+  margin: 0 0 10px;
+  font-size: .88rem;
+  line-height: 1.55;
+  color: var(--dim);
+}
+.where-lead b { color: var(--enamel); }
+
+.where-opt {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  width: 100%;
+  min-height: var(--tap);
+  padding: 11px 12px;
+  margin-bottom: 8px;
+  font-size: .95rem;
+  color: var(--enamel);
+  text-align: left;
+  background: var(--panel);
+  border: 1px solid var(--edge-2);
+  border-radius: var(--r-tap);
+}
+.where-opt > .pict { margin-top: 2px; color: var(--dim); }
+.where-opt span { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.where-sub { font-size: .76rem; font-weight: 400; color: var(--dim); }
+.where-freeform { margin-bottom: 0; }
+.where-input {
+  min-height: 40px;
+  margin-top: 6px;
+  font-size: .88rem;
+}
+
+/* 給不出出口建議時的說法。刻意不用警示色——這不是壞消息，
+   只是我們知道的比較少；用紅色會讓人以為又出了什麼事。 */
+.plan-none {
+  padding: 11px 13px;
+  margin: 10px 0 0;
+  font-size: .9rem;
+  line-height: 1.6;
+  color: var(--dim);
+  background: var(--tunnel-2);
+  border-left: 4px solid var(--edge-2);
+  border-radius: 0 var(--r-sign) var(--r-sign) 0;
+}

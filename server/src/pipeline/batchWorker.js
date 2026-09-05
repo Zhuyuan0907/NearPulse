@@ -57,11 +57,16 @@ export function startBatchWorker(store, { log = console.log } = {}) {
         }
       }
 
-      // 2b. 自動比對：同站同類型的進行中事件
+      // 2b. 自動比對：同站同類型的進行中事件。
+      //     場域未知時改以座標鄰近或自由描述文字比對（見 cluster.js 的說明）
       if (!event) {
+        const c = report.locationClaim;
         event = findMatchingEvent(store.listEvents(), {
-          stationId: report.locationClaim.stationId,
+          stationId: c.stationId,
           type: report.type,
+          claimPoint:
+            Number.isFinite(c.lat) && Number.isFinite(c.lon) ? { lat: c.lat, lon: c.lon } : null,
+          placeText: c.place ?? null,
         });
       }
 
@@ -71,9 +76,9 @@ export function startBatchWorker(store, { log = console.log } = {}) {
         // 站務台、報告書等非本 client 的消費端才拿得到可讀名稱。
         // client 若有帶名稱則作為未知場域的後備。
         const claim = report.locationClaim;
-        const resolved = findVenue(claim.stationId);
+        const resolved = claim.stationId ? findVenue(claim.stationId) : null;
         event = createCandidateEvent(report, resolved?.name ?? claim.stationName);
-        log(`[batch] 新事件 ${event.id}：${event.stationId} ${event.type}`);
+        log(`[batch] 新事件 ${event.id}：${event.stationId ?? '（無場域）'} ${event.type}`);
       } else {
         event.reports.push(report);
         // 最新位置仍然更新（靜態事件用得到）……

@@ -100,12 +100,25 @@ export default function ReportPage() {
   const [candidates, setCandidates] = useState([]);
   // 照片把場域換掉時記下來——這件事必須讓使用者看得見
   const [venueSwitchedTo, setVenueSwitchedTo] = useState(null);
+  /** 使用者自己描述的地點——圖資查不到時唯一的位置資訊 */
+  const [placeText, setPlaceText] = useState('');
 
   const recorderRef = useRef(null);
   const photoInputRef = useRef(null);
   const rawFileRef = useRef(null); // 保留原圖：裁切要從原圖裁才有解析度紅利
 
-  const readyToSubmit = Boolean(claim && selectedType && (!matchEvent || attachChoice));
+  /**
+   * 可以送出了嗎。
+   *
+   * ⚠️ **不再要求場域。**
+   * 舊版是 `claim && selectedType`——但「我在一個陌生的地下空間、不知道自己
+   * 在哪」正是這個 App 存在的理由。要求先說出地點名稱才能通報，等於把最需要
+   * 幫助的人擋在門外；而圖資也永遠不會完整（百貨只涵蓋 58 個）。
+   *
+   * 現在只要選了類型就能送。位置是**加分項**，不是通行證：
+   * 有場域就給出口層級的疏散建議，沒有就誠實說給不出來——但通報一定成立。
+   */
+  const readyToSubmit = Boolean(selectedType && (!matchEvent || attachChoice));
   /**
    * 這個場域可能有列車嗎。地下街、百貨、地下停車場都不在捷運路網上，
    * 對它們顯示「事件發生在列車上」只是雜訊。
@@ -174,7 +187,9 @@ export default function ReportPage() {
   async function handleType(type) {
     setSelectedType(type);
     setError(null);
-    if (!claim) { setShowPicker(true); return; }
+    // 刻意**不**強制跳出場域選擇器：不知道自己在哪的人也要能繼續往下走。
+    // 位置改由「拍照辨識 / 選附近場域 / 直接送出」三條路並行提供。
+    if (!claim) return;
     await refreshMatch(claim.stationId, type);
   }
 
@@ -278,7 +293,18 @@ export default function ReportPage() {
       await postReport({
         uuid: crypto.randomUUID(),          // 冪等鍵：連點重送 server 去重
         type: selectedType,
-        locationClaim: { ...claim, timestamp: Date.now() },
+        // 沒有場域也送得出去——server 只要求「至少一種位置線索」，
+        // 三者皆無也照收，只是標記為位置待確認
+        locationClaim: claim
+          ? { ...claim, timestamp: Date.now() }
+          : {
+            source: placeText.trim() ? 'freeform' : 'unknown',
+            stationId: null,
+            place: placeText.trim() || null,
+            lat: fix?.lat ?? null,
+            lon: fix?.lon ?? null,
+            timestamp: Date.now(),
+          },
         attachToEventId: attachChoice === 'same' ? matchEvent?.id ?? null : null,
         nearExitCode,
         incidentPoint,
@@ -294,7 +320,8 @@ export default function ReportPage() {
       setDone(true); // 樂觀 UI：不等批次、不等 AI
 
       // 疏散指示要**現在**就給——態勢卡要等下一個批次 tick，但人已經在逃了
-      fetchEvacuation({
+      // 沒有場域就沒有出口圖資，疏散建議這條路直接略過（UI 會誠實說明）
+      if (claim?.stationId) fetchEvacuation({
         venueId: claim.stationId,
         exitCode: nearExitCode,
         point: incidentPoint,
@@ -313,7 +340,7 @@ export default function ReportPage() {
     setSelectedType(null); setMatchEvent(null); setAttachChoice(null);
     setNote(''); setAudioClip(null); setShowDetails(false); setOnTrain(false); setNextVenueId(null); setNeedsAssistance(false);
     setPhoto(null); setPhotoRef(null); setRoiCell(null); setSuggestedCell(null);
-    setReadTexts([]); setCandidates([]); setVenueSwitchedTo(null);
+    setReadTexts([]); setCandidates([]); setVenueSwitchedTo(null); setPlaceText('');
     setNearExitCode(null); setIncidentPoint(null);
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null); rawFileRef.current = null;
@@ -472,7 +499,53 @@ export default function ReportPage() {
 
       {readyToSubmit && (
         <>
-          <h2 className="section-title">事件在哪裡？（愈精確，疏散建議愈有用）</h2>
+          <h2 className="section-title">這是哪裡？</h2>
+
+          {/* 位置是**加分項，不是通行證**。
+              三條路並行，隨便走一條都行，一條都不走也能送出——
+              不知道自己在哪的人，正是最需要通報的人。 */}
+          {!claim && (
+            <div className="where-panel">
+              <p className="where-lead">
+                不知道也沒關係，<b>直接送出就會被記錄</b>。
+                告訴我們位置的話，才給得出往哪個出口走。
+              </p>
+
+              <button className="where-opt" onClick={() => photoInputRef.current?.click()}>
+                <Pictogram name="photo" size={22} />
+                <span>
+                  <b>拍附近的牌子</b>
+                  <span className="where-sub">站名牌、出口牌——系統自己讀出你在哪</span>
+                </span>
+              </button>
+
+              <button className="where-opt" onClick={() => setShowPicker(true)}>
+                <Pictogram name="pin" size={22} />
+                <span>
+                  <b>從附近場域挑一個</b>
+                  <span className="where-sub">需要定位訊號，或用搜尋</span>
+                </span>
+              </button>
+
+              {/* 圖資永遠不會完整：836 個場域裡百貨只有 58 個。
+                  查不到的地方（某間店、某條連通道）只能靠使用者自己講。 */}
+              <label className="where-opt where-freeform">
+                <Pictogram name="map" size={22} />
+                <span>
+                  <b>自己描述這是哪裡</b>
+                  <input
+                    className="note-input where-input"
+                    type="text"
+                    inputMode="text"
+                    maxLength={60}
+                    placeholder="例：京站地下街 B1 星巴克前"
+                    value={placeText}
+                    onChange={(e) => setPlaceText(e.target.value)}
+                  />
+                </span>
+              </label>
+            </div>
+          )}
 
           {/* 在列車上時，「哪個出口」是無意義的問題——2014 年鄭捷案就發生在
               行進中的車廂裡，乘客 4 分鐘無處可逃。勾了之後建議會整個換掉。
@@ -480,7 +553,7 @@ export default function ReportPage() {
               **只有在路網上的捷運場域才問這件事**：在百貨公司、地下街或
               地下停車場裡沒有列車，這個選項出現只會佔掉版面並讓人困惑。
               判斷依據是 server 回的 nextStations（空陣列＝不在路網上）。 */}
-          {canBeOnTrain && (
+          {claim && canBeOnTrain && (
             <button
               className={`chip${onTrain ? ' chip-active' : ''}`}
               style={{ width: '100%', minHeight: 48, marginBottom: 10 }}
@@ -541,7 +614,9 @@ export default function ReportPage() {
             </button>
           </div>
 
-          <div className="supp-row">
+          {/* 已經有場域時才顯示這排——沒有場域時上方的「這是哪裡？」
+              已經提供同樣的兩條路，重複出現只會讓人不確定該按哪個 */}
+          {claim && <div className="supp-row">
             <button className="ghost-btn btn-lg" onClick={() => photoInputRef.current?.click()}>
               <Pictogram name="photo" size={18} />
               拍照定位
@@ -549,7 +624,7 @@ export default function ReportPage() {
             <button className="ghost-btn btn-lg" disabled={gpsBusy} onClick={useGps}>
               {gpsBusy ? '定位中…' : '🛰️ GPS 定位'}
             </button>
-          </div>
+          </div>}
 
           {gpsBusy && <p className="muted">正在取得定位（最多 5 秒）…</p>}
           {!gpsBusy && fix && fix.accuracy > GPS_USABLE_ACCURACY_M && (
@@ -694,15 +769,16 @@ export default function ReportPage() {
               disabled={submitting || !readyToSubmit}
               onClick={handleSubmit}
             >
+              {/* 沒有場域**不再是**送不出去的理由——按鈕文案要說到做到 */}
               {submitting
                 ? '送出中…'
-                : !claim
-                  ? '請先選擇場域'
-                  : matchEvent && !attachChoice
-                    ? '請先選「同一件／另一件」'
-                    : attachChoice === 'same'
-                      ? '送出（補充到既有事件）'
-                      : '送出回報'}
+                : matchEvent && !attachChoice
+                  ? '請先選「同一件／另一件」'
+                  : attachChoice === 'same'
+                    ? '送出（補充到既有事件）'
+                    : claim
+                      ? '送出回報'
+                      : '送出回報（位置待確認）'}
             </button>
           </div>
         </div>

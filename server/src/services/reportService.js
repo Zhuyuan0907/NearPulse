@@ -39,12 +39,44 @@ export function validateReport(body) {
   if (!body.sessionId || typeof body.sessionId !== 'string') errors.push('缺少 sessionId');
   if (!config.eventTypes[body.type]) errors.push(`不支援的事件類型: ${body.type}`);
 
+  /**
+   * 位置聲明。
+   *
+   * ⚠️ **場域 id 不再是必填。**
+   * 舊版沒有 `stationId` 就整筆退回——但「我在一個陌生的地下空間、不知道
+   * 自己在哪」正是這個 App 存在的理由。要求使用者先說出地點名稱才能通報，
+   * 等於把最需要幫助的人擋在門外。
+   *
+   * 而且圖資永遠不會完整：836 個場域裡百貨只有 58 個，出口圖資只涵蓋 279 個。
+   * 隨便一間商場、一條連通道、一間店面，很可能查無此地。
+   *
+   * 現在只要求「至少提供一種位置線索」，三選一即可：
+   *   stationId  查得到的場域（最好）
+   *   place      使用者自己描述的地點（「京站地下街 B1 星巴克前」）
+   *   lat/lon    地面上恰好收得到的座標
+   * 三者皆無仍然收下，只是標記為位置未知——通報本身永遠比位置重要。
+   */
   const claim = body.locationClaim;
-  if (!claim || typeof claim.stationId !== 'string' || claim.stationId.length === 0) {
-    errors.push('缺少位置聲明（locationClaim.stationId）');
-  }
-  if (claim && !['gps', 'manual', 'session'].includes(claim.source)) {
-    errors.push(`無效的位置聲明來源: ${claim.source}`);
+  if (!claim || typeof claim !== 'object') {
+    errors.push('缺少位置聲明（locationClaim）');
+  } else {
+    if (typeof claim.stationId !== 'string' || claim.stationId.length === 0) {
+      claim.stationId = null;
+    }
+    // 自由描述：截斷不擋。這是「圖資查不到」時唯一的位置資訊，不能因為太長就丟
+    if (typeof claim.place === 'string') {
+      claim.place = claim.place.trim().slice(0, 60) || null;
+    } else {
+      claim.place = null;
+    }
+    const okCoord =
+      Number.isFinite(claim.lat) && Number.isFinite(claim.lon) &&
+      Math.abs(claim.lat) <= 90 && Math.abs(claim.lon) <= 180;
+    if (!okCoord) { claim.lat = null; claim.lon = null; }
+
+    if (!['gps', 'manual', 'session', 'freeform', 'unknown'].includes(claim.source)) {
+      errors.push(`無效的位置聲明來源: ${claim.source}`);
+    }
   }
 
   // 出口代碼：正規化成大寫短字串；不存在的代碼由 venueService 查表時自然落空，

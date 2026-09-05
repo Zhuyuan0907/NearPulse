@@ -58,16 +58,23 @@ export function buildSituationCard(events, now = Date.now()) {
   // ---- 依站點分組（卡片以站點為單位組織） ----
   const byStation = new Map();
   for (const ev of visible) {
-    if (!byStation.has(ev.stationId)) {
-      byStation.set(ev.stationId, {
+    /**
+     * 分組鍵。無場域的事件**不能**共用 `null` 當鍵——那會把不同地點的
+     * 通報全部併進同一個標題底下。改用事件自己的識別，各自成組。
+     */
+    const key = ev.stationId ?? `place:${ev.id}`;
+    if (!byStation.has(key)) {
+      byStation.set(key, {
         stationId: ev.stationId,
         stationName: ev.stationName,
         // 場域類型：地下場域不只有捷運站，還有地下街與地下停車場
-        kind: findVenue(ev.stationId)?.kind ?? null,
+        kind: ev.stationId ? findVenue(ev.stationId)?.kind ?? null : null,
+        /** 圖資裡查不到這個地方——UI 據此改用誠實的降級說法 */
+        offMap: !ev.stationId,
         events: [],
       });
     }
-    byStation.get(ev.stationId).events.push({
+    byStation.get(key).events.push({
       ...toEventSummary(ev),
       threatLevel: threatLevelOf(ev),
       // 有人無法自行疏散——這是給救援方的最高優先資訊

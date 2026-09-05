@@ -115,8 +115,16 @@ function ExitRow({ exit, mode = 'go' }) {
 }
 
 /** 疏散計畫：拆成可掃視的區塊，而不是一整段字 */
-function EvacPlan({ plan, arrival }) {
-  if (!plan) return <p className="muted">依現場人員指示，使用最近可用出口。</p>;
+function EvacPlan({ plan, arrival, offMap }) {
+  if (!plan) {
+    return (
+      <p className="plan-none">
+        {offMap
+          ? '這個地方不在我們的圖資裡，給不出出口層級的指引。請依現場逃生標示與人員指示行動。'
+          : '這個場域沒有出口圖資，給不出往哪個出口走。請依現場逃生標示與人員指示行動。'}
+      </p>
+    );
+  }
 
   if (plan.kind === 'onTrain') {
     return (
@@ -361,7 +369,11 @@ export default function SituationPage() {
           <h2 className="venue-band" data-line={lineOf(venue.stationId)}>
             <Pictogram name={venue.kind ?? 'pin'} size={20} className="venue-band-icon" />
             <span className="venue-band-name">{venue.stationName}</span>
-            {venue.kind && <span className="venue-band-kind">{KIND_LABEL[venue.kind]}</span>}
+            {/* 圖資查不到的地方要標明白：這個名稱是通報者自己打的，
+                不是查證過的場域。看的人有權知道這個差別。 */}
+            <span className="venue-band-kind">
+              {venue.offMap ? '通報者描述的位置' : KIND_LABEL[venue.kind] ?? ''}
+            </span>
           </h2>
 
           {venue.events.map((ev) => {
@@ -405,7 +417,7 @@ export default function SituationPage() {
                 {ev.onTrain && <div className="flag flag-train">事件在列車上</div>}
 
                 {/* ---- 疏散：結構化，不是一整段字 ---- */}
-                <EvacPlan plan={plan} arrival={ev.arrival} />
+                <EvacPlan plan={plan} arrival={ev.arrival} offMap={venue.offMap} />
 
                 <p className="advice">{ev.advice}</p>
 

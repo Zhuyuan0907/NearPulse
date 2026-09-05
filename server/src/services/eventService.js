@@ -23,8 +23,23 @@ export function createCandidateEvent(report, stationName) {
   return {
     id: `evt_${randomUUID().slice(0, 8)}`,
     type: report.type,
-    stationId: report.locationClaim.stationId,
-    stationName: stationName ?? report.locationClaim.stationId,
+    /**
+     * 場域 id 可能是 null——使用者不知道自己在哪，或這個地方不在圖資裡。
+     * 那種事件仍然成立，只是給不出出口層級的疏散建議（UI 會誠實說明）。
+     */
+    stationId: report.locationClaim.stationId ?? null,
+    stationName:
+      stationName ??
+      report.locationClaim.stationId ??
+      report.locationClaim.place ??
+      '位置待確認',
+    /** 使用者自己描述的地點（圖資查不到時的唯一位置資訊） */
+    placeText: report.locationClaim.place ?? null,
+    /** 通報當下恰好收得到的座標（地面層／出入口附近）——分群用 */
+    claimPoint:
+      Number.isFinite(report.locationClaim.lat) && Number.isFinite(report.locationClaim.lon)
+        ? { lat: report.locationClaim.lat, lon: report.locationClaim.lon }
+        : null,
     status: 'candidate', // 事件狀態機初始態
     createdAt: Date.now(),
     updatedAt: Date.now(),
@@ -120,6 +135,7 @@ export function toEventSummary(event) {
     typeLabel: config.eventTypes[event.type]?.label ?? event.type,
     stationId: event.stationId,
     stationName: event.stationName,
+    placeText: event.placeText ?? null,
     status: event.status,
     severity: config.eventTypes[event.type]?.severity ?? 'low',
     nearExitCode: event.nearExitCode ?? null, // 場域錨點（疏散建議用）

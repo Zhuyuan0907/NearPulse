@@ -424,6 +424,37 @@ check "歧義候選一律低信心（client 據此不自動套用）" \
 check "照片明確時仍會糾正使用者選錯的場域" \
   test "$(anchors "['土城','Tucheng']" "'TPE-A1'" | json "d['venue']")" = "土城"
 
+echo "== 18. 不知道自己在哪也要能通報 =="
+# 【為什麼】「我在一個陌生的地下空間、不知道自己在哪」正是這個 App 存在的理由。
+# 舊版沒有 stationId 就整筆退回，等於把最需要幫助的人擋在門外。
+# 而圖資也永遠不會完整：836 個場域裡百貨只有 58 個、有出口圖資的只有 279 個。
+check "完全沒有位置線索的回報仍被受理" \
+  test "$(curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/json' -d '{
+    "uuid":"e2e-noloc-1","sessionId":"nl-A","type":"fire",
+    "locationClaim":{"source":"unknown"}}' | json "d['ok']")" = "True"
+check "自己描述地點的回報被受理（圖資查不到的商店／連通道）" \
+  test "$(curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/json' -d '{
+    "uuid":"e2e-noloc-2","sessionId":"nl-B","type":"crush",
+    "locationClaim":{"source":"freeform","place":"京站地下街 B1 星巴克前"}}' | json "d['ok']")" = "True"
+wait_batch
+NCARD=$(curl -s "$BASE/api/situation")
+check "無場域事件標記為圖資外（UI 據此誠實降級）" \
+  test "$(echo "$NCARD" | json "any(s.get('offMap') for s in d['stations'])")" = "True"
+check "自由描述的地點成為事件標題" \
+  test "$(echo "$NCARD" | json "any(s['stationName']=='京站地下街 B1 星巴克前' for s in d['stations'])")" = "True"
+check "沒有場域就不給出口層級的疏散建議（不假裝知道）" \
+  test "$(echo "$NCARD" | json "all(e['plan'] is None for s in d['stations'] if s.get('offMap') for e in s['events'])")" = "True"
+# **不能**把所有無場域的通報併成一件——那會把不同地點的人混為一談
+check "不同描述的無場域事件不會被錯併成一件" \
+  test "$(echo "$NCARD" | json "len([s for s in d['stations'] if s.get('offMap')]) >= 2")" = "True"
+# 同一個地點的第二筆才該併進去
+curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/json' -d '{
+  "uuid":"e2e-noloc-3","sessionId":"nl-C","type":"crush",
+  "locationClaim":{"source":"freeform","place":"京站地下街 B1 星巴克前"}}' > /dev/null
+wait_batch
+check "相同描述的第二筆併入同一件事" \
+  test "$(curl -s "$BASE/api/situation" | json "sum(e['reportCount'] for s in d['stations'] if s['stationName']=='京站地下街 B1 星巴克前' for e in s['events'])")" = "2"
+
 echo ""
 echo "======================================"
 echo " 結果：$PASS 通過 · $FAIL 失敗"
