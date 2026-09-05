@@ -68,11 +68,20 @@ export function findMatchingEvent(events, { stationId, type, claimPoint, placeTe
 export function countIndependentPositives(event) {
   const sessions = new Set();
 
+  /**
+   * ⚠️ **所有被受理的回報都算數，不再依 source 過濾。**
+   *
+   * 這個過濾原本是為了擋掉「沒有有效位置聲明」的回報。但那道關卡已經移到
+   * 驗證層了——現在 server 要求每筆回報至少有一種位置線索（場域／自己描述／
+   * 座標／照片），過不了的根本進不來。
+   *
+   * 留著舊的白名單會造成一個很難察覺的後果：用「自己描述地點」或「只拍照」
+   * 通報的事件，`source` 是 `freeform`／`unknown`，**永遠不計入門檻**——
+   * 再多人回報也升不上去，事件會一直停在「未經確認」直到過期。
+   * 而那兩條路正是給「不知道自己在哪」的人用的，也就是最需要幫助的人。
+   */
   for (const rep of event.reports) {
-    const src = rep.locationClaim?.source;
-    if (src === 'gps' || src === 'manual' || src === 'session') {
-      sessions.add(rep.sessionId);
-    }
+    if (rep.sessionId) sessions.add(rep.sessionId);
   }
   for (const c of event.confirmations) {
     if (c.step === 'witness' && c.atStation && c.witnessed === 'yes') {

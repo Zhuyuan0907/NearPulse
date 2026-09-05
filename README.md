@@ -79,7 +79,7 @@
 **AI 只出現在一個地方**：`advisors/vision.js` 把照片裡的**字**讀出來。
 位置由 `venueService` 拿那些字做確定性查表得出。所有失敗路徑（逾時、無金鑰、
 供應商不存在、超過限流）都回**完全相同的降級形狀**，呼叫端無從分辨——
-因此 AI 永遠不可能擋住通報。`server/test/e2e.sh` 的 111 項檢查即在**無任何 API 金鑰**
+因此 AI 永遠不可能擋住通報。`server/test/e2e.sh` 的 115 項檢查即在**無任何 API 金鑰**
 的環境下驗證這一點。
 
 ---
@@ -124,7 +124,7 @@ cd ../server && npm install && npm start
 # 視覺辨識是選配。要啟用的話：
 GMI_API_KEY=<your-key> VISION_PROVIDER=gmi VISION_MODEL=MiniMaxAI/MiniMax-M3 npm start
 
-# 端到端驗證（111 項，同樣不需要金鑰）
+# 端到端驗證（115 項，同樣不需要金鑰）
 bash server/test/e2e.sh
 
 # 開發模式（HMR，兩個 port）

@@ -28,22 +28,35 @@ const TILE = {
   maxZoom: 19,
 };
 
-/** 警戒等級 → 標記樣式。**大小也編碼嚴重度**，不只靠顏色（色盲可辨） */
+/**
+ * 警戒等級 → 呈現。
+ *
+ * 【為什麼不是圖釘】
+ * 實心圖釘畫的是「一個點」，但事件影響的是**一片範圍**——而範圍正是
+ * 讀圖的人要判斷的東西（跟我有多近、要不要繞開）。半透明的圓能同時
+ * 表達位置與範圍，疊在圖磚上也不會把街廓遮掉。
+ *
+ * 半徑不是實測的影響範圍（那需要現場的樓層、通風與煙流資料，我們沒有），
+ * 而是**警戒等級的視覺編碼**——高警戒的圓比較大，因為要繞得比較開。
+ * 說明文字必須照這個意思寫，不能寫成「影響範圍 300 公尺」。
+ */
 const LEVEL = {
-  high:       { cls: 'ov-high',   size: 34 },
-  medium:     { cls: 'ov-medium', size: 30 },
-  low:        { cls: 'ov-low',    size: 26 },
-  unverified: { cls: 'ov-unverified', size: 26 },
+  high:       { radius: 260, color: '#c8102e', fill: 0.20, weight: 2 },
+  medium:     { radius: 190, color: '#f2a900', fill: 0.18, weight: 2 },
+  low:        { radius: 140, color: '#8a9298', fill: 0.14, weight: 1.5 },
+  unverified: { radius: 140, color: '#f2a900', fill: 0.07, weight: 1.5 },
 };
 
-function markerIcon(group) {
-  const style = LEVEL[group.threatLevel] ?? LEVEL.unverified;
+/** 事件數標籤。**不畫圖釘**，只放一個小標籤，讓圓本身是主角 */
+function countLabel(group) {
   const n = group.events.length;
+  const level = LEVEL[group.threatLevel] ?? LEVEL.unverified;
   return L.divIcon({
     className: '',
-    html: `<div class="ov-pin ${style.cls}">${n > 1 ? n : ''}</div>`,
-    iconSize: [style.size, style.size],
-    iconAnchor: [style.size / 2, style.size / 2],
+    html: `<div class="ov-label" style="--ov-c:${level.color}">`
+      + `${group.stationName}${n > 1 ? ` ×${n}` : ''}</div>`,
+    iconSize: [0, 0],
+    iconAnchor: [0, 0],
   });
 }
 
@@ -68,9 +81,24 @@ export default function OverviewMap({ groups, userFix, onPick }) {
     L.tileLayer(TILE.url, { attribution: TILE.attribution, maxZoom: TILE.maxZoom }).addTo(map);
 
     for (const { g, latlng } of points) {
-      L.marker(latlng, { icon: markerIcon(g), title: g.stationName })
-        .addTo(map)
-        .on('click', () => pickRef.current?.(g));
+      const level = LEVEL[g.threatLevel] ?? LEVEL.unverified;
+      const circle = L.circle(latlng, {
+        radius: level.radius,
+        color: level.color,
+        weight: level.weight,
+        fillColor: level.color,
+        fillOpacity: level.fill,
+        // 未經確認用虛線邊：語氣的差別不能只靠透明度
+        dashArray: g.threatLevel === 'unverified' ? '5 5' : null,
+      }).addTo(map);
+      circle.on('click', () => pickRef.current?.(g));
+
+      // 圓心放一個小點，避免大範圍時看不出確切位置
+      L.circleMarker(latlng, {
+        radius: 4, color: '#fff', weight: 2, fillColor: level.color, fillOpacity: 1,
+      }).addTo(map).on('click', () => pickRef.current?.(g));
+
+      L.marker(latlng, { icon: countLabel(g), interactive: false }).addTo(map);
     }
 
     // 使用者位置：只有在真的拿得到時才畫。地下拿不到是常態，不是錯誤
@@ -82,8 +110,14 @@ export default function OverviewMap({ groups, userFix, onPick }) {
       all.push([userFix.lat, userFix.lon]);
     }
 
-    // 事件可能散在整個台灣（甚至含關西）——上限 15 才不會縮到看不出街廓
-    map.fitBounds(L.latLngBounds(all).pad(0.25), { maxZoom: 15 });
+    /**
+     * 視野依事件分布自動縮放。
+     *
+     * 上限 16 是因為再放大就只剩單一路口，看不出「事件之間的相對關係」——
+     * 而那正是這張圖要回答的。單一事件時放寬到 16（那時候沒有相對關係要看，
+     * 使用者要的是「這附近長什麼樣」）。
+     */
+    map.fitBounds(L.latLngBounds(all).pad(0.3), { maxZoom: points.length === 1 ? 16 : 15 });
 
     return () => { map.remove(); mapRef.current = null; };
   }, [groups, userFix]);
@@ -94,11 +128,10 @@ export default function OverviewMap({ groups, userFix, onPick }) {
   return (
     <div className="overview-map">
       <div ref={hostRef} className="overview-map-canvas" />
-      {plottable < groups.length && (
-        <p className="overview-map-note">
-          有 {groups.length - plottable} 件事件沒有座標，只列在下方。
-        </p>
-      )}
+      <p className="overview-map-note">
+        圓的大小代表<b>警戒等級</b>，不是實測的影響範圍。
+        {plottable < groups.length && `　另有 ${groups.length - plottable} 件沒有座標，只列在下方。`}
+      </p>
     </div>
   );
 }

@@ -317,6 +317,11 @@ check "疏散計畫帶出口座標（態勢卡地圖用）" \
   test "$(curl -s "$BASE/api/venues/TPE-BL13/evacuation?exit=2&type=fire" | json "all(g.get('lat') and g.get('lon') for g in d['plan']['go'])")" = "True"
 check "疏散計畫帶避開半徑與事件原點（地圖圓圈用）" \
   test "$(curl -s "$BASE/api/venues/TPE-BL13/evacuation?exit=2&type=fire" | json "d['plan']['avoidRadiusM'] > 0 and d['plan']['origin']['lat'] > 0")" = "True"
+# 【地下看不到門牌號碼】TDX 只公佈一個描述欄位，台北車站的出口大多是門牌
+# （「忠孝西路1段33號」）——那回答的是「我出去之後會在哪」，不是「我在站內
+# 該往哪走」。站體方位是我們算得出來的，而且對應得上地下的空間感。
+check "出口帶站體方位（門牌號碼在地下沒有用）" \
+  test "$(curl -s "$BASE/api/venues/TPE-A1/evacuation?exit=M3&type=fire" | json "all(g.get('side') for g in d['plan']['go'])")" = "True"
 
 # 【開門側：「哪一節車廂」問題的可行替代】
 # 車廂↔樓梯／出口的對應**沒有任何開放資料**——日本的乗換案内是向民間購買
@@ -397,6 +402,36 @@ RL_REPORT=$(curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/js
   "uuid":"e2e-after-ratelimit","sessionId":"sess-RL","type":"other",
   "locationClaim":{"source":"manual","stationId":"TPE-BL13","confidence":1.0,"timestamp":1}}')
 check "限流後回報仍正常受理" test "$(echo "$RL_REPORT" | json "d['ok']")" = "True"
+
+echo "== 20. 升級門檻：再多一個人就成立 =="
+# 門檻全部設為 2（原本推擠／其他是 3）。3 個獨立 session 在真實情境中很難湊到，
+# 而一個永遠升不上去的門檻等於沒有這個類型。
+curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/json' -d '{
+  "uuid":"e2e-thr-1","sessionId":"thr-A","type":"crush",
+  "locationClaim":{"source":"manual","stationId":"TPE-BL06","confidence":1.0,"timestamp":1}}' > /dev/null
+wait_batch
+TEVT=$(curl -s "$BASE/api/reports/context?station=TPE-BL06&type=crush" | json "d['events'][0]['id']")
+check "第一筆回報仍是 candidate（單一訊號不成立）" \
+  test "$(curl -s "$BASE/api/events/$TEVT" | json "d['event']['status']")" = "candidate"
+curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/json' -d '{
+  "uuid":"e2e-thr-2","sessionId":"thr-B","type":"crush",
+  "locationClaim":{"source":"manual","stationId":"TPE-BL06","confidence":1.0,"timestamp":1}}' > /dev/null
+wait_batch
+check "第二個獨立訊號 → 升級為 active" \
+  test "$(curl -s "$BASE/api/events/$TEVT" | json "d['event']['status']")" = "active"
+
+# 【曾經的 bug】獨立訊號的計數原本只認 gps|manual|session 三種來源，
+# 而「自己描述地點」(freeform) 與「只拍照」(unknown) 完全不算——
+# 用那兩條路通報的事件再多人也升不上去，會一直停在未經確認直到過期。
+# 而那兩條路正是給「不知道自己在哪」的人用的。
+for S in fr-A fr-B; do
+  curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/json' -d "{
+    \"uuid\":\"e2e-thr-$S\",\"sessionId\":\"$S\",\"type\":\"other\",
+    \"locationClaim\":{\"source\":\"freeform\",\"place\":\"某某地下街 B2 美食區\"}}" > /dev/null
+done
+wait_batch
+check "自己描述地點的回報也計入門檻（不再永遠升不上去）" \
+  test "$(curl -s "$BASE/api/situation" | json "any(e['status']=='active' and e['independentSignals']>=2 for s in d['stations'] if s['stationName']=='某某地下街 B2 美食區' for e in s['events'])")" = "True"
 
 echo "== 17. 錨點消歧：月台上最大的字不是你所在的站 =="
 # 【真實回報的 bug】使用者拍土城月台、已手選土城，卻收到別站的疏散建議。

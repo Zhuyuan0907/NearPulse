@@ -226,9 +226,36 @@ export function evacuationPlan({
    * 但**畫面上仍然不顯示公尺數**：地下通道的實際步行距離與地面直線距離
    * 可以差上兩三倍，講「約 91m」是假精確。座標只用來畫圖釘。
    */
+  /**
+   * 出口在站體的哪一側。
+   *
+   * 【為什麼需要這個】TDX 只公佈一個描述欄位，而台北車站的出口大多寫成
+   * 門牌號碼（「忠孝西路1段33號」）。使用者的原話是：「我在地下室怎麼會
+   * 知道幾號」——完全正確。門牌號碼回答的是「我出去之後會在哪」，
+   * 不是「我在站內該往哪走」，而後者才是地下要解決的問題。
+   *
+   * 站體方位是**我們算得出來**的：出口座標相對於場域中心的方位角。
+   * 它不需要任何新資料，而且對應得上地下最基本的空間感——
+   * 「往北端走」比「往 33 號走」可執行得多。
+   *
+   * 站體跨度太小時不給（<60m 的站，講「北側」沒有意義，只是雜訊）。
+   */
+  const SIDE = ['北', '東北', '東', '東南', '南', '西南', '西', '西北'];
+  const spanM = Math.max(venue?.spanM?.along ?? 0, venue?.spanM?.across ?? 0);
+  const sideOf = (exit) => {
+    if (spanM < 60 || !Number.isFinite(exit.lat)) return null;
+    const dy = (exit.lat - venue.lat) * 111_320;
+    const dx = (exit.lon - venue.lon) * 111_320 * Math.cos((venue.lat * Math.PI) / 180);
+    if (Math.hypot(dx, dy) < 25) return null; // 太靠近中心，方位不穩定
+    const deg = (Math.atan2(dx, dy) * 180) / Math.PI;
+    return SIDE[Math.round(((deg + 360) % 360) / 45) % 8];
+  };
+
   const brief = (x) => ({
     code: x.exit.code,
     landmark: x.exit.landmark ?? null,
+    /** 站體方位（「東」「西北」）——地下唯一用得上的空間線索 */
+    side: sideOf(x.exit),
     lat: x.exit.lat ?? null,
     lon: x.exit.lon ?? null,
   });

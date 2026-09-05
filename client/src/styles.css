@@ -1230,32 +1230,6 @@ button { cursor: pointer; }
 }
 .overview-map-note { margin: 6px 0 0; font-size: .78rem; color: var(--dim); }
 
-/* 標記：**大小也編碼嚴重度**，不只靠顏色。
-   一個地方有五件小事，不該看起來比另一個地方的一件火警嚴重。 */
-.ov-pin {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  font-size: .8rem;
-  font-weight: 800;
-  color: #fff;
-  border: 2px solid #fff;
-  border-radius: 50%;
-  box-shadow: 0 2px 8px rgb(0 0 0 / .55);
-}
-.ov-high   { background: var(--halt); }
-.ov-medium { background: var(--caution); color: #1a1200; }
-.ov-low    { background: var(--edge-2); }
-/* 未經確認用虛線圈：語氣的差別不能只靠顏色深淺 */
-.ov-unverified {
-  color: var(--caution);
-  background: var(--tunnel);
-  border-style: dashed;
-  border-color: var(--caution);
-}
-.ov-user { fill: var(--info-lit); fill-opacity: 1; stroke: #fff; stroke-width: 2; }
 
 /* ===========================================================================
    通報者提供的證據（照片與文字）
@@ -1327,3 +1301,28 @@ button { cursor: pointer; }
   color: var(--enamel);
 }
 .identify-cta { margin-top: 8px; text-decoration: none; }
+
+/* 總覽地圖：半透明範圍圈 + 站名標籤。圓是主角，標籤只是索引 */
+.ov-label {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 2px 7px;
+  font-size: .72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  color: #fff;
+  background: color-mix(in srgb, var(--ov-c) 82%, #000);
+  border-radius: var(--r-sign);
+  box-shadow: 0 1px 4px rgb(0 0 0 / .5);
+  pointer-events: none;
+}
+.ov-user { fill: var(--info-lit); fill-opacity: 1; stroke: #fff; stroke-width: 2; }
+
+/* 出口指標列：方位優先、門牌降級 */
+.exit-where { display: flex; flex-direction: column; gap: 1px; }
+.exit-side { font-size: .95rem; font-weight: 700; color: #fff; }
+.exit-surface { font-size: .78rem; color: rgb(255 255 255 / .72); }
+
+/* 徵詢已整合進事件卡；未確認事件的行動鈕語氣不同於已確認的 */
+.cta-verify { border-color: var(--caution); color: var(--caution); }

@@ -38,12 +38,22 @@ export const config = {
    *   3. 建議內容與其他類型本質不同：不是「往出口疏散」而是
    *      「遠離、不要圍觀、找掩蔽」（見 llm.js 的 ADVICE_TEMPLATES）
    */
+  /**
+   * 事件升級門檻＝需要幾個**互相獨立**的訊號（不同 session 的回報或現場確認）。
+   *
+   * 全部設為 2，也就是「再多一個人就成立」。原本推擠／其他是 3，理由是
+   * 低嚴重度的誤報會製造雜訊；但實測下來 3 個獨立 session 在真實情境中
+   * 很難湊到——尤其這兩類本來就是「有點怪但說不上來」的狀況，
+   * 而一個永遠升不上去的門檻等於沒有這個類型。
+   *
+   * 可用 `THRESHOLD_<TYPE>` 環境變數個別調整（demo 或不同場域可能需要不同值）。
+   */
   eventTypes: {
-    fire:    { label: '火警', threshold: 2, severity: 'high' },
-    attack:  { label: '攻擊', threshold: 2, severity: 'high' },
-    medical: { label: '急救', threshold: 2, severity: 'high' },
-    crush:   { label: '推擠', threshold: 3, severity: 'medium' },
-    other:   { label: '其他', threshold: 3, severity: 'low' },
+    fire:    { label: '火警', threshold: Number(process.env.THRESHOLD_FIRE ?? 2),    severity: 'high' },
+    attack:  { label: '攻擊', threshold: Number(process.env.THRESHOLD_ATTACK ?? 2),  severity: 'high' },
+    medical: { label: '急救', threshold: Number(process.env.THRESHOLD_MEDICAL ?? 2), severity: 'high' },
+    crush:   { label: '推擠', threshold: Number(process.env.THRESHOLD_CRUSH ?? 2),   severity: 'medium' },
+    other:   { label: '其他', threshold: Number(process.env.THRESHOLD_OTHER ?? 2),   severity: 'low' },
   },
 
   /**

@@ -134,7 +134,19 @@ function ExitRow({ exit, mode = 'go' }) {
     <div className="exit-row">
       <span className={`exit-code exit-code-${mode}`}>{exit.code}</span>
       <span className="exit-arrow" aria-hidden="true">{mode === 'go' ? '↑' : '⤫'}</span>
-      <span className="exit-where">{exit.landmark ?? '出口'}</span>
+      <span className="exit-where">
+        {/* 方位優先、門牌降級。
+            門牌號碼回答的是「我出去之後會在哪」，不是「我在站內該往哪走」——
+            而站在地下室的人問的是後者。站體方位是我們算得出來的，
+            而且對應得上地下最基本的空間感。 */}
+        {exit.side && <span className="exit-side">站體{exit.side}側</span>}
+        {exit.landmark && (
+          <span className="exit-surface">
+            {exit.side ? '出去是 ' : ''}{exit.landmark}
+          </span>
+        )}
+        {!exit.side && !exit.landmark && '出口'}
+      </span>
     </div>
   );
 }
@@ -371,7 +383,6 @@ export default function SituationPage() {
   // 徵詢中的清單套用同一組篩選——只篩事件卻不篩徵詢，會出現
   // 「上面說範圍內沒事、下面卻列著五則徵詢」的矛盾畫面
   const visibleIds = new Set(groups.flatMap((g) => g.events.map((e) => e.id)));
-  const pending = card.pending.filter((p) => visibleIds.has(p.eventId));
 
   /**
    * 範圍篩選要**套用到整頁**，不只事件區塊。
@@ -629,12 +640,21 @@ export default function SituationPage() {
                     而態勢卡是現場的人最常盯著的畫面——入口放這裡，
                     看到歹徒移動的人才有地方說。只對進行中的高警戒事件顯示：
                     低嚴重度事件不需要追蹤軌跡，多一顆按鈕只是雜訊。 */}
-                {ev.status === 'active' && ev.threatLevel === 'high' && (
+                {/* 行動列。**徵詢從獨立區塊移進事件卡**——
+                    原本它在頁面最下方另成一區，等於要使用者看完一則事件、
+                    捲到底、再從站名重新辨認是哪一件。徵詢問的就是「這一件
+                    是真的嗎」，它屬於這一件事，不屬於頁尾。 */}
+                {ev.status === 'candidate' ? (
+                  <a className="chip sighting-cta cta-verify" href={`#/confirm?event=${ev.id}`}>
+                    <Pictogram name="sighting" size={18} />
+                    你在現場嗎？幫忙確認這件事
+                  </a>
+                ) : ev.threatLevel === 'high' ? (
                   <a className="chip sighting-cta" href={`#/confirm?event=${ev.id}`}>
                     <Pictogram name="sighting" size={18} />
                     我看到他往哪走了
                   </a>
-                )}
+                ) : null}
 
                 <div className="event-foot">
                   {isSpeechSupported() && (
@@ -654,27 +674,6 @@ export default function SituationPage() {
           })}
         </section>
       ))}
-
-      {/* ===== 徵詢區：未經確認的回報（語氣刻意克制） ===== */}
-      {pending.length > 0 && (
-        <section className="station-group">
-          <h2 className="section-title">徵詢中 — 需要現場的人協助確認</h2>
-          {pending.map((p) => (
-            <button
-              key={p.eventId}
-              className="pending-btn"
-              onClick={() => { window.location.hash = `#/confirm?event=${p.eventId}`; }}
-            >
-              <div className="event-top">
-                <span className="event-type" style={{ fontSize: '1rem' }}>
-                  {p.stationName} · {p.typeLabel}
-                </span>
-              </div>
-              <div className="muted">{p.message}</div>
-            </button>
-          ))}
-        </section>
-      )}
 
       <footer className="page-footer">
         <a href="#/">回報事件</a>
