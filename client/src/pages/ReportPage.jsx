@@ -79,6 +79,8 @@ export default function ReportPage() {
   const [needsAssistance, setNeedsAssistance] = useState(false);
   // 在列車上：疏散建議完全不同——車廂裡沒有「出口」可去
   const [onTrain, setOnTrain] = useState(false);
+  // 使用者指認的下一站——通知該站月台的依據
+  const [nextVenueId, setNextVenueId] = useState(null);
   const [audioClip, setAudioClip] = useState(null);
   const [recording, setRecording] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
@@ -101,6 +103,11 @@ export default function ReportPage() {
   const rawFileRef = useRef(null); // 保留原圖：裁切要從原圖裁才有解析度紅利
 
   const readyToSubmit = Boolean(claim && selectedType && (!matchEvent || attachChoice));
+  /**
+   * 這個場域可能有列車嗎。地下街、百貨、地下停車場都不在捷運路網上，
+   * 對它們顯示「事件發生在列車上」只是雜訊。
+   */
+  const canBeOnTrain = venue?.kind === 'metro' && venue.nextStations?.length > 0;
 
   /** 設定當前場域：更新聲明、取出口圖資、寫入 session 記憶 */
   const applyVenue = useCallback(async (venueId, name = null, existingClaim = null) => {
@@ -108,6 +115,9 @@ export default function ReportPage() {
     setVenueName(name);
     setNearExitCode(null);
     setIncidentPoint(null);
+    // 換場域後舊的列車狀態必然失效（新場域可能根本不在路網上）
+    setOnTrain(false);
+    setNextVenueId(null);
     rememberStation(venueId, name);
     const v = await fetchVenue(venueId);
     setVenue(v);
@@ -255,6 +265,7 @@ export default function ReportPage() {
         photoRoi: roiCell,
         needsAssistance,
         onTrain,
+        nextVenueId: onTrain ? nextVenueId : null,
         note: note.trim() || null,
         audio: audioClip,
         photo,
@@ -280,7 +291,7 @@ export default function ReportPage() {
 
   function resetDraft() {
     setSelectedType(null); setMatchEvent(null); setAttachChoice(null);
-    setNote(''); setAudioClip(null); setShowDetails(false); setOnTrain(false); setNeedsAssistance(false);
+    setNote(''); setAudioClip(null); setShowDetails(false); setOnTrain(false); setNextVenueId(null); setNeedsAssistance(false);
     setPhoto(null); setPhotoRef(null); setRoiCell(null); setSuggestedCell(null);
     setReadTexts([]); setCandidates([]); setNearExitCode(null); setIncidentPoint(null);
     if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -443,14 +454,46 @@ export default function ReportPage() {
           <h2 className="section-title">事件在哪裡？（愈精確，疏散建議愈有用）</h2>
 
           {/* 在列車上時，「哪個出口」是無意義的問題——2014 年鄭捷案就發生在
-              行進中的車廂裡，乘客 4 分鐘無處可逃。勾了之後建議會整個換掉。 */}
-          <button
-            className={`chip${onTrain ? ' chip-active' : ''}`}
-            style={{ width: '100%', minHeight: 48, marginBottom: 10 }}
-            onClick={() => setOnTrain(!onTrain)}
-          >
-            🚃 {onTrain ? '已標記：事件在列車上' : '事件發生在列車上'}
-          </button>
+              行進中的車廂裡，乘客 4 分鐘無處可逃。勾了之後建議會整個換掉。
+
+              **只有在路網上的捷運場域才問這件事**：在百貨公司、地下街或
+              地下停車場裡沒有列車，這個選項出現只會佔掉版面並讓人困惑。
+              判斷依據是 server 回的 nextStations（空陣列＝不在路網上）。 */}
+          {canBeOnTrain && (
+            <button
+              className={`chip${onTrain ? ' chip-active' : ''}`}
+              style={{ width: '100%', minHeight: 48, marginBottom: 10 }}
+              onClick={() => { setOnTrain(!onTrain); setNextVenueId(null); }}
+            >
+              🚃 {onTrain ? '已標記：事件在列車上' : '事件發生在列車上'}
+            </button>
+          )}
+
+          {/* 下一站是哪一站。
+              **刻意不問「往哪個方向」**——恐慌中那是個抽象問題（往東？上行？）。
+              「下一站」是車廂顯示器正在跑的字、廣播正在唸的詞，抬頭就能回答，
+              而在捷運路網上它唯一決定了方向，資訊量完全相同。
+
+              答了之後，下一站月台上的人會收到「事故列車即將進站，請讓開車門」——
+              能讓車廂裡的人出得來的，是月台上的那群人。 */}
+          {onTrain && canBeOnTrain && (
+            <div className="next-station" style={{ marginBottom: 10 }}>
+              <div className="next-station-q">下一站是？<span className="muted">（看車廂顯示器）</span></div>
+              <div className="next-station-opts">
+                {venue.nextStations.map((s) => (
+                  <button
+                    key={s.venueId}
+                    className={`chip${nextVenueId === s.venueId ? ' chip-active' : ''}`}
+                    style={{ flex: '1 1 40%', minHeight: 52, flexDirection: 'column', gap: 2 }}
+                    onClick={() => setNextVenueId(nextVenueId === s.venueId ? null : s.venueId)}
+                  >
+                    <span style={{ fontWeight: 700 }}>{s.name}</span>
+                    <span className="muted" style={{ fontSize: '.75rem' }}>往{s.towards}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* 無障礙路線：一鍵切換，不需帳號、不留紀錄（關頁即滅）。
               勾選後疏散建議會改成「無台階可通行」的版本——

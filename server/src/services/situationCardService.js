@@ -15,8 +15,25 @@ import { config } from '../config.js';
 import { countIndependentPositives } from '../pipeline/cluster.js';
 import { getAdvice } from '../pipeline/advisors/llm.js';
 import { toEventSummary } from './eventService.js';
-import { findVenue, nearbyVenues } from './venueService.js';
+import { distanceM, findVenue, nearbyVenues } from './venueService.js';
 import { evacuationPlan } from './evacuationService.js';
+import { arrivalForecast } from './trainService.js';
+
+/** 事件在列車上時的到站預告；其餘情況一律 null */
+function arrivalOf(ev, now) {
+  if (!ev.onTrain || !ev.nextVenueId) return null;
+  const f = arrivalForecast({
+    fromVenueId: ev.stationId,
+    nextVenueId: ev.nextVenueId,
+    departedAt: ev.departedAt,
+    now,
+  });
+  // 刻意剝掉 etaSec：卡片裡不放隨時間變動的值，否則每次輪詢都會是新的 ETag。
+  // client 用 arriveAt 自行倒數（見 trainService.arrivalForecast 的說明）。
+  if (!f) return null;
+  const { etaSec, ...stable } = f;
+  return stable;
+}
 
 /** 威脅等級映射：active 依類型嚴重度、candidate 一律 unverified */
 function threatLevelOf(event) {
@@ -68,6 +85,12 @@ export function buildSituationCard(events, now = Date.now()) {
         point: ev.incidentPoint, motion: ev.motion, incidentType: ev.type,
         onTrain: ev.onTrain, mobility: 'stepFree',
       }),
+      /**
+       * 到站預告（僅事件在列車上時）。這是車廂內唯一有意義的「進度」——
+       * 沒有出口可去，只有「還要撐多久門才會開」。
+       * 查不到（沒指認下一站、或兩站不相鄰）就是 null，UI 直接不顯示。
+       */
+      arrival: arrivalOf(ev, now),
     });
   }
 
@@ -83,7 +106,7 @@ export function buildSituationCard(events, now = Date.now()) {
    * 只對高嚴重度且已確認的事件這麼做——candidate 還沒驗證過，
    * 擴散未經確認的警示會製造恐慌。
    */
-  const nearbyAlerts = [];
+  const candidates = [];
   const alerted = new Set();
   for (const ev of visible) {
     if (ev.status !== 'active') continue;
@@ -95,10 +118,15 @@ export function buildSituationCard(events, now = Date.now()) {
     })) {
       if (near.id === origin.id || byStation.has(near.id) || alerted.has(near.id)) continue;
       alerted.add(near.id);
-      nearbyAlerts.push({
+      // nearbyVenues 的摘要形狀刻意不帶座標（那是給選單用的），
+      // 但「同一個實體地點」的判斷需要座標——回頭查一次完整場域。
+      const full = findVenue(near.id);
+      candidates.push({
         venueId: near.id,
         venueName: near.name,
         kind: near.kind,
+        lat: full?.lat ?? null,
+        lon: full?.lon ?? null,
         distanceM: near.distanceM,
         fromVenue: origin.name,
         typeLabel: config.eventTypes[ev.type]?.label ?? ev.type,
@@ -107,8 +135,101 @@ export function buildSituationCard(events, now = Date.now()) {
     }
   }
 
+  /**
+   * 收斂鄰近警示。
+   *
+   * 【為什麼要收斂】實測台北車站一起火警就產出 11 則鄰近警示，把真正的事件
+   * 擠到畫面很下面——這正是使用者說的「文字太亂、看不出重點」。
+   * 一個警示清單長到要捲三次，等於沒有警示。
+   *
+   * 三道規則，都是為了「同樣的版面放更有用的東西」：
+   *
+   *   1. **同一個實體地點只留一則**。「臺北車站K區地下街」「K區地下街」
+   *      「K區地下街停車場」在 OSM 是三個節點，實際上是同一條地下街，
+   *      彼此相距不到 5 公尺。對讀的人來說那是同一件事講三次。
+   *   2. **人多的地方優先**。地下街、捷運站、百貨是人群聚集處；地下停車場
+   *      多半是過路的少數人，而且沒有出口圖資、給不出任何可執行的指引。
+   *      名額有限時先給前者。
+   *   3. **總數上限**。看得完才叫警示。
+   */
+  const SAME_PLACE_M = 60;
+  /**
+   * 名稱包含關係 → 同一個地點。
+   *
+   * 「臺北車站K區地下街」與「K區地下街」在 OSM 是相距 76 公尺的兩個節點，
+   * 但那是同一條地下街被標了兩次——地下街本來就長，光靠距離門檻分不出
+   * 「同一條街的兩端」與「兩條不同的街」。名稱包含是這類重複標註的典型特徵，
+   * 而且比把距離門檻拉大安全：後者會誤併真正不同的場域。
+   */
+  const samePlaceByName = (a, b) =>
+    a.venueName.includes(b.venueName) || b.venueName.includes(a.venueName);
+  const KIND_PRIORITY = { underground: 0, metro: 1, retail: 2, parking: 3 };
+  const MAX_NEARBY_ALERTS = 5;
+  /**
+   * 地下停車場的名額上限。它們在 OSM 極密集（台北車站 1.2km 內就有十幾個），
+   * 但只有場域層級的資料——沒有出口、沒有樓層，給不出任何可執行的指引，
+   * 而且裡面多半是過路的少數人。留一個名額表示「這個方向也受影響」就夠了，
+   * 其餘名額留給人群真正聚集的地下街、車站與百貨。
+   */
+  const MAX_PARKING_ALERTS = 1;
+
+  const nearbyAlerts = [];
+  for (const c of candidates.sort((a, b) =>
+    (KIND_PRIORITY[a.kind] ?? 9) - (KIND_PRIORITY[b.kind] ?? 9) || a.distanceM - b.distanceM
+  )) {
+    if (nearbyAlerts.length >= MAX_NEARBY_ALERTS) break;
+    if (c.kind === 'parking'
+      && nearbyAlerts.filter((a) => a.kind === 'parking').length >= MAX_PARKING_ALERTS) continue;
+    const duplicate = nearbyAlerts.some(
+      (a) => samePlaceByName(a, c)
+        || (Number.isFinite(a.lat) && Number.isFinite(c.lat)
+          && distanceM(a, c) <= SAME_PLACE_M)
+    );
+    if (duplicate) continue;
+    nearbyAlerts.push(c);
+  }
+  // 呈現時仍以距離排序：讀的人在意的是「離我多近」，不是我們的挑選邏輯。
+  // 座標只是挑選過程的中間值，不送到 client——卡片的每個位元組都要有用途。
+  nearbyAlerts.sort((a, b) => a.distanceM - b.distanceM);
+  for (const a of nearbyAlerts) { delete a.lat; delete a.lon; }
+
+  /**
+   * 到站警示 —— 通知下一站的人「這班車上有事」。
+   *
+   * 這是整個列車情境真正的價值所在。車廂裡的人做不了什麼；能改變結果的是
+   * **月台上的人**：門一開就讓開，不要照平常擠著上車，把動線讓出來。
+   * 2014 年鄭捷案裡，車廂內的四分鐘無人知情；下一站的月台也一樣毫無準備。
+   *
+   * 刻意的克制：
+   *   - 只對 active 的高嚴重度事件發出。未經確認的通報擴散到整座月台，
+   *     製造的推擠風險可能大過它避免的風險。
+   *   - 不猜車廂編號。北捷未公開車廂與樓梯／出口的對應關係，
+   *     「往第 3 節走」這種建議在錯的時候會把人推向危險。
+   *   - 到站後（arrived）仍保留警示，因為疏散不會在開門那一刻結束。
+   */
+  const inboundAlerts = [];
+  for (const group of byStation.values()) {
+    for (const ev of group.events) {
+      if (!ev.arrival || ev.status !== 'active') continue;
+      if ((config.eventTypes[ev.type]?.severity ?? 'low') !== 'high') continue;
+      inboundAlerts.push({
+        venueId: ev.arrival.venueId,
+        venueName: ev.arrival.name,
+        lineNo: ev.arrival.lineNo,
+        towards: ev.arrival.towards,
+        fromVenue: group.stationName,
+        typeLabel: ev.typeLabel,
+        arriveAt: ev.arrival.arriveAt,
+        runSec: ev.arrival.runSec,
+        estimated: ev.arrival.estimated,
+      });
+    }
+  }
+
   const card = {
     generatedAt: now,
+    /** 事故列車即將抵達的車站警示（月台上的人是能改變結果的那群人） */
+    inboundAlerts,
     /** 鄰近場域警示：事件不在你這裡，但離得夠近，你該知道 */
     nearbyAlerts,
     /** 經確認的事件（警示區塊） */

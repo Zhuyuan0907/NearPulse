@@ -5,7 +5,8 @@
  * 「弱網優先」的落實：
  *   - 內容是後端預先算好的 <50KB JSON，這頁只負責渲染，零業務邏輯
  *   - ETag 輪詢（12 秒）：304 時不重渲染；前台可見才輪詢
- *   - **不載入地圖**——讀取端要能在最差的網路下開起來
+ *   - **預設不載入地圖**——讀取端要能在最差的網路下開起來。
+ *     地圖改為每則事件可個別展開（React.lazy），文字敘述任何情況下都先到。
  *
  * 【呈現原則：給眼睛結構，給耳朵散文】
  * 初版把 server 回的整段疏散建議直接印出來，結果是一段塞了
@@ -23,10 +24,17 @@
  * 所以標題與分組用「場域」而非「站」的說法。
  */
 
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { startSituationPolling } from '../modules/api.js';
 import { isSpeechSupported, speak } from '../modules/speech.js';
 import OfflineBar from '../components/OfflineBar.jsx';
+import { etaOf } from '../modules/train.js';
+
+/**
+ * 地圖**動態載入**：leaflet 與圖磚加起來遠超過整張態勢卡的預算。
+ * 這頁必須在最差的網路下開得起來，所以地圖是點開才付費的補充資訊。
+ */
+const IncidentMap = lazy(() => import('../components/IncidentMap.jsx'));
 
 const THREAT_LABEL = {
   high: '高警戒',
@@ -55,6 +63,19 @@ function planToSpeech(ev, plan) {
   return `${ev.advice}。往 ${go} 移動${avoid}`;
 }
 
+/** 車廂內的到站倒數：站名要大，那是他抬頭核對顯示器的東西 */
+function ArrivalCountdown({ arrival }) {
+  const eta = useEta(arrival.arriveAt);
+  if (!eta) return null;
+  return (
+    <div className="arrival">
+      <span className="arrival-eta">{eta.text}</span>
+      <span className="arrival-station">{arrival.name}</span>
+      <span className="arrival-towards">往{arrival.towards}</span>
+    </div>
+  );
+}
+
 function ExitRow({ exit }) {
   return (
     <div className="exit-row">
@@ -65,14 +86,23 @@ function ExitRow({ exit }) {
 }
 
 /** 疏散計畫：拆成可掃視的區塊，而不是一整段字 */
-function EvacPlan({ plan }) {
+function EvacPlan({ plan, arrival }) {
   if (!plan) return <p className="muted">依現場人員指示，使用最近可用出口。</p>;
 
   if (plan.kind === 'onTrain') {
     return (
       <div className="plan plan-shelter">
         <div className="plan-head plan-head-stop">🚃 你在車廂裡，沒有「出口」可去</div>
+        {/* 車廂內唯一有意義的「進度」：還要撐多久門才會開。
+            秒數來自 TDX 官方站間行車時間，不是估的。 */}
+        {arrival && <ArrivalCountdown arrival={arrival} />}
         <p className="plan-action">{plan.action}</p>
+        {arrival && (
+          <p className="plan-note">
+            已通知 <b>{arrival.name}</b> 月台的人讓開車門動線。
+            開門前請盡量靠近車門，並協助行動不便者先下車。
+          </p>
+        )}
       </div>
     );
   }
@@ -106,6 +136,82 @@ function EvacPlan({ plan }) {
         {plan.unknownExits > 0 && `（另有 ${plan.unknownExits} 個出口無無障礙資訊）`}
       </p>
     </div>
+  );
+}
+
+/** 事故列車即將進站——月台上的人是唯一能改變車廂內結果的那群人 */
+function InboundAlert({ alert }) {
+  const eta = useEta(alert.arriveAt);
+  if (!eta) return null;
+  return (
+    <div className="inbound-alert">
+      <div className="inbound-head">
+        🚃 {eta.arrived ? '事故列車應已進站' : '事故列車即將進站'}
+        <span className="inbound-eta">{eta.text}</span>
+      </div>
+      <div className="inbound-where">
+        <b>{alert.venueName}</b>（{alert.lineNo} 線 · 往{alert.towards}）
+        <span className="muted"> · 由 {alert.fromVenue} 方向駛來</span>
+      </div>
+      <div className="inbound-what">車上有進行中的<b>{alert.typeLabel}</b>事件</div>
+      <p className="inbound-action">{eta.action}</p>
+    </div>
+  );
+}
+
+/**
+ * 到站倒數：每秒重算一次。
+ *
+ * 計時器只在**還沒到站時**存在——到站後就沒有東西需要更新了，
+ * 讓它繼續跑只是白白耗電。這頁的使用者多半在地下、電量寶貴。
+ */
+function useEta(arriveAt) {
+  const [eta, setEta] = useState(() => (arriveAt ? etaOf(arriveAt) : null));
+
+  useEffect(() => {
+    if (!arriveAt) { setEta(null); return undefined; }
+
+    const first = etaOf(arriveAt);
+    setEta(first);
+    // 已經到站就不要開計時器：畫面停在「應已進站」，不需要每秒更新。
+    // 這頁的使用者多半在地下、電量寶貴，能不跑的迴圈就不跑。
+    if (first.arrived) return undefined;
+
+    const id = setInterval(() => {
+      const next = etaOf(arriveAt);
+      setEta(next);
+      if (next.arrived) clearInterval(id);
+    }, 1000);
+    return () => clearInterval(id);
+  }, [arriveAt]);
+
+  return eta;
+}
+
+/**
+ * 地圖開關。收合是預設值，而且**不記憶**——每次進來都從最省流量的狀態開始。
+ * 沒有座標時整個按鈕不出現（地下停車場這類只有場域級資料的地方）。
+ */
+function EventMapToggle({ plan, incidentPoint, defaultOpen = false }) {
+  const [open, setOpen] = useState(defaultOpen);
+  const hasGeo = Boolean(incidentPoint ?? plan?.origin);
+  if (!hasGeo) return null;
+
+  if (!open) {
+    return (
+      <button className="chip map-toggle" onClick={() => setOpen(true)}>
+        🗺️ 展開地圖看位置<span className="muted">（會用到額外流量）</span>
+      </button>
+    );
+  }
+
+  return (
+    <>
+      <Suspense fallback={<div className="incident-map-loading">地圖載入中…</div>}>
+        <IncidentMap plan={plan} incidentPoint={incidentPoint} />
+      </Suspense>
+      <button className="chip map-toggle" onClick={() => setOpen(false)}>收合地圖</button>
+    </>
   );
 }
 
@@ -147,6 +253,17 @@ export default function SituationPage() {
         ♿ {stepFree ? '無台階路線（已開啟）' : '我需要無台階路線'}
       </button>
 
+      {/* 事故列車即將進站。
+          放在所有區塊之前，是因為這則警示的**時效最短**——月台上的人
+          只有幾十秒可以反應，而他們讓不讓開，決定車廂裡的人出不出得來。 */}
+      {card.inboundAlerts?.length > 0 && (
+        <section className="station-group">
+          {card.inboundAlerts.map((a) => (
+            <InboundAlert key={`${a.venueId}-${a.fromVenue}`} alert={a} />
+          ))}
+        </section>
+      )}
+
       {/* 鄰近場域警示：事件不在這裡，但離得夠近。
           2025 年那起攻擊跨越了兩個站與一間百貨——下一個場域的人現在就該知道。 */}
       {card.nearbyAlerts?.length > 0 && (
@@ -165,7 +282,8 @@ export default function SituationPage() {
         </section>
       )}
 
-      {card.stations.length === 0 && card.nearbyAlerts?.length === 0 && (
+      {card.stations.length === 0 && card.nearbyAlerts?.length === 0
+        && card.inboundAlerts?.length === 0 && (
         <div className="empty-state">
           <div className="empty-icon">🟢</div>
           <p>目前沒有確認中的異常事件</p>
@@ -217,9 +335,19 @@ export default function SituationPage() {
                 {ev.onTrain && <div className="flag flag-train">事件在列車上</div>}
 
                 {/* ---- 疏散：結構化，不是一整段字 ---- */}
-                <EvacPlan plan={plan} />
+                <EvacPlan plan={plan} arrival={ev.arrival} />
 
                 <p className="advice">{ev.advice}</p>
+
+                {/* 地圖預設對**已確認的高警戒事件**展開——那正是「往哪個方向離開」
+                    最需要看見空間關係的時候，而且值得那 190KB。其餘事件維持收合，
+                    弱網預算留給真正緊急的那一則。
+                    無論展開與否都是動態載入，leaflet 不進主 bundle。 */}
+                <EventMapToggle
+                  plan={plan}
+                  incidentPoint={ev.incidentPoint}
+                  defaultOpen={ev.status === 'active' && ev.threatLevel === 'high'}
+                />
 
                 <div className="event-foot">
                   {isSpeechSupported() && (

@@ -82,7 +82,14 @@ export function startBatchWorker(store, { log = console.log } = {}) {
         if (report.needsAssistance) {
           event.assistanceReports = (event.assistanceReports ?? 0) + 1;
         }
-        if (report.onTrain) event.onTrain = true;
+        if (report.onTrain) {
+          event.onTrain = true;
+          // 下一站以**最新一筆**指認為準：列車會前進，後來的人看到的是更新的站名
+          if (report.nextVenueId) {
+            event.nextVenueId = report.nextVenueId;
+            event.departedAt = report.receivedAt;
+          }
+        }
       }
 
       // ……但**軌跡只追加不覆寫**：威脅會移動，只留最新位置會讓系統

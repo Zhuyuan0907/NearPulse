@@ -683,3 +683,113 @@ button { cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* ===========================================================================
+   到站預告與事故列車警示
+   ---------------------------------------------------------------------------
+   時效最短的資訊放最上面、給最強的視覺重量。月台上的人只有幾十秒可以反應，
+   而他們讓不讓開車門動線，決定車廂裡的人出不出得來。
+   =========================================================================== */
+
+.inbound-alert {
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  background: linear-gradient(180deg, #2a1518, var(--card));
+  border: 1px solid var(--accent);
+  border-left-width: 5px;
+  border-radius: var(--r-md);
+}
+.inbound-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.inbound-eta {
+  padding: 2px 8px;
+  font-size: 0.85rem;
+  color: #0d1117;
+  background: var(--accent);
+  border-radius: 999px;
+}
+.inbound-where { margin-top: 6px; font-size: 0.95rem; }
+.inbound-what { margin-top: 2px; font-size: 0.9rem; color: var(--muted); }
+.inbound-action {
+  margin: 10px 0 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* 車廂內看到的到站倒數：站名要大，因為那是他抬頭核對的東西 */
+.arrival {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: baseline;
+  padding: 10px 12px;
+  margin: 10px 0;
+  background: #10161d;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+}
+.arrival-eta { font-size: 1.15rem; font-weight: 700; color: var(--warn); }
+.arrival-station { font-size: 1.15rem; font-weight: 700; }
+.arrival-towards { font-size: 0.85rem; color: var(--muted); }
+
+/* ---- 回報端：下一站指認 ---- */
+.next-station-q { margin-bottom: 6px; font-size: 0.9rem; font-weight: 600; }
+.next-station-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ===========================================================================
+   態勢卡上的事件地圖（唯讀，點開才載入）
+   =========================================================================== */
+
+.map-toggle { width: 100%; min-height: 44px; margin-top: 10px; }
+
+.incident-map { margin-top: 10px; }
+.incident-map-canvas {
+  height: 210px;
+  overflow: hidden;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+.incident-map-loading {
+  height: 210px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  color: var(--muted);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+.incident-map-note {
+  margin: 8px 0 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* 去處／避開的出口圖釘。**不只靠顏色區分**——符號（↑ / ✕）也不同，
+   色盲使用者與強光下都必須一眼可分。 */
+.map-plan-exit {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 26px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 2px solid #fff;
+  border-radius: 6px;
+}
+.map-plan-mark { font-size: 0.9rem; }
+.map-plan-go { color: #0d1117; background: var(--ok); }
+.map-plan-avoid { color: #fff; background: #6e2530; }

@@ -48,6 +48,13 @@ export function createCandidateEvent(report, stationName) {
      * 對車廂裡的人講「往 3 號出口」毫無意義。
      */
     onTrain: report.onTrain === true,
+    /**
+     * 列車下一站，以及**離站時刻**。離站時刻取首筆回報的接收時間——
+     * 通報者是在車上按下送出的，那一刻列車已經在兩站之間。這是我們能拿到
+     * 最接近真相的時間基準，而且會低估剩餘時間（偏保守，對疏散有利）。
+     */
+    nextVenueId: report.nextVenueId ?? null,
+    departedAt: report.onTrain ? report.receivedAt : null,
     /** 併入此事件的原始回報（含附件與補充） */
     reports: [report],
     /** 兩段式確認的回覆 */
@@ -108,6 +115,8 @@ export function toEventSummary(event) {
     incidentPoint: event.incidentPoint ?? null, // 事件座標（地圖顯示用）
     assistanceReports: event.assistanceReports ?? 0, // 回報「有人需要協助」的筆數
     onTrain: event.onTrain === true,
+    nextVenueId: event.nextVenueId ?? null,
+    departedAt: event.departedAt ?? null,
     reportCount: event.reports.length,
     confirmationCount: event.confirmations.filter((c) => c.atStation).length,
     createdAt: event.createdAt,

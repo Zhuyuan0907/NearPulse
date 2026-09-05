@@ -20,7 +20,9 @@
  * ⚠️ 刻意不快取 /api/vision：那是一次性的分析請求，重放沒有意義。
  */
 
-const VERSION = 'np-v2'; // 版本號一改，舊快取自動清除
+// ⚠️ **改動任何前端資源就要把這個數字往上帶**。忘了帶會讓已安裝過的裝置
+// 一直吃舊快取——實測就發生過：新功能明明部署了，手機上卻怎麼看都沒有。
+const VERSION = 'np-v3'; // 版本號一改，舊快取自動清除
 const SHELL_CACHE = `${VERSION}-shell`;
 const DATA_CACHE = `${VERSION}-data`;
 

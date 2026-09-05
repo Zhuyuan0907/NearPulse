@@ -25,13 +25,22 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 // 與 venueService 共用同一套解析規則——建表與查表若各寫一份會安靜地比不中
-import { exitCodeFromTags, landmarkFromTags, normalizeName } from '../src/services/anchorParser.js';
+import {
+  exitCodeFromTags, landmarkFromTags, normalizeName, parseExitCode,
+} from '../src/services/anchorParser.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT_PATH = resolve(__dirname, '../src/data/venues.json');
 
 const INPUTS = process.argv.slice(2).filter((a) => !a.startsWith('--'));
-if (INPUTS.length === 0) {
+/**
+ * `--network-only`：只重算捷運路網並寫回現有快照，不碰 OSM 場域。
+ * TDX 的站序與行車時間比 OSM 圖資更新得頻繁，而重跑 OSM 需要重新下載
+ * 數百 MB 的 PBF——把兩者解耦，路網更新就變成幾秒鐘的事。
+ */
+const NETWORK_ONLY = process.argv.includes('--network-only');
+
+if (INPUTS.length === 0 && !NETWORK_ONLY) {
   console.error('用法：node scripts/build-venues.mjs <extract.json> [extract2.json …]');
   console.error('  抽取檔請先用 scripts/extract-osm.mjs 從 .osm.pbf 產生');
   process.exit(1);
@@ -48,6 +57,9 @@ const ROAD_RANK = {
   trunk: 0, primary: 1, secondary: 2, tertiary: 3,
   pedestrian: 4, residential: 5, living_street: 6,
 };
+
+/** 相鄰捷運站的最大合理距離（台北捷運最長站距為文湖線南港軟體園區一帶，約 2.6km） */
+const MAX_ADJACENT_STATION_M = 5000;
 
 const UNDERGROUND_RE = /(.*?(?:地下街|地下センター|地下商店街))/;
 
@@ -497,10 +509,230 @@ function ensureUniqueIds(venues) {
 }
 
 // ---------------------------------------------------------------------------
+// TDX 官方資料合併（台北捷運）
+// ---------------------------------------------------------------------------
+
+/**
+ * 用交通部 TDX 的官方出口資料覆蓋 OSM 的推測值。
+ *
+ * 【為什麼要覆蓋而不是補充】
+ * OSM 的無障礙資訊是志工標的，覆蓋率 42%；TDX 是官方資料，台北捷運
+ * **437 個出口每一個**都帶 Stair / Escalator / Elevator 旗標。
+ * 在「輪椅使用者火災時往哪走」這種問題上，官方 100% 覆蓋的事實
+ * 應該勝過志工 42% 覆蓋的推測。OSM 仍負責台北捷運以外的所有場域。
+ *
+ * 【一個殘酷但重要的數字】
+ * 437 個出口裡有電梯的 148 個（34%），而**有電梯且無樓梯的只有 14 個（3.2%）**。
+ * 火災時電梯不可使用 → 對輪椅使用者而言，96.8% 的出口在那一刻並不存在。
+ * 這正是無障礙疏散必須切換成「待援」而非「往出口」的實證基礎。
+ */
+function mergeTdx(venues, tdx, stats) {
+  if (!tdx?.exits?.length) return;
+
+  // TDX StationID（BL01）→ 我們的場域。用別名比對，因為我們的 id 帶路網前綴
+  const byRef = new Map();
+  for (const v of venues) {
+    if (v.kind !== 'metro') continue;
+    for (const a of v.aliases ?? []) {
+      const key = String(a).toUpperCase();
+      // 只認台北：TDX 這份是 TRTC，別讓高雄同名代碼被誤配
+      if (v.id.startsWith('TPE-') && /^[A-Z]{1,2}\d{1,2}$/.test(key)) byRef.set(key, v);
+    }
+  }
+
+  const grouped = new Map();
+  for (const e of tdx.exits) {
+    const v = byRef.get(String(e.StationID).toUpperCase());
+    if (!v) { stats.tdxUnmatched++; continue; }
+    if (!grouped.has(v.id)) grouped.set(v.id, { venue: v, exits: [] });
+
+    const pos = e.ExitPosition ?? {};
+    if (!Number.isFinite(pos.PositionLat) || !Number.isFinite(pos.PositionLon)) continue;
+
+    const hasLift = e.Elevator === true;
+    const hasStair = e.Stair === true;
+    // ⚠️ 部分出口的 ExitID 是空字串（實測 437 筆中有 19 筆，全部集中在
+    // 台北車站這類大型複合站），但編號其實在名稱裡（「台北車站M8」）。
+    // 用共用的解析器救回——這正是 anchorParser 存在的理由。
+    const code = String(e.ExitID ?? '').toUpperCase() || parseExitCode(e.ExitName?.Zh_tw);
+
+    grouped.get(v.id).exits.push({
+      code: code || null,
+      name: e.ExitName?.Zh_tw ?? null,
+      // 官方的方位描述，比我們用最近街道推導的更準
+      landmark: cleanDescription(e.LocationDescription),
+      landmarkSource: 'tdx',
+      lat: pos.PositionLat,
+      lon: pos.PositionLon,
+      // 無台階通行 = 有電梯。電扶梯與樓梯對輪椅使用者都不算通行。
+      stepFree: hasLift ? 'yes' : 'no',
+      hasLift: hasLift || null,
+      // 有電梯但也有樓梯 → 依賴電梯；火災時這個出口對輪椅使用者無效
+      facilities: [hasStair && '樓梯', e.Escalator > 0 && `電扶梯×${e.Escalator}`, hasLift && '電梯']
+        .filter(Boolean).join('、') || null,
+      levels: null,
+      source: 'tdx',
+    });
+  }
+
+  for (const { venue, exits } of grouped.values()) {
+    // 【聯集，不是取代】TDX 只涵蓋北捷（TRTC）。台北車站在 OSM 有 27 個出口
+    // ——含站前地下街的 Y 系列與台鐵/高鐵的 1~5 號——但 TDX 只列 M 系列 8 個。
+    // 直接覆蓋會讓場域「變小」，把真實存在的出口從系統裡抹掉。
+    // 所以：以 OSM 為底，TDX 有的覆蓋上去（官方資料優先），TDX 沒有的保留。
+    const byCode = new Map();
+    for (const e of venue.exits ?? []) if (e.code) byCode.set(e.code, e);
+    let overridden = 0;
+    for (const e of exits) {
+      if (!e.code) continue;
+      if (byCode.has(e.code)) overridden++;
+      byCode.set(e.code, e); // TDX 優先
+    }
+    if (byCode.size === 0) continue;
+    venue.exits = [...byCode.values()]
+      .sort((a, b) => a.code.localeCompare(b.code, 'en', { numeric: true }));
+    stats.tdxVenues++;
+    stats.tdxExits += exits.filter((e) => e.code).length;
+    stats.tdxOverridden += overridden;
+  }
+}
+
+/** 官方描述往往很長（「中央路4段約100號旁」），取前段當方向指引就夠 */
+/**
+ * 由 TDX 的有方向站序 + 站間行車秒數，建出「下一站」推算所需的路網。
+ *
+ * 【為什麼需要方向，以及為什麼不問使用者方向】
+ * 事件發生在行進中的列車上時，車廂裡的人沒有出口可去——他們唯一能做的是
+ * 撐到下一站開門。要通知下一站，就必須知道列車往哪邊開。
+ *
+ * TDX 的 StationOfRoute 把同一條線的兩個方向拆成兩筆（BL-1 有「頂埔→南港展覽館」
+ * 與「南港展覽館→頂埔」），所以站序本身就帶方向，不需要另外的方向欄位。
+ *
+ * 但 UI **不會問使用者「你往哪個方向」**——恐慌中那是個抽象問題。改問
+ * 「下一站是哪一站」：那是車廂顯示器上正在跑的字、以及廣播正在唸的詞，
+ * 抬頭就能回答，而且答案本身就唯一決定了方向。這是刻意的設計取捨。
+ *
+ * 產出：
+ *   routes   每條有方向路線的場域 id 序列
+ *   runTimes 「A|B」→ 秒數（TDX 官方值，不是估的）
+ */
+function buildNetwork(venues, tdx) {
+  if (!tdx?.routes?.length) return null;
+
+  // TDX 的 StationID（BL12）不一定等於我們的 venue id：轉乘站在 OSM 合併後
+  // 只留一個主代碼（台北車站是 TPE-A1），其餘代碼落在 aliases 裡。
+  //
+  // ⚠️ **只在該營運機構的路網命名空間內查**。初版用全台捷運建對照表，
+  // 結果台北車站（TDX 的 BL12/R10）的「下一站」跑出高雄車站——因為
+  // `R11`、`R21` 在北高兩地都是有效代碼，而 `KHH-` 排序在 `TPE-` 之前先贏。
+  // 這正是先前修過的跨城市撞號問題在另一個地方復發，所以這裡除了限定
+  // 命名空間，還一併沿用「有歧義就不註冊」的規則。
+  const OPERATOR_REGION = { TRTC: 'TPE' };
+  const region = OPERATOR_REGION[tdx.operator];
+  const prefix = region ? `${region}-` : null;
+
+  const byAlias = new Map();
+  const ambiguous = new Set();
+  for (const v of venues) {
+    if (v.kind !== 'metro') continue;
+    if (prefix && !v.id.startsWith(prefix)) continue;
+    for (const a of v.aliases ?? []) {
+      const k = a.toLowerCase();
+      if (byAlias.has(k) && byAlias.get(k) !== v.id) ambiguous.add(k);
+      else byAlias.set(k, v.id);
+    }
+  }
+  for (const k of ambiguous) byAlias.delete(k);
+  const toVenue = (stationId) => byAlias.get(String(stationId).toLowerCase()) ?? null;
+
+  const routes = [];
+  const implausible = [];
+  let unmapped = 0;
+  for (const r of tdx.routes) {
+    const seq = [...(r.Stations ?? [])].sort((a, b) => a.Sequence - b.Sequence);
+    const stations = seq.map((s) => toVenue(s.StationID));
+    if (stations.some((s) => !s)) { unmapped++; continue; }
+    // 相鄰站距離健檢：捷運站距最遠不過數公里，超出就是對照表接錯了。
+    // 這個檢查是為了讓「下一站接到別的城市」這類錯誤在建表時就爆出來，
+    // 而不是等到有人在車廂裡看到荒謬的站名。
+    let bad = null;
+    for (let i = 0; i + 1 < stations.length; i++) {
+      const a = venues.find((v) => v.id === stations[i]);
+      const b = venues.find((v) => v.id === stations[i + 1]);
+      if (a && b && distanceM(a, b) > MAX_ADJACENT_STATION_M) {
+        bad = `${a.name}(${a.id}) → ${b.name}(${b.id}) 相距 ${Math.round(distanceM(a, b))}m`;
+        break;
+      }
+    }
+    if (bad) { implausible.push(`${r.RouteID}: ${bad}`); continue; }
+
+    routes.push({
+      id: r.RouteID,
+      lineNo: r.LineNo,
+      name: r.RouteName?.Zh_tw ?? r.RouteID,
+      // 終點站名就是車頭與月台看板上寫的「往 ○○」——直接拿來當方向標籤
+      towards: seq[seq.length - 1].StationName?.Zh_tw ?? '',
+      stations,
+    });
+  }
+
+  const runTimes = {};
+  for (const line of tdx.travelTimes ?? []) {
+    for (const t of line.TravelTimes ?? []) {
+      const from = toVenue(t.FromStationID);
+      const to = toVenue(t.ToStationID);
+      if (!from || !to || !Number.isFinite(t.RunTime)) continue;
+      // 同一組站在不同路線可能重複出現，取第一筆即可（實測差異在數秒內）。
+      //
+      // ⚠️ 只取 RunTime，**不加 StopTime**。StopTime 是在站停靠開關門的時間
+      //（台北車站→西門 是 RunTime 120 + StopTime 42），加進去會讓「還有多久到站」
+      // 多算 42 秒。對車廂裡等著開門的人，那是完全不同的一段時間。
+      const key = `${from}|${to}`;
+      if (runTimes[key] === undefined) runTimes[key] = t.RunTime;
+    }
+  }
+
+  return {
+    source: '交通部運輸資料流通服務平臺（TDX）— 台北捷運 TRTC',
+    operator: 'TRTC',
+    routes,
+    runTimes,
+    unmappedRoutes: unmapped,
+    implausibleRoutes: implausible,
+  };
+}
+
+function cleanDescription(desc) {
+  if (!desc) return null;
+  const t = String(desc).trim();
+  return t.length > 18 ? `${t.slice(0, 18)}…` : t;
+}
+
+// ---------------------------------------------------------------------------
 // 主流程
 // ---------------------------------------------------------------------------
 
+function updateNetworkOnly() {
+  const snapshot = JSON.parse(readFileSync(OUT_PATH, 'utf8'));
+  const tdx = JSON.parse(readFileSync(resolve(__dirname, '../src/data/tdx-trtc.json'), 'utf8'));
+  snapshot.network = buildNetwork(snapshot.venues, tdx);
+  snapshot.networkUpdatedAt = new Date().toISOString();
+  writeFileSync(OUT_PATH, JSON.stringify(snapshot, null, 1));
+
+  const n = snapshot.network;
+  console.log(`[build-venues] 路網已更新：${n.routes.length} 條有方向路線、`
+    + `${Object.keys(n.runTimes).length} 段官方行車時間`
+    + (n.unmappedRoutes ? `（${n.unmappedRoutes} 條站點對不上而略過）` : ''));
+  if (n.implausibleRoutes.length > 0) {
+    console.error(`[build-venues] ❌ ${n.implausibleRoutes.length} 條路線的相鄰站距不合理，已排除：`);
+    for (const m of n.implausibleRoutes) console.error(`    ${m}`);
+    process.exitCode = 1;
+  }
+  console.log(`  場域未變動：${snapshot.venues.length} 筆`);
+}
+
 function main() {
+  if (NETWORK_ONLY) return updateNetworkOnly();
   const t0 = Date.now();
   const elements = [];
   const streets = [];
@@ -520,6 +752,7 @@ function main() {
   const stats = {
     orphanEntrances: 0, droppedUnnumbered: 0, ugVenueAnchors: 0,
     mergedStations: 0, landmarkFromStreet: 0,
+    tdxVenues: 0, tdxExits: 0, tdxUnmatched: 0, tdxOverridden: 0,
   };
 
   // 地下街的出口不該同時被捷運吸走（西門地下街緊鄰西門站）
@@ -538,6 +771,17 @@ function main() {
     const { _coords, ...rest } = v;
     return { ...rest, exits };
   });
+
+  // TDX 官方資料優先於 OSM 推測值（僅台北捷運）——必須在補地標之前，
+  // 因為 TDX 自帶官方方位描述，不需要再用最近街道推導
+  let tdx = null;
+  try {
+    tdx = JSON.parse(readFileSync(resolve(__dirname, '../src/data/tdx-trtc.json'), 'utf8'));
+    mergeTdx(venues, tdx, stats);
+  } catch {
+    console.log('[build-venues] 沒有 TDX 快照，台北捷運沿用 OSM 資料'
+      + '（可執行 node scripts/fetch-tdx.mjs 產生）');
+  }
 
   enrichLandmarks(venues, streets, stats);
 
@@ -572,6 +816,8 @@ function main() {
     attribution: '© OpenStreetMap contributors (ODbL)',
     inputs: INPUTS,
     venues,
+    /** 捷運路網（下一站推算用）；沒有 TDX 快照時為 null，功能自動關閉 */
+    network: buildNetwork(venues, tdx),
   };
 
   mkdirSync(dirname(OUT_PATH), { recursive: true });
@@ -596,6 +842,13 @@ function main() {
     process.exitCode = 1;
   }
 
+  if (snapshot.network) {
+    const n = snapshot.network;
+    console.log(`  捷運路網      ${n.routes.length} 條有方向路線、`
+      + `${Object.keys(n.runTimes).length} 段官方行車時間`
+      + (n.unmappedRoutes ? `（${n.unmappedRoutes} 條因站點對不上而略過）` : ''));
+  }
+
   console.log('\n[build-venues] ---- 統計 ----');
   console.log(`  場域總數      ${venues.length}  ${JSON.stringify(byKind)}`);
   console.log(`  id 唯一       ${dupIds.length === 0 ? '✓' : '❌ ' + dupIds.length + ' 個重複'}`);
@@ -605,6 +858,9 @@ function main() {
   console.log(`  無編號被丟棄  ${stats.droppedUnnumbered}`);
   console.log(`  有方向地標    ${withLm}/${totalExits}（${pct(withLm)}%）—— 其中 ${stats.landmarkFromStreet} 個由最近街道推導`);
   console.log(`  無障礙已知    ${acc}/${totalExits}（${pct(acc)}%）—— 其中 ${stepFree} 個無台階可通行`);
+  if (stats.tdxVenues > 0) {
+    console.log(`  TDX 官方覆蓋  ${stats.tdxVenues} 個台北捷運場域、${stats.tdxExits} 個出口（其中 ${stats.tdxOverridden} 個覆蓋 OSM 推測值）`);
+  }
   console.log(`  可做無障礙疏散判斷的場域：${decidable.length}`);
   console.log(`  檔案          ${OUT_PATH}（${(JSON.stringify(snapshot).length / 1024).toFixed(0)} KB，${((Date.now() - t0) / 1000).toFixed(1)}s）`);
 

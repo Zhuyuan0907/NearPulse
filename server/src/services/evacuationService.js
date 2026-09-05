@@ -71,6 +71,8 @@ export function suggestExits(venueId, nearExitCode, point = null, motion = null,
 
   const nearby = scored.filter((s) => s.dist <= AVOID_RADIUS_M);
   return {
+    /** 事件原點——態勢卡的地圖用它擺 ✕ 圖釘與避開範圍圓心 */
+    origin: { lat: origin.lat, lon: origin.lon },
     away: away.slice(0, 3),
     // 若每個出口都落在避開半徑內，這份清單就沒有篩選作用——寧可不說
     avoid: nearby.length === scored.length ? [] : nearby.slice(0, 3),
@@ -189,17 +191,38 @@ export function evacuationPlan({
   const base = suggestExits(venueId, nearExitCode, point, motion);
   if (!base) return null;
   const venue = findVenue(venueId);
+  /**
+   * 給地圖畫的「避開範圍」圓。
+   *
+   * 這個半徑描述的是**系統做了什麼**（半徑內的出口不列入建議），
+   * 不是對危害物理範圍的宣稱——後者需要現場的煙流、樓層、通風資料，
+   * 我們一樣都沒有。UI 的說明文字必須照這個意思寫。
+   */
+  const geo = {
+    avoidRadiusM: AVOID_RADIUS_M,
+    origin: base.origin ?? null,
+  };
   const s = applyMotion(venue, base, motion, nearExitCode);
   const stepFree = mobility === 'stepFree';
 
-  const brief = (x) => ({ code: x.exit.code, landmark: x.exit.landmark ?? null });
+  /**
+   * 出口的精簡形式。帶上經緯度是為了讓態勢卡能在地圖上標點——
+   * 但**畫面上仍然不顯示公尺數**：地下通道的實際步行距離與地面直線距離
+   * 可以差上兩三倍，講「約 91m」是假精確。座標只用來畫圖釘。
+   */
+  const brief = (x) => ({
+    code: x.exit.code,
+    landmark: x.exit.landmark ?? null,
+    lat: x.exit.lat ?? null,
+    lon: x.exit.lon ?? null,
+  });
 
   // ---- 無障礙路線是**性質不同的答案**，先處理 ----
   if (stepFree) {
     const known = venue?.accessibility?.known ?? 0;
     if (known === 0) {
       return {
-        kind: 'shelter', stepFree: true, from: nearExitCode,
+        kind: 'shelter', stepFree: true, from: nearExitCode, ...geo,
         reason: '這個場域沒有出口的無障礙資訊',
         action: '請立即向站務人員求助，並讓周圍的人知道你需要協助',
         go: [], avoid: [], unknownExits: venue?.exits?.length ?? 0,
@@ -216,14 +239,14 @@ export function evacuationPlan({
 
     if (picked.length > 0) {
       return {
-        kind: 'exits', stepFree: true, from: nearExitCode,
+        kind: 'exits', stepFree: true, from: nearExitCode, ...geo,
         go: picked.map(brief), avoid: [], unknownExits: unknown,
         note: '請依站內出口指標前進',
       };
     }
 
     return {
-      kind: 'shelter', stepFree: true, from: nearExitCode,
+      kind: 'shelter', stepFree: true, from: nearExitCode, ...geo,
       reason: fire && liftOnly.length > 0
         ? `唯一的無障礙出口（${liftOnly.map((x) => x.exit.code).join('、')} 出口）需要電梯，火災時電梯不可使用`
         : usable.length > 0
@@ -237,7 +260,7 @@ export function evacuationPlan({
   // ---- 一般路線 ----
   if (s.allAhead) {
     return {
-      kind: 'shelter', stepFree: false, from: nearExitCode,
+      kind: 'shelter', stepFree: false, from: nearExitCode, ...geo,
       reason: '可用出口都位於威脅前進的方向上',
       action: '請優先尋找站內避難空間或聽從現場人員指示，不要盲目往出口移動',
       go: [], avoid: s.avoid.map(brief), unknownExits: 0,
@@ -245,7 +268,7 @@ export function evacuationPlan({
   }
 
   return {
-    kind: 'exits', stepFree: false, from: nearExitCode,
+    kind: 'exits', stepFree: false, from: nearExitCode, ...geo,
     go: s.away.map(brief), avoid: s.avoid.map(brief), unknownExits: 0,
     note: '請依站內出口指標前進',
   };

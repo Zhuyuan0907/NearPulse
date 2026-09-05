@@ -41,12 +41,12 @@ cd client && npm run dev      # :5173，/api 已代理到 :3000
 ## 端到端驗證（不開瀏覽器、不需任何 API 金鑰）
 
 ```bash
-bash server/test/e2e.sh   # 48 項：場域圖資 → 回報 → 批次 → 確認 → 升級 → 疏散 → ETag 304
+bash server/test/e2e.sh   # 61 項：場域圖資 → 回報 → 批次 → 確認 → 升級 → 疏散 → 列車到站 → ETag 304
 ```
 
 ## 場域圖資（OpenStreetMap）
 
-**836 個地下場域、1340 個出口**（捷運站、地下街、地下停車場、百貨；含日本關西），由 OSM 離線產生後進版控——
+**836 個地下場域、1356 個出口**（捷運站、地下街、地下停車場、百貨；含日本關西），由 OSM 離線產生後進版控——
 server 執行時完全不碰外部網路。
 
 資料改由**本機解析 Geofabrik 抽取檔**產生，不再打 Overpass：公開實例只有
@@ -64,13 +64,36 @@ node server/scripts/build-venues.mjs /tmp/tw.json
 
 資料授權：© OpenStreetMap contributors（ODbL）。詳見 `LICENSE`。
 
+## 官方捷運資料（TDX）
+
+台北捷運的部分改用**交通部 TDX 官方資料**覆蓋 OSM 的志工推測值，同樣是離線快照：
+
+| 資料集 | 用途 | 覆蓋 |
+|---|---|---|
+| `StationExit` | 出口的樓梯／電扶梯／電梯旗標與官方方位描述 | 437 出口，無障礙資訊 **100%**（OSM 僅 42%） |
+| `S2STravelTime` | 站間官方行車秒數 | 173 段——「還有多久到站」唯一可信的來源 |
+| `StationOfRoute` | **有方向的**站序 | 22 條路線，推算「下一站」的依據 |
+
+```bash
+node server/scripts/fetch-tdx.mjs          # 產生 tdx-trtc.json 快照
+node server/scripts/build-venues.mjs --network-only   # 只重算路網，不重跑 OSM
+```
+
+TDX 比 OSM 更新頻繁，所以路網更新與場域重建是**解耦的**——前者幾秒鐘，
+後者要重新下載數百 MB 的 PBF。
+
+**合併規則是聯集，不是取代**：TDX 只涵蓋北捷（TRTC），台北車站在 OSM 有 27 個出口
+（含站前地下街的 Y 系列與台鐵／高鐵的 1~5 號），TDX 只列 M 系列 8 個。
+兩邊都保留，同編號時以 TDX 為準。
+
 ## 授權與資料來源
 
 | 項目 | 授權 |
 |---|---|
 | 程式碼 | MIT（見 `LICENSE`） |
 | `server/src/data/venues.json` | ODbL —— OpenStreetMap 衍生資料庫，© OpenStreetMap contributors |
-| 底圖圖磚 | CARTO basemaps（資料同為 OpenStreetMap） |
+| 底圖圖磚 | 官方 OpenStreetMap 圖磚（`tile.openstreetmap.org`） |
+| `server/src/data/tdx-trtc.json` | 交通部運輸資料流通服務平臺（TDX）開放資料 |
 
 ### 第三方相依
 
@@ -101,7 +124,7 @@ gpt-4o-mini + detail low）；STT/LLM 仍為 stub。
 
 所有 advisor 失敗、逾時或未設定時回傳同一種降級形狀，呼叫端無從分辨，
 因此 AI 永遠不可能擋住一筆回報——**不設任何金鑰也能跑完整條流程**
-（`server/test/e2e.sh` 48 項檢查即在無金鑰環境下驗證）。
+（`server/test/e2e.sh` 61 項檢查即在無金鑰環境下驗證）。
 
 ### 選配：啟用 Vision 辨識
 

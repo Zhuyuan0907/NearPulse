@@ -50,8 +50,9 @@ check "示意幾何座標已正規化（供 client 畫 SVG，非圖磚）" \
 EVAC=$(curl -s "$BASE/api/venues/TPE-BL13/evacuation?exit=2&type=fire")
 check "即時疏散端點（不等批次 tick）" \
   test "$(echo "$EVAC" | json "'改往' in d['evacuation'] and '避開' in d['evacuation']")" = "True"
+# 散文與結構化計畫必須出自同一個 service——早期兩邊各算一次，會給出不同的出口
 check "即時疏散內容與態勢卡一致（同一個 service）" \
-  test "$(echo "$EVAC" | json "'成功高中' in d['evacuation']")" = "True"
+  test "$(echo "$EVAC" | json "all(g['code'] in d['evacuation'] for g in d['plan']['go'])")" = "True"
 check "搜尋後備路徑：忠孝 → 有出口的車站排前面" \
   test "$(curl -s "$BASE/api/venues/search?q=%E5%BF%A0%E5%AD%9D" | json "d['venues'][0]['exitsAvailable']")" = "True"
 
@@ -112,16 +113,18 @@ echo "== 6. 態勢卡與 ETag =="
 CARD=$(curl -s "$BASE/api/situation")
 BL12_ON_CARD=$(echo "$CARD" | json "any(s['stationId']=='TPE-A1' for s in d['stations'])")
 check "警示區包含 BL12 事件" test "$BL12_ON_CARD" = "True"
+# 一律用 station id 指名，不用索引：其他測試留下的事件會讓 stations[0] 位移
+SEL="[e for s in d['stations'] if s['stationId']=='TPE-A1' for e in s['events'] if e['type']=='fire'][0]"
 check "疏散計畫以 M3 出口為原點（事件錨點）" \
-  test "$(echo "$CARD" | json "d['stations'][0]['events'][0]['plan']['from']")" = "M3"
+  test "$(echo "$CARD" | json "$SEL['plan']['from']")" = "M3"
 # 結構化：眼睛需要可掃視的區塊，不是一整段散文
 check "疏散計畫是結構化的（go/avoid 分開）" \
-  test "$(echo "$CARD" | json "isinstance(d['stations'][0]['events'][0]['plan']['go'], list)")" = "True"
+  test "$(echo "$CARD" | json "isinstance($SEL['plan']['go'], list)")" = "True"
 # 只有實測步行時間才有資格出現數字——地面直線距離不能當成地下步行距離
 check "疏散計畫不輸出未經實測的距離數字" \
-  test "$(echo "$CARD" | json "not any('m' in str(g.get('landmark') or '') and str(g.get('landmark') or '').endswith('m') for g in d['stations'][0]['events'][0]['plan']['go'])")" = "True"
+  test "$(echo "$CARD" | json "not any(str(g.get('landmark') or '').endswith('m') for g in $SEL['plan']['go'])")" = "True"
 check "疏散計畫附上依站內指標前進的說明" \
-  test "$(echo "$CARD" | json "'依站內出口指標' in (d['stations'][0]['events'][0]['plan'].get('note') or '')")" = "True"
+  test "$(echo "$CARD" | json "'依站內出口指標' in ($SEL['plan'].get('note') or '')")" = "True"
 ETAG=$(curl -sI "$BASE/api/situation" | grep -i '^etag:' | tr -d '\r' | cut -d' ' -f2)
 CODE=$(curl -s -o /dev/null -w "%{http_code}" -H "If-None-Match: $ETAG" "$BASE/api/situation")
 check "ETag 命中 → 304（$CODE）" test "$CODE" = "304"
@@ -136,8 +139,9 @@ EVT3=$(curl -s "$BASE/api/reports/context?station=TPE-BL13&type=crush" | json "d
 EV3=$(curl -s "$BASE/api/events/$EVT3")
 check "事件保留地圖選點座標" \
   test "$(echo "$EV3" | json "abs(d['event']['incidentPoint']['lat'] - 25.04505) < 1e-6")" = "True"
+# plan.origin 就是疏散計算的起點——直接驗它比繞著地標字串猜穩定得多
 check "疏散計畫以選點為原點（不是場域中心）" \
-  test "$(curl -s "$BASE/api/situation" | json "any(any(g['code']=='3' and g.get('landmark')=='成功高中' for g in (e.get('plan') or {}).get('go',[])) for s in d['stations'] for e in s['events'])")" = "True"
+  test "$(curl -s "$BASE/api/situation" | json "any(abs(((e.get('plan') or {}).get('origin') or {}).get('lat', 0) - 25.04505) < 1e-6 for s in d['stations'] for e in s['events'])")" = "True"
 
 echo "== 8. 移動威脅追蹤（無差別攻擊：事件會跑） =="
 # 兩個獨立目擊者、不同出口、間隔足夠 → 應判定為移動中
@@ -236,6 +240,65 @@ done
 wait_batch
 check "G13 事件被否證取消" \
   test "$(curl -s "$BASE/api/events/$EVT2" | json "d['event']['status']")" = "cancelled"
+
+echo "== 14. 行進中列車：下一站與到站預告（TDX 官方路網） =="
+# 【為什麼有這一段】2014 年鄭捷案發生在行駛中的板南線列車上，車廂內的人
+# 被關在封閉空間約 4 分鐘。車上的人做不了什麼；能改變結果的是**下一站月台上的人**。
+V_BL13=$(curl -s "$BASE/api/venues/TPE-BL13")
+check "捷運場域帶出可能的下一站（供使用者指認）" \
+  test "$(echo "$V_BL13" | json "len(d['venue']['nextStations']) >= 2")" = "True"
+check "下一站確實與該站相鄰（不是跨城市撞號的結果）" \
+  test "$(echo "$V_BL13" | json "sorted(x['venueId'] for x in d['venue']['nextStations']) == ['TPE-A1','TPE-BL14']")" = "True"
+check "下一站附官方行車秒數（非估計值）" \
+  test "$(echo "$V_BL13" | json "any(x['estimated'] is False and 30 < x['runSec'] < 300 for x in d['venue']['nextStations'])")" = "True"
+# 百貨、地下街、地下停車場不在捷運路網上——UI 據此把「事件在列車上」整個藏起來
+RETAIL_ID=$(curl -s --get "$BASE/api/venues/search" --data-urlencode "q=百貨" | json "d['venues'][-1]['id']")
+check "非捷運場域沒有下一站（UI 隱藏「事件在列車上」）" \
+  test "$(curl -s "$BASE/api/venues/$RETAIL_ID" | json "d['venue']['nextStations'] == [] and d['venue']['kind'] != 'metro'")" = "True"
+
+# 三筆獨立回報湊到攻擊門檻（2），事件在列車上、剛離開台北車站、下一站善導寺
+for S in trn-A trn-B trn-C; do
+  curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/json' -d "{
+    \"uuid\":\"e2e-train-$S\",\"sessionId\":\"$S\",\"type\":\"attack\",
+    \"locationClaim\":{\"source\":\"manual\",\"stationId\":\"TPE-A1\",\"confidence\":1.0,\"timestamp\":1},
+    \"onTrain\":true,\"nextVenueId\":\"TPE-BL13\"}" > /dev/null
+done
+wait_batch
+TCARD=$(curl -s "$BASE/api/situation")
+check "車廂內的事件帶到站預告" \
+  test "$(echo "$TCARD" | json "any(e.get('arrival') for s in d['stations'] for e in s['events'])")" = "True"
+check "到站預告指向使用者指認的下一站" \
+  test "$(echo "$TCARD" | json "[e['arrival']['venueId'] for s in d['stations'] for e in s['events'] if e.get('arrival')][0]")" = "TPE-BL13"
+# 下一站月台上的人是唯一能改變車廂內結果的那群人
+check "下一站收到「事故列車即將進站」警示" \
+  test "$(echo "$TCARD" | json "any(a['venueId']=='TPE-BL13' for a in d['inboundAlerts'])")" = "True"
+check "到站警示指出來源方向與事件類型" \
+  test "$(echo "$TCARD" | json "[a for a in d['inboundAlerts'] if a['venueId']=='TPE-BL13'][0]['fromVenue']")" = "台北車站"
+# ⚠️ 這一項是弱網預算的守門員：剩餘秒數若寫進卡片，每次輪詢 ETag 都會變，
+#    304 就永遠不會發生。卡片只放絕對到站時刻，倒數由 client 自己算。
+check "卡片只放絕對到站時刻，不放會逐秒變動的剩餘秒數" \
+  test "$(echo "$TCARD" | json "all('etaSec' not in a and a['arriveAt'] > 0 for a in d['inboundAlerts'])")" = "True"
+# 先多等一個 tick 讓事件敘事（LLM stub）落定再取 ETag——否則量到的是
+# 敘事寫入造成的重建，而不是我們要驗的「倒數不會讓卡片改變」
+wait_batch
+T_ETAG=$(curl -sI "$BASE/api/situation" | grep -i '^etag:' | tr -d '\r' | cut -d' ' -f2)
+sleep 12
+check "倒數進行中，態勢卡仍回 304（弱網預算未被倒數吃掉）" \
+  test "$(curl -s -o /dev/null -w "%{http_code}" -H "If-None-Match: $T_ETAG" "$BASE/api/situation")" = "304"
+# 未確認的通報不擴散到整座月台：製造的推擠風險可能大過它避免的風險
+curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/json' -d '{
+  "uuid":"e2e-train-solo","sessionId":"trn-Z","type":"other",
+  "locationClaim":{"source":"manual","stationId":"TPE-BL14","confidence":1.0,"timestamp":1},
+  "onTrain":true,"nextVenueId":"TPE-BL15"}' > /dev/null
+wait_batch
+check "未確認／低嚴重度的列車事件不發出到站警示" \
+  test "$(curl -s "$BASE/api/situation" | json "not any(a['venueId']=='TPE-BL15' for a in d['inboundAlerts'])")" = "True"
+
+# 態勢卡的地圖需要座標才畫得出來——文字敘述則在任何情況下都先到、且獨立可用
+check "疏散計畫帶出口座標（態勢卡地圖用）" \
+  test "$(curl -s "$BASE/api/venues/TPE-BL13/evacuation?exit=2&type=fire" | json "all(g.get('lat') and g.get('lon') for g in d['plan']['go'])")" = "True"
+check "疏散計畫帶避開半徑與事件原點（地圖圓圈用）" \
+  test "$(curl -s "$BASE/api/venues/TPE-BL13/evacuation?exit=2&type=fire" | json "d['plan']['avoidRadiusM'] > 0 and d['plan']['origin']['lat'] > 0")" = "True"
 
 echo ""
 echo "======================================"

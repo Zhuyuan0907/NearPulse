@@ -110,6 +110,7 @@ server/src/
   services/venueService.js  場域查表、鄰近搜尋、錨點解析、示意幾何
   services/evacuationService.js  疏散建議（含移動威脅與無障礙分支，純函式）
   services/threatMotion.js  移動威脅判定（軌跡 → 方向；防誤判是重點）
+  services/trainService.js  行進中列車：下一站推算與到站預告（TDX 官方路網）
   services/situationCardService.js  態勢卡建構 + ETag（含預算好的疏散文字）
   routes/reports.js         POST /api/reports、GET /api/reports/context
   routes/events.js          GET /api/events、POST /api/events/:id/confirm

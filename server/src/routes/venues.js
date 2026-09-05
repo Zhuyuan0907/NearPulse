@@ -11,6 +11,7 @@
  * 全部只讀記憶體中的快照，不碰外部網路（見 services/venueService.js）。
  */
 
+import { nextStations } from '../services/trainService.js';
 import { Router } from 'express';
 import {
   nearbyVenues,
@@ -84,7 +85,18 @@ export function createVenuesRouter() {
   router.get('/:id', (req, res) => {
     const venue = findVenue(req.params.id);
     if (!venue) return res.status(404).json({ ok: false, error: '查無此場域' });
-    res.json({ ok: true, venue: venueGeometry(venue.id) });
+    res.json({
+      ok: true,
+      venue: {
+        ...venueGeometry(venue.id),
+        /**
+         * 可能的下一站。**只有捷運場域會有**——地下街、百貨、停車場不在路網上，
+         * 回空陣列讓 client 直接把「事件在列車上」整個選項藏起來。
+         * 掛在這支既有的請求上而不另開端點，是為了少一次來回。
+         */
+        nextStations: nextStations(venue.id),
+      },
+    });
   });
 
   return router;
