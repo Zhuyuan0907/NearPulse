@@ -300,8 +300,26 @@ export default function SituationPage() {
         </section>
       )}
 
+      {/* 已解除：語氣與警示明確區隔——這是讓人放鬆的訊息，
+          不能長得像另一則警報，所以用低飽和的綠、不用紅框、不置頂。 */}
+      {card.resolved?.length > 0 && (
+        <section className="station-group">
+          {card.resolved.map((r) => (
+            <div key={r.id} className="resolved-item">
+              <div className="resolved-head">
+                {r.wasActive ? '✅ 警報解除' : '⚪ 查無此事件'}
+                <span className="resolved-where">
+                  {KIND_ICON[r.kind] ?? '📍'} {r.stationName} · {r.typeLabel}
+                </span>
+              </div>
+              <p className="resolved-notice">{r.notice}</p>
+            </div>
+          ))}
+        </section>
+      )}
+
       {card.stations.length === 0 && card.nearbyAlerts?.length === 0
-        && card.inboundAlerts?.length === 0 && (
+        && card.inboundAlerts?.length === 0 && card.resolved?.length === 0 && (
         <div className="empty-state">
           <div className="empty-icon">🟢</div>
           <p>目前沒有確認中的異常事件</p>

@@ -867,3 +867,30 @@ button { cursor: pointer; }
 }
 .door-side-icon { font-size: 1.3rem; }
 .door-side b { color: var(--blue); }
+
+/* ===========================================================================
+   已解除的事件
+   ---------------------------------------------------------------------------
+   語氣要與警示明確區隔：這是讓人放鬆的訊息，不能長得像另一則警報。
+   所以用低飽和的綠、細邊框、不置頂、不用色塊填滿。
+   =========================================================================== */
+
+.resolved-item {
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  background: #12181d;
+  border: 1px solid #2a3a30;
+  border-left: 3px solid var(--ok);
+  border-radius: var(--r-sm);
+}
+.resolved-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: baseline;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ok);
+}
+.resolved-where { font-size: 0.85rem; font-weight: 400; color: var(--muted); }
+.resolved-notice { margin: 6px 0 0; font-size: 0.85rem; color: var(--muted); }

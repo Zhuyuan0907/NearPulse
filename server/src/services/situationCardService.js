@@ -231,8 +231,37 @@ export function buildSituationCard(events, now = Date.now()) {
     }
   }
 
+  /**
+   * 已解除的事件。
+   *
+   * 這是先前整個缺掉的一半：系統很擅長說「開始了」，對「結束了」完全沉默——
+   * 事件一結案就從卡片上無聲消失，而 server 早就備好的 closingNotice
+   * 從來沒有送到任何人面前。
+   *
+   * 語氣要與警示**明確區隔**：這是讓人放鬆的訊息，不能長得像另一則警報。
+   * 並且區分「警報解除」（曾經成立）與「查無此事」（從未成立）——
+   * 對讀的人那是完全不同的兩件事，而此時 status 已經同樣是 cancelled。
+   */
+  const resolved = events
+    .filter((ev) => ev.closedAt && now - ev.closedAt <= config.resolvedWindowMs)
+    .sort((a, b) => b.closedAt - a.closedAt)
+    .slice(0, 5)
+    .map((ev) => ({
+      id: ev.id,
+      stationId: ev.stationId,
+      stationName: ev.stationName,
+      kind: findVenue(ev.stationId)?.kind ?? null,
+      typeLabel: config.eventTypes[ev.type]?.label ?? ev.type,
+      status: ev.status,
+      wasActive: ev.wasActive === true,
+      notice: ev.closingNotice,
+      closedAt: ev.closedAt,
+    }));
+
   const card = {
     generatedAt: now,
+    /** 已解除／已結案的事件（近 10 分鐘）——「警報解除」也必須被說出口 */
+    resolved,
     /** 事故列車即將抵達的車站警示（月台上的人是能改變結果的那群人） */
     inboundAlerts,
     /** 鄰近場域警示：事件不在你這裡，但離得夠近，你該知道 */

@@ -76,12 +76,22 @@ export function applyTransition(event, decision, now = Date.now()) {
     case 'promote':
       event.status = 'active';
       event.updatedAt = now;
+      // 記住它曾經成立過。事件結束時，「警報解除」與「查無此事」對讀的人
+      // 是完全不同的兩件事，而 status 到那時已經同樣是 cancelled/frozen。
+      event.wasActive = true;
       break;
 
     case 'cancel':
     case 'expire':
       event.status = 'cancelled';
       event.updatedAt = now;
+      /**
+       * 結案時刻。**與 updatedAt 分開存**：updatedAt 之後仍可能被其他流程改動，
+       * 而「解除警報要顯示多久」必須從真正結案的那一刻算起。
+       */
+      event.closedAt = now;
+      /** 結案前是否曾經成立——決定要不要跟使用者說「警報解除」還是「查無此事」 */
+      event.wasActive = event.wasActive || false;
       event.closingNotice =
         decision === 'expire'
           ? '此回報在時限內未獲得足夠確認，已自動結案。'
@@ -91,6 +101,7 @@ export function applyTransition(event, decision, now = Date.now()) {
     case 'freeze':
       event.status = 'frozen';
       event.updatedAt = now;
+      event.closedAt = now;
       event.closingNotice = '此事件已超過 45 分鐘無新確認，凍結歸檔。';
       break;
 
@@ -124,6 +135,8 @@ export function toEventSummary(event) {
     updatedAt: event.updatedAt,
     timeline: event.timeline,
     closingNotice: event.closingNotice,
+    closedAt: event.closedAt ?? null,
+    wasActive: event.wasActive === true,
     hasAudio: event.reports.some((r) => r.audio),
     hasPhoto: event.reports.some((r) => r.photo),
   };

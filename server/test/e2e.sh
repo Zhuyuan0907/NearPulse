@@ -240,6 +240,19 @@ done
 wait_batch
 check "G13 事件被否證取消" \
   test "$(curl -s "$BASE/api/events/$EVT2" | json "d['event']['status']")" = "cancelled"
+# 結案的事件過去是**無聲消失**的——closingNotice 產生了卻沒送到任何人面前。
+# 疏散情境裡，不知道警報解除和不知道警報發生幾乎一樣糟。
+RCARD=$(curl -s "$BASE/api/situation")
+check "結案事件出現在「已解除」區（不再無聲消失）" \
+  test "$(echo "$RCARD" | json "any(r['id']=='$EVT2' for r in d['resolved'])")" = "True"
+check "已解除帶結案說明（server 早就備好、之前沒人看得到）" \
+  test "$(echo "$RCARD" | json "bool([r for r in d['resolved'] if r['id']=='$EVT2'][0]['notice'])")" = "True"
+# 「警報解除」與「查無此事」對讀的人是完全不同的兩件事，
+# 而此時 status 已經同樣是 cancelled——必須靠 wasActive 區分
+check "區分「曾經成立」與「從未成立」（語氣不同）" \
+  test "$(echo "$RCARD" | json "[r for r in d['resolved'] if r['id']=='$EVT2'][0]['wasActive']")" = "False"
+check "已解除的事件不再出現在警示區" \
+  test "$(echo "$RCARD" | json "not any(e['id']=='$EVT2' for s in d['stations'] for e in s['events'])")" = "True"
 
 echo "== 14. 行進中列車：下一站與到站預告（TDX 官方路網） =="
 # 【為什麼有這一段】2014 年鄭捷案發生在行駛中的板南線列車上，車廂內的人
