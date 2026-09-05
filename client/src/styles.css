@@ -894,3 +894,14 @@ button { cursor: pointer; }
 }
 .resolved-where { font-size: 0.85rem; font-weight: 400; color: var(--muted); }
 .resolved-notice { margin: 6px 0 0; font-size: 0.85rem; color: var(--muted); }
+
+/* 跨站歧義：照片裡出現多個站名時，用站名按鈕解決（地圖解決不了跨場域的選擇） */
+.venue-choice {
+  padding: 12px 14px;
+  margin-top: 10px;
+  background: #1c1a12;
+  border: 1px solid var(--warn);
+  border-radius: var(--r-sm);
+}
+.venue-choice-q { margin: 0 0 8px; font-size: 0.9rem; }
+.venue-choice-opts { display: flex; flex-wrap: wrap; gap: 8px; }

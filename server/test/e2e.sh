@@ -393,6 +393,37 @@ RL_REPORT=$(curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/js
   "locationClaim":{"source":"manual","stationId":"TPE-BL13","confidence":1.0,"timestamp":1}}')
 check "限流後回報仍正常受理" test "$(echo "$RL_REPORT" | json "d['ok']")" = "True"
 
+echo "== 17. 錨點消歧：月台上最大的字不是你所在的站 =="
+# 【真實回報的 bug】使用者拍土城月台、已手選土城，卻收到別站的疏散建議。
+# 原因：月台指標帶同時印著前後站（海山、永寧）與方向牌（往頂埔），
+# 而舊版「第一個命中的站名就採用並覆蓋使用者選擇」——模型輸出順序一變答案就變。
+anchors() { node -e "
+  import('./src/services/venueService.js').then(v=>{
+    const r=v.resolveAnchors({texts:$1, venueId:$2});
+    console.log(JSON.stringify({venue:r.venue?r.venue.name:null,
+      cands:r.candidates.map(c=>[c.venueName,c.confidence])}));
+  });" 2>/dev/null | tail -1; }
+
+# 方向牌講的是**目的地**，不是所在地
+check "「往X」不被當成所在地" \
+  test "$(anchors "['往頂埔','土城']" "'TPE-BL03'" | json "d['venue']")" = "土城"
+# 使用者手選的場域也出現在照片裡 → 尊重使用者，不要自作主張換掉
+check "鄰站站名不覆蓋使用者的手選場域" \
+  test "$(anchors "['海山','Haishan','土城','Tucheng']" "'TPE-BL03'" | json "d['venue']")" = "土城"
+check "前後站都入鏡時仍解析為使用者所在站" \
+  test "$(anchors "['永寧','土城','海山']" "'TPE-BL03'" | json "d['venue']")" = "土城"
+# 路線代碼只印在**本站自己**的牌子上，鄰站在指標帶上只有名字——最可靠的消歧訊號
+check "路線代碼（BL03）可在無使用者選擇時消歧" \
+  test "$(anchors "['海山','土城','BL03']" "null" | json "d['venue']")" = "土城"
+# **猜不出來就不要猜**：猜錯會送出另一座車站的疏散指示，比多一次點擊糟得多
+check "多站名、無代碼、無選擇 → 不猜，交給使用者點選" \
+  test "$(anchors "['海山','永寧']" "null" | json "d['venue'] is None and len(d['cands'])==2")" = "True"
+check "歧義候選一律低信心（client 據此不自動套用）" \
+  test "$(anchors "['海山','永寧']" "null" | json "all(c[1]=='low' for c in d['cands'])")" = "True"
+# 照片明確指向單一車站時，仍要能糾正使用者選錯的場域
+check "照片明確時仍會糾正使用者選錯的場域" \
+  test "$(anchors "['土城','Tucheng']" "'TPE-A1'" | json "d['venue']")" = "土城"
+
 echo ""
 echo "======================================"
 echo " 結果：$PASS 通過 · $FAIL 失敗"

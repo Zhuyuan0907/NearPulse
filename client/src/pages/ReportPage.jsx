@@ -97,6 +97,8 @@ export default function ReportPage() {
   const [visionMode, setVisionMode] = useState('off'); // interactive | deferred | off
   const [readTexts, setReadTexts] = useState([]);
   const [candidates, setCandidates] = useState([]);
+  // 照片把場域換掉時記下來——這件事必須讓使用者看得見
+  const [venueSwitchedTo, setVenueSwitchedTo] = useState(null);
 
   const recorderRef = useRef(null);
   const photoInputRef = useRef(null);
@@ -108,6 +110,11 @@ export default function ReportPage() {
    * 對它們顯示「事件發生在列車上」只是雜訊。
    */
   const canBeOnTrain = venue?.kind === 'metro' && venue.nextStations?.length > 0;
+  /**
+   * 候選裡有幾個**不同的場域**。跨站歧義要用站名按鈕解決，
+   * 不能叫使用者「在地圖上點」——地圖一次只畫得出一個場域。
+   */
+  const venueChoices = [...new Map(candidates.map((c) => [c.venueId, c])).values()];
 
   /** 設定當前場域：更新聲明、取出口圖資、寫入 session 記憶 */
   const applyVenue = useCallback(async (venueId, name = null, existingClaim = null) => {
@@ -233,8 +240,20 @@ export default function ReportPage() {
     setCandidates(res.candidates ?? []);
 
     const top = res.candidates?.[0];
-    if (top) {
-      if (top.venueId !== claim?.stationId) await applyVenue(top.venueId, top.venueName);
+    /**
+     * **低信心一律不自動套用。**
+     *
+     * 低信心的意思是「照片裡出現多個站名，系統無從消歧」——月台的指標帶上
+     * 本來就同時印著前後站（拍土城的月台會讀到海山、永寧、往頂埔）。
+     * 自動套用會直接給出**另一座車站**的疏散指示，而使用者不會察覺。
+     * 這是實際回報過的 bug，寧可多要一次點擊。
+     */
+    if (top && top.confidence !== 'low') {
+      if (top.venueId !== claim?.stationId) {
+        await applyVenue(top.venueId, top.venueName);
+        // 讓「照片把場域換掉了」這件事看得見——靜默切換正是出事的原因
+        setVenueSwitchedTo(top.venueName);
+      }
       if (top.exitCode) { setNearExitCode(top.exitCode); setIncidentPoint(null); }
     }
     setVisionBusy(false);
@@ -293,7 +312,8 @@ export default function ReportPage() {
     setSelectedType(null); setMatchEvent(null); setAttachChoice(null);
     setNote(''); setAudioClip(null); setShowDetails(false); setOnTrain(false); setNextVenueId(null); setNeedsAssistance(false);
     setPhoto(null); setPhotoRef(null); setRoiCell(null); setSuggestedCell(null);
-    setReadTexts([]); setCandidates([]); setNearExitCode(null); setIncidentPoint(null);
+    setReadTexts([]); setCandidates([]); setVenueSwitchedTo(null);
+    setNearExitCode(null); setIncidentPoint(null);
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null); rawFileRef.current = null;
     setEvac(null); stopSpeaking();
@@ -560,7 +580,41 @@ export default function ReportPage() {
                   讀到：{readTexts.map((t) => `${t.label}「${t.value}」`).join('、')}
                 </p>
               )}
-              {candidates.length > 1 && (
+              {/* 照片自動換掉了場域：明確講出來。使用者可能只是忘了改場域
+                  （那就對了），也可能是照片讀到了鄰站（那就錯了）——
+                  無論哪種，他都必須看得到這件事發生過。 */}
+              {venueSwitchedTo && (
+                <p className="ok-note">
+                  依照片把場域改為 <b>{venueSwitchedTo}</b>——不對的話請點上方變更。
+                </p>
+              )}
+
+              {/* 跨站的歧義**不能**用「點地圖」解決：地圖只畫得出一個場域的出口。
+                  月台指標帶上同時印著前後站，這是很常見的情況。 */}
+              {venueChoices.length > 1 && (
+                <div className="venue-choice">
+                  <p className="venue-choice-q">
+                    照片裡出現多個站名——<b>你在哪一站？</b>
+                  </p>
+                  <div className="venue-choice-opts">
+                    {venueChoices.map((c) => (
+                      <button
+                        key={c.venueId}
+                        className={`chip${claim?.stationId === c.venueId ? ' chip-active' : ''}`}
+                        style={{ minHeight: 48 }}
+                        onClick={() => {
+                          applyVenue(c.venueId, c.venueName);
+                          setVenueSwitchedTo(null);
+                        }}
+                      >
+                        {c.venueName}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {venueChoices.length <= 1 && candidates.length > 1 && (
                 <p className="muted">
                   有 {candidates.length} 個可能的位置——請在下方地圖點選正確的出口。
                 </p>

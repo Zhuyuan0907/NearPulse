@@ -219,6 +219,23 @@ export function searchVenues(q, { limit = 10 } = {}) {
  * @param {{lat: number, lon: number}|null} input.near - 粗略定位（若有）
  * @returns {{candidates: Array, venue: object|null}}
  */
+/**
+ * 這串文字是不是在講「目的地」而不是「所在地」。
+ *
+ * 月台上方最大的那塊牌子寫的是「往頂埔 / To Dingpu」——它是你**要去**的方向，
+ * 不是你站的位置。把它當成位置線索會直接送出另一座車站的疏散指示。
+ */
+function isDestinationText(raw) {
+  const t = String(raw).trim();
+  return /^(往|前往|開往|开往)\s*\S/.test(t)
+    || /^to\s+\S/i.test(t)
+    || /^towards?\s+\S/i.test(t)
+    || /方向$/.test(t);
+}
+
+/** 路線代碼樣式（BL03、R10、BR11）——只印在本站自己的牌子上 */
+const STATION_CODE_RE = /^[A-Za-z]{1,3}\d{1,3}$/;
+
 export function resolveAnchors({ texts = [], venueId = null, near = null } = {}) {
   const values = texts
     .map((t) => (typeof t === 'string' ? t : t?.value))
@@ -227,13 +244,60 @@ export function resolveAnchors({ texts = [], venueId = null, near = null } = {})
   if (values.length === 0) return { candidates: [], venue: findVenue(venueId) };
 
   // ---- 場域線索：文字裡有沒有對得上的站名/別名 ----
+  //
+  // ⚠️ **月台上最顯眼的字，多半不是你所在的站。**
+  // 實測（使用者回報的真實 bug）：拍土城月台，讀到
+  // ['海山', 'Haishan', '土城', 'Tucheng', '往頂埔']——
+  // 舊版「第一個命中就採用並覆蓋使用者選擇」會把場域切成**海山**，
+  // 然後給出海山的疏散建議。模型輸出順序一變，答案就變，而使用者
+  // 明明已經手選了土城。
+  //
+  // 三道修正：
+  //   1. 方向詞（往X / To X）代表**目的地，不是所在地**，整個排除
+  //   2. 不再第一個命中就採用——全部收集起來再消歧
+  //   3. 消歧時代碼命中優先：`BL03` 這種路線代碼只印在**本站自己**的牌子上，
+  //      鄰站在月台指標帶上只會出現名字。這是區分「我在哪」與「隔壁是哪」
+  //      最可靠的訊號。
   let venue = findVenue(venueId);
-  let venueFromText = null;
+  const hits = new Map(); // venueId → 最強命中強度（2 = 代碼、1 = 站名）
+
   for (const raw of values) {
+    if (isDestinationText(raw)) continue;
     const hit = byAlias.get(normalizeName(raw));
-    if (hit) { venueFromText = hit; break; }
+    if (!hit) continue;
+    const strength = STATION_CODE_RE.test(raw.trim()) ? 2 : 1;
+    hits.set(hit.id, Math.max(hits.get(hit.id) ?? 0, strength));
   }
-  // 照片讀到的站名優先於使用者先前的選擇——他可能只是忘了改
+
+  let venueFromText = null;
+  let ambiguousVenues = [];
+
+  if (hits.size === 1) {
+    venueFromText = byId.get([...hits.keys()][0]);
+  } else if (hits.size > 1) {
+    const byCode = [...hits.entries()].filter(([, st]) => st === 2).map(([id]) => id);
+    if (byCode.length === 1) {
+      // 只有一個站以代碼出現 → 那就是本站
+      venueFromText = byId.get(byCode[0]);
+    } else if (venueId && hits.has(venueId)) {
+      // 使用者手選的場域也在照片裡 → 尊重使用者的選擇，不要自作主張換掉
+      venueFromText = null;
+    } else if (near) {
+      // 有粗略定位就取最近的
+      const sorted = [...hits.keys()]
+        .map((id) => byId.get(id))
+        .filter(Boolean)
+        .sort((a, b) => distanceM(near, a) - distanceM(near, b));
+      venueFromText = sorted[0] ?? null;
+    } else {
+      // **猜不出來就不要猜**：把所有可能的站交給使用者點選。
+      // 猜錯會給出另一座車站的疏散指示，那比多一次點擊糟得多。
+      ambiguousVenues = [...hits.keys()].map((id) => byId.get(id)).filter(Boolean);
+    }
+  }
+
+  // 照片讀到的站名優先於使用者先前的選擇——他可能只是忘了改。
+  // 但**只有在照片明確指向單一車站時**才這麼做（見上面的消歧）。
   if (venueFromText) venue = venueFromText;
 
   // ---- 出口線索：抽出所有像出口代碼的字串 ----
@@ -274,6 +338,12 @@ export function resolveAnchors({ texts = [], venueId = null, near = null } = {})
         if (exit) push(v, exit, 'low', '出口編號相符（依鄰近位置推測場域）');
       }
     }
+  }
+
+  // 照片裡出現多個站名又無從消歧 → 全部列出讓使用者點，一律低信心。
+  // UI 據此不自動套用，改為要求確認（見 ReportPage 的說明）。
+  for (const v of ambiguousVenues) {
+    push(v, null, 'low', '照片中出現多個站名，請確認你在哪一站');
   }
 
   // 高信心在前；同信心時保持穩定順序
