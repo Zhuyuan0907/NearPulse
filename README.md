@@ -41,7 +41,7 @@ cd client && npm run dev      # :5173，/api 已代理到 :3000
 ## 端到端驗證（不開瀏覽器、不需任何 API 金鑰）
 
 ```bash
-bash server/test/e2e.sh   # 71 項：場域圖資 → 回報 → 批次 → 確認 → 目擊追蹤 → 疏散 → 列車到站 → ETag 304
+bash server/test/e2e.sh   # 74 項：場域圖資 → 回報 → 批次 → 確認 → 目擊追蹤 → 疏散 → 列車到站 → ETag 304
 ```
 
 ## 場域圖資（OpenStreetMap）
@@ -108,6 +108,29 @@ TDX 比 OSM 更新頻繁，所以路網更新與場域重建是**解耦的**—�
 （含站前地下街的 Y 系列與台鐵／高鐵的 1~5 號），TDX 只列 M 系列 8 個。
 兩邊都保留，同編號時以 TDX 為準。
 
+## 視覺辨識供應商
+
+`VISION_PROVIDER` 決定用誰，缺對應金鑰時**自動失效並落回降級形狀**——
+所以沒有任何金鑰時整個專案照樣跑完（e2e 74 項即在該狀態下驗證）。
+
+| provider | 模型 | 實測延遲 | 模式 |
+|---|---|---|---|
+| `gmi` | MiniMaxAI/MiniMax-M3（GMI Cloud 閘道） | locate 1.9s／read（裁切後）1.8s | interactive |
+| `openai` | gpt-4o-mini | 1~2s | interactive |
+| `opencode` | 免費層 reasoning model | 34.5s | deferred |
+| `none` | — | — | 全程降級 |
+
+```bash
+GMI_API_KEY=... VISION_PROVIDER=gmi VISION_MODEL=MiniMaxAI/MiniMax-M3 npm start
+```
+
+裁切的效果實測很明顯：同一張站廳照，整圖讀字 5.2 秒、裁出九宮格的那一格
+只要 1.8 秒，而且只回該格的字。這就是兩段式（locate → 裁切 → read）的理由。
+
+⚠️ `/api/vision` 無認證且會轉發到付費 API，所以一律經過限流
+（每來源 12 次/分、全域 120 次/分）。超限時回**降級形狀而非 429**：
+視覺辨識是選配加值，通報流程不該因為限流而失敗。
+
 ## 授權與資料來源
 
 | 項目 | 授權 |
@@ -146,7 +169,7 @@ gpt-4o-mini + detail low）；STT/LLM 仍為 stub。
 
 所有 advisor 失敗、逾時或未設定時回傳同一種降級形狀，呼叫端無從分辨，
 因此 AI 永遠不可能擋住一筆回報——**不設任何金鑰也能跑完整條流程**
-（`server/test/e2e.sh` 71 項檢查即在無金鑰環境下驗證）。
+（`server/test/e2e.sh` 74 項檢查即在無金鑰環境下驗證）。
 
 ### 選配：啟用 Vision 辨識
 

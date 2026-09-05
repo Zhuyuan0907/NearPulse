@@ -15,17 +15,28 @@
  *
  * 非阻塞：前端不等這個結果也能送出回報——分析只是建議。
  *
- * ⚠️ 本端點無認證、無限流（Phase 2 項目）。公開部署前需補防濫用，
- *    否則等同對外開放一個免費的 Vision API 代理。
+ * 【限流】
+ * 本端點無認證，而它會轉發到**付費的** Vision API——公開部署等同對外開放一個
+ * 免費的 Vision 代理。因此接上真實金鑰後一律經過 rateLimit：
+ * 每來源每分鐘 12 次（一次回報最多用 2 次），全域每分鐘 120 次保護額度上限。
+ *
+ * 超限時**回降級形狀而不是 429**：視覺辨識是選配加值，回報流程沒有它照樣走完，
+ * 所以呼叫端不需要、也不應該分辨「被限流」與「AI 沒開」。
+ * 使用者的通報永遠不會因為限流而失敗。
  */
 
 import { Router } from 'express';
 import { config } from '../config.js';
 import { analyzePhoto, isVisionEnabled, visionMode } from '../pipeline/advisors/vision.js';
 import { resolveAnchors } from '../services/venueService.js';
+import { createRateLimiter, clientKey } from './rateLimit.js';
 
 export function createVisionRouter(store) {
   const router = Router();
+  const rateLimit = createRateLimiter({
+    perIp: Number(process.env.VISION_RATE_PER_IP ?? 12),
+    global: Number(process.env.VISION_RATE_GLOBAL ?? 120),
+  });
 
   router.post('/', async (req, res) => {
     const { base64, mimeType, venueId, stage, lat, lon } = req.body ?? {};
@@ -40,7 +51,11 @@ export function createVisionRouter(store) {
     const safeMime = typeof mimeType === 'string' ? mimeType : 'image/webp';
     const safeStage = stage === 'read' ? 'read' : 'locate';
 
-    const result = await analyzePhoto({ base64, mimeType: safeMime, stage: safeStage });
+    // 超限就不呼叫供應商，直接走與「AI 沒開」相同的降級路徑（見檔頭說明）
+    const gate = rateLimit(clientKey(req));
+    const result = gate.allowed
+      ? await analyzePhoto({ base64, mimeType: safeMime, stage: safeStage })
+      : { pending: true, roiCell: null, texts: [], anomalies: [], rateLimited: gate.reason };
 
     // 讀字階段才做錨點解析——把「牌子上的字」變成「場域 + 出口 + 座標」。
     // 這一步是確定性查表，不是 AI 推論。

@@ -360,6 +360,26 @@ check "目擊回報立即反映在態勢卡（不等批次 tick）" \
 check "威脅前進方向上的出口被排除在建議之外" \
   test "$(curl -s "$BASE/api/situation" | json "any(e['motion'].get('moving') and len(e['plan'].get('avoid') or []) > 0 for s in d['stations'] for e in s['events'] if e.get('motion'))")" = "True"
 
+echo "== 16. Vision 限流：保護額度，但不擋通報 =="
+# /api/vision 無認證且會轉發到**付費** API——公開部署等同開放一個免費 Vision 代理。
+# 這一段擺最後，因為它會刻意打爆限流視窗。
+for _ in $(seq 1 14); do
+  curl -s -X POST "$BASE/api/vision" -H 'Content-Type: application/json' \
+    -d '{"base64":"AAAABBBB","mimeType":"image/webp","stage":"locate"}' > /dev/null
+done
+RL=$(curl -s -X POST "$BASE/api/vision" -H 'Content-Type: application/json' \
+  -d '{"base64":"AAAABBBB","mimeType":"image/webp","stage":"locate"}')
+check "超過每分鐘上限後會限流（不再呼叫供應商）" \
+  test "$(echo "$RL" | json "d['result'].get('rateLimited') is not None")" = "True"
+# **最重要的一項**：限流回的是降級形狀，不是 429。視覺辨識是選配加值，
+# 呼叫端不需要也不應該分辨「被限流」與「AI 沒開」——通報永遠不會因限流而失敗。
+check "限流時回降級形狀而非錯誤（通報流程不受影響）" \
+  test "$(echo "$RL" | json "d['ok'] and d['result']['pending'] and d['result']['roiCell'] is None")" = "True"
+RL_REPORT=$(curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/json' -d '{
+  "uuid":"e2e-after-ratelimit","sessionId":"sess-RL","type":"other",
+  "locationClaim":{"source":"manual","stationId":"TPE-BL13","confidence":1.0,"timestamp":1}}')
+check "限流後回報仍正常受理" test "$(echo "$RL_REPORT" | json "d['ok']")" = "True"
+
 echo ""
 echo "======================================"
 echo " 結果：$PASS 通過 · $FAIL 失敗"

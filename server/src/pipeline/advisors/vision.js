@@ -17,8 +17,10 @@
  * 這讓「AI 不在生命安全資訊的關鍵路徑上」這條原則在視覺定位上依然成立。
  *
  * 供應商可插拔（PROVIDERS + config.vision.provider）：
- *   'openai' → GPT-4o-mini Vision（detail: low）
- *   'none'   → 不呼叫外部服務，回 pending
+ *   'openai'   → GPT-4o-mini Vision（detail: low）
+ *   'gmi'      → GMI Cloud 閘道（實測 MiniMax-M3，2.8 秒，可互動式）
+ *   'opencode' → opencode zen 免費層（實測 34.5 秒，只能 deferred）
+ *   'none'     → 不呼叫外部服務，回 pending
  *   日後接地端 OCR：加一個 entry 即可，呼叫端完全不動。
  *
  * 顧問層鐵則：失敗、逾時、未設定、供應商不存在——**一律回同一個降級形狀**，
@@ -133,6 +135,52 @@ const PROVIDERS = {
     return looseJson(data.choices?.[0]?.message?.content);
   },
 
+  /**
+   * GMI Cloud（OpenAI 相容閘道）。
+   *
+   * 實測（2026-09，MiniMaxAI/MiniMax-M3）：整張 1024×768 的站廳照
+   * **2.8 秒**回覆，中文站名、出口編號、路口名稱全部讀對。
+   * 這個延遲足以走 interactive——使用者拍完照當場就拿得到錨點候選，
+   * 不需要像 opencode（34.5 秒）那樣退到 deferred。
+   *
+   * 認證是標準 Bearer。刻意**不送 response_format**：
+   * 這類閘道對 json_object 的支援不一致，強制送反而可能整個請求被拒；
+   * 而 looseJson() 本來就能從散文裡撈出 JSON 區塊，容錯成本比較低。
+   */
+  async gmi({ base64, mimeType, stage, signal }) {
+    const res = await fetch('https://api.gmi-serving.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.GMI_API_KEY ?? ''}`,
+        'Content-Type': 'application/json',
+      },
+      signal,
+      body: JSON.stringify({
+        model: config.vision.model,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: PROMPTS[stage] },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: `data:${mimeType};base64,${base64}`,
+                  detail: config.vision.detail,
+                },
+              },
+            ],
+          },
+        ],
+        max_tokens: 600,
+        temperature: 0,
+      }),
+    });
+    if (!res.ok) throw new Error(`gmi ${res.status}`);
+    const data = await res.json();
+    return looseJson(data.choices?.[0]?.message?.content);
+  },
+
   async openai({ base64, mimeType, stage, signal }) {
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -175,6 +223,7 @@ function resolveProvider() {
   const name = config.vision.provider;
   if (name === 'openai' && !process.env.OPENAI_API_KEY) return null;
   if (name === 'opencode' && !process.env.OPENCODE_API_KEY) return null;
+  if (name === 'gmi' && !process.env.GMI_API_KEY) return null;
   return PROVIDERS[name] ?? null;
 }
 
