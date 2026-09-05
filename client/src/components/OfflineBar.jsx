@@ -18,9 +18,9 @@ export default function OfflineBar() {
 
   return (
     <div className="offline-bar">
-      {!s.online && <span>📴 目前離線——App 與疏散資訊仍可使用</span>}
-      {s.queued > 0 && <span>📮 {s.queued} 筆通報已保存，恢復連線後自動送出</span>}
-      {s.online && s.cardStale && <span>🕓 顯示的是上次取得的站況</span>}
+      {!s.online && <span>目前離線——App 與疏散資訊仍可使用</span>}
+      {s.queued > 0 && <span>{s.queued} 筆通報已保存，恢復連線後自動送出</span>}
+      {s.online && s.cardStale && <span>顯示的是上次取得的站況</span>}
     </div>
   );
 }

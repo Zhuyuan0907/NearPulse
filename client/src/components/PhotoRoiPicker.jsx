@@ -41,7 +41,7 @@ export default function PhotoRoiPicker({ previewUrl, cell, suggested, busy, onPi
                 onClick={() => onPick(isPicked ? null : c)}
                 aria-label={`第 ${c} 格${isSuggested ? '（AI 建議）' : ''}`}
               >
-                {isPicked ? '✓' : isSuggested ? '★' : ''}
+                {isPicked ? '✓' : isSuggested ? '✦' : ''}
               </button>
             );
           })}
@@ -50,7 +50,7 @@ export default function PhotoRoiPicker({ previewUrl, cell, suggested, busy, onPi
 
       {busy && <p className="muted">辨識中…</p>}
       {!busy && suggested && !cell && (
-        <p className="muted">★ 是 AI 建議的位置——直接點它，或自己選一格。</p>
+        <p className="muted">✦ 是 AI 建議的位置——直接點它，或自己選一格。</p>
       )}
     </div>
   );
