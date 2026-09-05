@@ -12,6 +12,7 @@
  */
 
 import { nextStations } from '../services/trainService.js';
+import { lookupPlaces, placeLookupMeta } from '../services/placeLookup.js';
 import { Router } from 'express';
 import {
   nearbyVenues,
@@ -37,6 +38,25 @@ export function createVenuesRouter() {
     }
     const radiusM = Math.min(Number(req.query.radius) || 1200, 5000);
     res.json({ ok: true, venues: nearbyVenues(lat, lon, { radiusM }) });
+  });
+
+  /**
+   * 在 OSM 地圖上找地點——**我們圖資裡沒有的地方**。
+   *
+   * 我們的快照是篩選過的（只留有地下特徵的場域），所以一間沒標地下樓層的
+   * 百貨會整個消失，即使 OSM 知道它存在。正確的解法不是我們自己補清單
+   *（那會變成一份越來越舊的手工資料），而是去問 OSM。
+   *
+   * 回來的地點**沒有出口資料**，只有名稱與座標——足以說「事件在這裡」，
+   * 而疏散建議會誠實地說給不出出口層級的指引。
+   *
+   * ⚠️ 這是 server 唯一會在執行時連外的端點，而且只在搜尋路徑上。
+   * 失敗一律回空陣列：使用者仍然可以自己打地點名稱或拍照，通報照樣成立。
+   */
+  router.get('/lookup', async (req, res) => {
+    const q = String(req.query.q ?? '').trim();
+    if (q.length < 2) return res.json({ ok: true, places: [], ...placeLookupMeta });
+    res.json({ ok: true, places: await lookupPlaces(q), ...placeLookupMeta });
   });
 
   router.get('/search', (req, res) => {

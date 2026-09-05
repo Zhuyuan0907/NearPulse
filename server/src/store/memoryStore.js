@@ -71,6 +71,17 @@ export function createMemoryStore() {
       return [...events.values()];
     },
 
+    /**
+     * 刪除事件。
+     *
+     * 目前唯一的用途是**遲到的併案**：照片辨識比分群晚完成，所以同一個地點
+     * 的多筆通報會先各自成案，解析出場域後才發現它們是同一件——
+     * 併走之後原本那筆就該消失，否則態勢卡上會並排出現三個「土城」。
+     */
+    removeEvent(id) {
+      return events.delete(id);
+    },
+
     // ---- 照片暫存（/api/vision → 回報帶 photoRef，省掉第二次上傳） ----
 
     /** 存一張照片並回傳 ref；順手清掉過期項目（量小，不需背景 timer） */

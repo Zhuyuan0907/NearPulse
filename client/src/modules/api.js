@@ -179,6 +179,23 @@ export async function fetchEvent(eventId) {
   return data.event ?? null;
 }
 
+/**
+ * 在 OSM 地圖上找地點——**我們圖資裡沒有的地方**。
+ *
+ * 回來的地點沒有出口資料，只有名稱與座標。它足以說「事件在這裡」，
+ * 但給不出往哪個出口走——UI 必須誠實呈現這個差別。
+ */
+export async function lookupPlaces(q) {
+  try {
+    const res = await fetch(`/api/venues/lookup?q=${encodeURIComponent(q)}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.places ?? [];
+  } catch {
+    return []; // 連不上就少一條後備路徑，不影響通報
+  }
+}
+
 /** 事件清單（確認頁入口；可帶 station 過濾） */
 export async function fetchEvents(stationId) {
   const params = stationId ? `?station=${encodeURIComponent(stationId)}` : '';

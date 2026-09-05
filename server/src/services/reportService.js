@@ -50,11 +50,17 @@ export function validateReport(body) {
    * 而且圖資永遠不會完整：836 個場域裡百貨只有 58 個，出口圖資只涵蓋 279 個。
    * 隨便一間商場、一條連通道、一間店面，很可能查無此地。
    *
-   * 現在只要求「至少提供一種位置線索」，三選一即可：
-   *   stationId  查得到的場域（最好）
-   *   place      使用者自己描述的地點（「京站地下街 B1 星巴克前」）
-   *   lat/lon    地面上恰好收得到的座標
-   * 三者皆無仍然收下，只是標記為位置未知——通報本身永遠比位置重要。
+   * 但**至少要有一種位置線索**：一則沒有任何位置的通報，沒有人能行動、
+   * 也沒有人能確認，它只會成為態勢卡上的雜訊。
+   *
+   * 四選一即可，而其中兩條**完全不需要你知道自己在哪**：
+   *   stationId  查得到的場域（最好，但要求你認得這個地方）
+   *   place      使用者自己描述（「京站地下街 B1 星巴克前」）
+   *   lat/lon    恰好收得到的座標——只需要授權，不需要知識
+   *   photo      拍一張附近的牌子——**把鏡頭對著牆就行**
+   *
+   * 照片算數，而且就算視覺辨識讀不出來也算：站務人員、其他在場的人、
+   * 事後調閱的人都看得懂那張照片。AI 讀不出來不代表那張照片沒有位置資訊。
    */
   const claim = body.locationClaim;
   if (!claim || typeof claim !== 'object') {
@@ -76,6 +82,11 @@ export function validateReport(body) {
 
     if (!['gps', 'manual', 'session', 'freeform', 'unknown'].includes(claim.source)) {
       errors.push(`無效的位置聲明來源: ${claim.source}`);
+    }
+
+    const hasPhoto = Boolean(body.photo?.base64 || body.photoRef);
+    if (!claim.stationId && !claim.place && claim.lat === null && !hasPhoto) {
+      errors.push('請至少提供一種位置線索：選擇場域、描述地點、開啟定位，或拍一張附近的牌子');
     }
   }
 

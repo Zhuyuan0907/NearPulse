@@ -1175,3 +1175,31 @@ button { cursor: pointer; }
   border-left: 4px solid var(--edge-2);
   border-radius: 0 var(--r-sign) var(--r-sign) 0;
 }
+
+/* 語音輸入按鈕：貼著輸入框右側，錄音時用脈動提示「還在聽」 */
+.where-input-row { display: flex; gap: 8px; align-items: stretch; margin-top: 6px; }
+.where-input-row .where-input { flex: 1; margin-top: 0; }
+.dictate-btn {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  color: var(--enamel);
+  background: var(--tunnel-2);
+  border: 1px solid var(--edge-2);
+  border-radius: var(--r-tap);
+}
+.dictate-on {
+  color: #fff;
+  background: var(--halt);
+  border-color: var(--halt);
+  animation: dictate-pulse 1.2s ease-in-out infinite;
+}
+@keyframes dictate-pulse {
+  50% { opacity: .58; }
+}
+/* 願意的話就別動——動態只用來表示「系統正在聽」，其餘一律靜止 */
+@media (prefers-reduced-motion: reduce) {
+  .dictate-on { animation: none; }
+}

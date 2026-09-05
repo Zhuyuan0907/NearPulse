@@ -136,6 +136,8 @@ export function toEventSummary(event) {
     stationId: event.stationId,
     stationName: event.stationName,
     placeText: event.placeText ?? null,
+    /** 照片讀到多個站名、無從消歧時的候選（不是結論，UI 要照這個語氣呈現） */
+    photoVenueGuesses: event.photoVenueGuesses ?? null,
     status: event.status,
     severity: config.eventTypes[event.type]?.severity ?? 'low',
     nearExitCode: event.nearExitCode ?? null, // 場域錨點（疏散建議用）

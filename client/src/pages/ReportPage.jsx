@@ -29,6 +29,7 @@ import VenuePicker from '../components/VenuePicker.jsx';
 import OfflineBar from '../components/OfflineBar.jsx';
 import PhotoRoiPicker from '../components/PhotoRoiPicker.jsx';
 import Pictogram from '../components/Pictogram.jsx';
+import { isDictationSupported, startDictation } from '../modules/dictate.js';
 
 /**
  * 地圖動態載入：Leaflet 加圖磚樣式約 150KB，但只有展開「補充細節」的人才需要。
@@ -102,23 +103,33 @@ export default function ReportPage() {
   const [venueSwitchedTo, setVenueSwitchedTo] = useState(null);
   /** 使用者自己描述的地點——圖資查不到時唯一的位置資訊 */
   const [placeText, setPlaceText] = useState('');
+  const [dictating, setDictating] = useState(false);
+  const dictationRef = useRef(null);
 
   const recorderRef = useRef(null);
   const photoInputRef = useRef(null);
   const rawFileRef = useRef(null); // 保留原圖：裁切要從原圖裁才有解析度紅利
 
   /**
-   * 可以送出了嗎。
+   * 位置線索。**四選一，至少要有一個。**
    *
-   * ⚠️ **不再要求場域。**
-   * 舊版是 `claim && selectedType`——但「我在一個陌生的地下空間、不知道自己
-   * 在哪」正是這個 App 存在的理由。要求先說出地點名稱才能通報，等於把最需要
-   * 幫助的人擋在門外；而圖資也永遠不會完整（百貨只涵蓋 58 個）。
+   * 不要求「查得到的場域」——那會把不認得這個地方的人擋在門外，
+   * 而那正是這個 App 存在的理由；圖資也永遠不會完整（百貨只涵蓋 58 個）。
    *
-   * 現在只要選了類型就能送。位置是**加分項**，不是通行證：
-   * 有場域就給出口層級的疏散建議，沒有就誠實說給不出來——但通報一定成立。
+   * 但也不能完全不要位置：一則沒有任何位置的通報，沒有人能行動、
+   * 也沒有人能確認，它只會成為態勢卡上的雜訊。
+   *
+   * 之所以「擇一」不算門檻，是因為其中兩條**完全不需要你知道自己在哪**：
+   * 拍照只要把鏡頭對著牆，GPS 只要授權。照片就算 AI 讀不出來也算數——
+   * 站務人員與其他在場的人看得懂那張照片。
    */
-  const readyToSubmit = Boolean(selectedType && (!matchEvent || attachChoice));
+  const hasLocationClue = Boolean(
+    claim?.stationId || placeText.trim() || fix || photo || photoRef
+  );
+
+  const readyToSubmit = Boolean(
+    selectedType && hasLocationClue && (!matchEvent || attachChoice)
+  );
   /**
    * 這個場域可能有列車嗎。地下街、百貨、地下停車場都不在捷運路網上，
    * 對它們顯示「事件發生在列車上」只是雜訊。
@@ -158,6 +169,23 @@ export default function ReportPage() {
       if (state === 'granted') coarseFix().then(setFix);
     });
   }, [applyVenue]);
+
+  /** 語音輸入地點描述：開始／停止 */
+  function toggleDictation() {
+    if (dictationRef.current) {
+      dictationRef.current.stop();
+      dictationRef.current = null;
+      setDictating(false);
+      return;
+    }
+    const session = startDictation({
+      onText: (text) => setPlaceText(text.slice(0, 60)),
+      onEnd: () => { dictationRef.current = null; setDictating(false); },
+    });
+    if (!session) return; // 不支援或啟動失敗——打字照常，不打斷使用者
+    dictationRef.current = session;
+    setDictating(true);
+  }
 
   /** 需要定位時才實際去要（場域選擇器與 GPS 按鈕共用） */
   const ensureFix = useCallback(async () => {
@@ -298,7 +326,7 @@ export default function ReportPage() {
         locationClaim: claim
           ? { ...claim, timestamp: Date.now() }
           : {
-            source: placeText.trim() ? 'freeform' : 'unknown',
+            source: placeText.trim() ? 'freeform' : fix ? 'gps' : 'unknown',
             stationId: null,
             place: placeText.trim() || null,
             lat: fix?.lat ?? null,
@@ -497,7 +525,11 @@ export default function ReportPage() {
         }}
       />
 
-      {readyToSubmit && (
+      {/* ⚠️ 這一段的顯示條件是 selectedType，**不能**是 readyToSubmit。
+          readyToSubmit 現在要求「至少一種位置線索」，而提供位置線索的
+          就是這一段——用 readyToSubmit 當條件會造成死鎖：
+          使用者永遠看不到輸入位置的地方，因此永遠湊不齊送出條件。 */}
+      {selectedType && (!matchEvent || attachChoice) && (
         <>
           <h2 className="section-title">這是哪裡？</h2>
 
@@ -507,15 +539,17 @@ export default function ReportPage() {
           {!claim && (
             <div className="where-panel">
               <p className="where-lead">
-                不知道也沒關係，<b>直接送出就會被記錄</b>。
-                告訴我們位置的話，才給得出往哪個出口走。
+                <b>三個裡面做一個就好。</b>不知道這裡叫什麼也沒關係——
+                拍一張附近的牌子就行，系統自己讀。
               </p>
 
               <button className="where-opt" onClick={() => photoInputRef.current?.click()}>
                 <Pictogram name="photo" size={22} />
                 <span>
-                  <b>拍附近的牌子</b>
-                  <span className="where-sub">站名牌、出口牌——系統自己讀出你在哪</span>
+                  <b>拍附近的牌子　最省事</b>
+                  <span className="where-sub">
+                    站名牌、出口牌、柱號都行。就算讀不出來，照片本身也幫得上忙
+                  </span>
                 </span>
               </button>
 
@@ -533,15 +567,32 @@ export default function ReportPage() {
                 <Pictogram name="map" size={22} />
                 <span>
                   <b>自己描述這是哪裡</b>
-                  <input
-                    className="note-input where-input"
-                    type="text"
-                    inputMode="text"
-                    maxLength={60}
-                    placeholder="例：京站地下街 B1 星巴克前"
-                    value={placeText}
-                    onChange={(e) => setPlaceText(e.target.value)}
-                  />
+                  <span className="where-input-row">
+                    <input
+                      className="note-input where-input"
+                      type="text"
+                      inputMode="text"
+                      maxLength={60}
+                      placeholder="例：京站地下街 B1 星巴克前"
+                      value={placeText}
+                      onChange={(e) => setPlaceText(e.target.value)}
+                    />
+                    {/* 恐慌中打字很慢、手也可能在抖。講一句只要兩秒。
+                        辨識結果填進輸入框讓使用者過目，**不會自動送出**——
+                        吵雜的月台上辨識本來就會出錯，而這個欄位決定別人往哪裡找。
+                        不支援的瀏覽器（iOS Safari）不顯示這顆，打字照常。 */}
+                    {isDictationSupported() && (
+                      <button
+                        type="button"
+                        className={`dictate-btn${dictating ? ' dictate-on' : ''}`}
+                        aria-label={dictating ? '停止語音輸入' : '用說的'}
+                        onClick={toggleDictation}
+                      >
+                        <Pictogram name="mic" size={20} />
+                      </button>
+                    )}
+                  </span>
+                  {dictating && <span className="where-sub">聽著呢——說出你看到的地方</span>}
                 </span>
               </label>
             </div>
@@ -769,16 +820,18 @@ export default function ReportPage() {
               disabled={submitting || !readyToSubmit}
               onClick={handleSubmit}
             >
-              {/* 沒有場域**不再是**送不出去的理由——按鈕文案要說到做到 */}
+              {/* 缺什麼就講什麼，並且指向最省事的那條路 */}
               {submitting
                 ? '送出中…'
-                : matchEvent && !attachChoice
-                  ? '請先選「同一件／另一件」'
-                  : attachChoice === 'same'
-                    ? '送出（補充到既有事件）'
-                    : claim
-                      ? '送出回報'
-                      : '送出回報（位置待確認）'}
+                : !hasLocationClue
+                  ? '請先拍張照片或告訴我們位置'
+                  : matchEvent && !attachChoice
+                    ? '請先選「同一件／另一件」'
+                    : attachChoice === 'same'
+                      ? '送出（補充到既有事件）'
+                      : claim?.stationId
+                        ? '送出回報'
+                        : '送出回報'}
             </button>
           </div>
         </div>
@@ -786,6 +839,13 @@ export default function ReportPage() {
 
       {showPicker && (
         <VenuePicker
+          onPickedPlace={(pl) => {
+            // OSM 上的地點沒有出口資料——當成「使用者描述的地點」處理，
+            // 帶上名稱與座標，但不設 venueId（否則會假裝我們有它的圖資）
+            setPlaceText(pl.name);
+            setFix({ lat: pl.lat, lon: pl.lon, accuracy: 100 });
+            setShowPicker(false);
+          }}
           fix={fix}
           requestFix={ensureFix}
           onPicked={handlePicked}

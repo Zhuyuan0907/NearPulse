@@ -73,6 +73,23 @@ const byAlias = new Map();
   }
 }
 
+/**
+ * 可做**子字串**比對的別名清單，依長度由長到短。
+ *
+ * 【為什麼需要】視覺辨識回來的不是乾淨的欄位，而是牌子上的整行字：
+ *   '土城 Tucheng'、'← 海山 Haishan'、'往頂埔 To Dingpu'
+ * 只做完全相等比對的話，這些**一個都對不上**——實測就是這樣讓一張
+ * 清楚拍到站名的月台照最後顯示「位置待確認」。
+ *
+ * 長度由長到短是為了**最長匹配優先**：'中山國小' 必須勝過 '中山'，
+ * 否則使用者在中山國小站會被判到中山站。
+ *
+ * 只收長度 >= 2 的別名：單字別名（若有）在整行字裡的誤中率太高。
+ */
+const ALIAS_LIST = [...byAlias.entries()]
+  .filter(([k]) => k.length >= 2)
+  .sort((a, b) => b[0].length - a[0].length);
+
 /** venueId → (出口代碼 → 出口) */
 const exitIndex = new Map(
   VENUES.map((v) => [v.id, new Map((v.exits ?? []).map((e) => [e.code, e]))])
@@ -233,6 +250,49 @@ function isDestinationText(raw) {
     || /方向$/.test(t);
 }
 
+/**
+ * 在一組候選站裡找出「月台名牌的中心站」。
+ *
+ * 名牌上是「← 前站　本站　後站 →」，所以本站是唯一與其他候選都相鄰的那一個。
+ * 相鄰關係來自 TDX 官方站序（見 trainService），不是推測。
+ *
+ * 只在候選數 >= 2 且**恰好有一個**站符合時才回傳——有兩個以上符合就表示
+ * 這不是一塊名牌（可能是路線圖或轉乘指示），那種情況不該猜。
+ *
+ * @returns {object|null} 場域物件
+ */
+function centreOfBand(hits) {
+  const ids = [...hits.keys()];
+  if (ids.length < 2) return null;
+
+  const centres = ids.filter((id) => {
+    const neighbours = ADJACENT.get(id);
+    if (!neighbours) return false;
+    const others = ids.filter((x) => x !== id);
+    return others.length > 0 && others.every((x) => neighbours.has(x));
+  });
+  return centres.length === 1 ? byId.get(centres[0]) ?? null : null;
+}
+
+/**
+ * 相鄰車站表，由快照裡的官方站序（TDX）建出。
+ *
+ * 刻意**不** import trainService——那會造成循環相依（trainService 需要
+ * venueService 的站名）。這裡要的只是「誰跟誰相鄰」，直接讀同一份快照即可。
+ */
+const ADJACENT = (() => {
+  const map = new Map();
+  const link = (a, b) => {
+    if (!map.has(a)) map.set(a, new Set());
+    map.get(a).add(b);
+  };
+  for (const route of snapshot.network?.routes ?? []) {
+    const st = route.stations ?? [];
+    for (let i = 0; i + 1 < st.length; i++) { link(st[i], st[i + 1]); link(st[i + 1], st[i]); }
+  }
+  return map;
+})();
+
 /** 路線代碼樣式（BL03、R10、BR11）——只印在本站自己的牌子上 */
 const STATION_CODE_RE = /^[A-Za-z]{1,3}\d{1,3}$/;
 
@@ -263,10 +323,30 @@ export function resolveAnchors({ texts = [], venueId = null, near = null } = {})
 
   for (const raw of values) {
     if (isDestinationText(raw)) continue;
-    const hit = byAlias.get(normalizeName(raw));
-    if (!hit) continue;
-    const strength = STATION_CODE_RE.test(raw.trim()) ? 2 : 1;
-    hits.set(hit.id, Math.max(hits.get(hit.id) ?? 0, strength));
+
+    // 先試完全相等（最可信）
+    const exact = byAlias.get(normalizeName(raw));
+    if (exact) {
+      const strength = STATION_CODE_RE.test(raw.trim()) ? 2 : 1;
+      hits.set(exact.id, Math.max(hits.get(exact.id) ?? 0, strength));
+      continue;
+    }
+
+    /**
+     * 再試子字串——辨識回來的是牌子上的整行字（'土城 Tucheng'），
+     * 不是乾淨的欄位。同一行裡可能同時有中英文站名與代碼。
+     *
+     * 找到一個就停：一行字通常只講一個地方，繼續找只會撿到
+     * 更短、更容易誤中的別名（'中山' 藏在 '中山國小' 裡）。
+     */
+    const norm = normalizeName(raw);
+    if (norm.length < 2) continue;
+    for (const [key, venue] of ALIAS_LIST) {
+      if (!norm.includes(key)) continue;
+      const strength = STATION_CODE_RE.test(key) ? 2 : 1;
+      hits.set(venue.id, Math.max(hits.get(venue.id) ?? 0, strength));
+      break;
+    }
   }
 
   let venueFromText = null;
@@ -282,6 +362,16 @@ export function resolveAnchors({ texts = [], venueId = null, near = null } = {})
     } else if (venueId && hits.has(venueId)) {
       // 使用者手選的場域也在照片裡 → 尊重使用者的選擇，不要自作主張換掉
       venueFromText = null;
+    } else if (centreOfBand(hits)) {
+      /**
+       * **月台名牌的幾何**：牌子上同時印著前站、本站、後站，而本站是唯一
+       * 與另外兩者都相鄰的那一個。我們手上正好有官方路網（TDX 站序），
+       * 所以這個「誰在中間」是查得出來的，不是猜的。
+       *
+       * 這條規則專治使用者實際回報的狀況：拍土城月台，讀到
+       * 土城／海山／永寧，而模型剛好沒讀到 BL03 代碼。
+       */
+      venueFromText = centreOfBand(hits);
     } else if (near) {
       // 有粗略定位就取最近的
       const sorted = [...hits.keys()]

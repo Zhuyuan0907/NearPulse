@@ -428,10 +428,22 @@ echo "== 18. 不知道自己在哪也要能通報 =="
 # 【為什麼】「我在一個陌生的地下空間、不知道自己在哪」正是這個 App 存在的理由。
 # 舊版沒有 stationId 就整筆退回，等於把最需要幫助的人擋在門外。
 # 而圖資也永遠不會完整：836 個場域裡百貨只有 58 個、有出口圖資的只有 279 個。
-check "完全沒有位置線索的回報仍被受理" \
+# 但**至少要有一種**：完全沒有位置的通報，沒有人能行動、也沒有人能確認，
+# 它只會成為態勢卡上的雜訊。之所以「擇一」不算門檻，是因為其中兩條
+# 完全不需要你知道自己在哪——拍照只要把鏡頭對著牆，GPS 只要授權。
+check "完全沒有位置線索的回報被擋下（並說明怎麼補）" \
+  test "$(curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/json' -d '{
+    "uuid":"e2e-noloc-0","sessionId":"nl-Z","type":"fire",
+    "locationClaim":{"source":"unknown"}}' | json "d['ok']")" = "False"
+# 照片就算視覺辨識讀不出來也算位置線索——站務人員與其他在場的人看得懂那張照片
+check "只有照片也算位置線索（不需要知道自己在哪）" \
   test "$(curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/json' -d '{
     "uuid":"e2e-noloc-1","sessionId":"nl-A","type":"fire",
-    "locationClaim":{"source":"unknown"}}' | json "d['ok']")" = "True"
+    "locationClaim":{"source":"unknown"},"photo":{"base64":"AAAABBBB","mimeType":"image/webp"}}' | json "d['ok']")" = "True"
+check "只有座標也算位置線索" \
+  test "$(curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/json' -d '{
+    "uuid":"e2e-noloc-1b","sessionId":"nl-A2","type":"fire",
+    "locationClaim":{"source":"gps","lat":25.046,"lon":121.517}}' | json "d['ok']")" = "True"
 check "自己描述地點的回報被受理（圖資查不到的商店／連通道）" \
   test "$(curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/json' -d '{
     "uuid":"e2e-noloc-2","sessionId":"nl-B","type":"crush",
@@ -454,6 +466,22 @@ curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/json' -d '{
 wait_batch
 check "相同描述的第二筆併入同一件事" \
   test "$(curl -s "$BASE/api/situation" | json "sum(e['reportCount'] for s in d['stations'] if s['stationName']=='京站地下街 B1 星巴克前' for e in s['events'])")" = "2"
+
+# 【錨點解析：辨識回來的是整行字，不是乾淨欄位】
+# 實測模型回傳 ['往頂埔 To Dingpu','土城 Tucheng','← 海山 Haishan']——
+# 只做完全相等比對的話一個都對不上，這正是一張清楚拍到站名的月台照
+# 最後顯示「位置待確認」的原因。
+check "整行字也能認出站名（不是只做完全相等比對）" \
+  test "$(anchors "['土城 Tucheng']" "null" | json "d['venue']")" = "土城"
+# 月台名牌上是「← 前站　本站　後站 →」，本站是唯一與其他候選都相鄰的那個。
+# 相鄰關係來自 TDX 官方站序，不是猜的。
+check "月台名牌：本站是與前後站都相鄰的那一個" \
+  test "$(anchors "['土城 Tucheng','← 海山 Haishan','永寧 → Yongning']" "null" | json "d['venue']")" = "土城"
+check "不相鄰的多站名仍然不猜" \
+  test "$(anchors "['土城 Tucheng','台北車站 Taipei Main Station']" "null" | json "d['venue'] is None")" = "True"
+# 最長匹配：中山國小必須勝過中山，否則使用者會被判到隔壁站
+check "最長匹配優先（中山國小 不會被判成 中山）" \
+  test "$(anchors "['中山國小']" "null" | json "d['venue']")" = "中山國小"
 
 echo ""
 echo "======================================"

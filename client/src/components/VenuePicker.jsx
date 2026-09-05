@@ -24,13 +24,13 @@
  */
 
 import { useEffect, useState } from 'react';
-import { fetchNearbyVenues, searchVenues } from '../modules/api.js';
+import { fetchNearbyVenues, searchVenues, lookupPlaces } from '../modules/api.js';
 import { lastKnownFix, recentVenues } from '../modules/location.js';
 import Pictogram from './Pictogram.jsx';
 
 
 
-export default function VenuePicker({ fix, requestFix, onPicked, onCancel }) {
+export default function VenuePicker({ fix, requestFix, onPicked, onPickedPlace, onCancel }) {
   // 'locating' 與 'nosignal' 必須分開：兩者都沒有清單，但對使用者的意義完全不同。
   // 舊版一律先顯示「沒有定位訊號」，等 GPS 回來才跳出清單——
   // 使用者看到的是「壞掉了 → 又好了」。
@@ -41,6 +41,8 @@ export default function VenuePicker({ fix, requestFix, onPicked, onCancel }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [searching, setSearching] = useState(false);
+  /** OSM 上找到、但不在我們圖資裡的地點（沒有出口資料） */
+  const [places, setPlaces] = useState([]);
 
   useEffect(() => {
     let alive = true;
@@ -85,9 +87,19 @@ export default function VenuePicker({ fix, requestFix, onPicked, onCancel }) {
     if (!q) { setResults([]); setSearching(false); return; }
     setSearching(true);
     const t = setTimeout(async () => {
-      setResults(await searchVenues(q));
+      const local = await searchVenues(q);
+      setResults(local);
+      /**
+       * 本地圖資查無 → 去問 OSM。
+       *
+       * 我們的快照是篩選過的（只留有地下特徵的場域），一間沒標地下樓層的
+       * 百貨會整個消失，即使 OSM 知道它存在。正確的解法不是自己補清單，
+       * 而是去問 OSM——這也是為什麼這一步只在**查無**時才觸發：
+       * 有正解時不該拿一堆沒有出口資料的地點去干擾。
+       */
+      setPlaces(local.length === 0 ? await lookupPlaces(q) : []);
       setSearching(false);
-    }, 250);
+    }, 320);
     return () => clearTimeout(t);
   }, [query]);
 
@@ -144,8 +156,31 @@ export default function VenuePicker({ fix, requestFix, onPicked, onCancel }) {
               )}
             </button>
           ))}
-          {searchMode && !searching && results.length === 0 && (
-            <p className="muted">查無相符場域</p>
+          {/* OSM 上的地點：有名稱與座標，但**沒有出口資料**。
+              分開列出並標明白，使用者才知道選了它就不會有出口層級的指引。 */}
+          {searchMode && places.length > 0 && (
+            <>
+              <p className="muted" style={{ marginTop: 14 }}>
+                我們的地下圖資裡沒有這些，但 OpenStreetMap 上有——
+                可以用來標事件位置，但沒有出口資料。
+              </p>
+              {places.map((pl) => (
+                <button
+                  key={`${pl.name}-${pl.lat}-${pl.lon}`}
+                  className="venue-btn"
+                  onClick={() => onPickedPlace?.(pl)}
+                >
+                  <Pictogram name={pl.kind ?? 'pin'} size={22} className="venue-kind" />
+                  <span className="venue-body">
+                    <span className="venue-name">{pl.name}</span>
+                    <span className="venue-meta">{pl.address || '地圖上的地點'}</span>
+                  </span>
+                </button>
+              ))}
+            </>
+          )}
+          {searchMode && !searching && results.length === 0 && places.length === 0 && (
+            <p className="muted">查無相符地點</p>
           )}
         </div>
 
