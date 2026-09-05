@@ -210,7 +210,7 @@ export async function fetchEvents(stationId) {
  */
 export async function confirmEvent(
   eventId,
-  { step, atStation, witnessed, nearExitCode = null, point = null }
+  { step, atStation, witnessed, nearExitCode = null, point = null, venueId = null }
 ) {
   const res = await fetch(`/api/events/${eventId}/confirm`, {
     method: 'POST',
@@ -223,6 +223,8 @@ export async function confirmEvent(
       // 第三問（sighting）用：目擊到的位置 → 事件軌跡 → 移動方向判定
       nearExitCode,
       point,
+      // identify 用：看照片的人指認出這是哪個場域
+      venueId,
     }),
   });
   return res.json();

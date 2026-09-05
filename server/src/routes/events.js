@@ -32,6 +32,7 @@
 
 import { Router } from 'express';
 import { appendObservation, toEventSummary } from '../services/eventService.js';
+import { findVenue } from '../services/venueService.js';
 import { assessMotion } from '../services/threatMotion.js';
 
 export function createEventsRouter(store) {
@@ -107,6 +108,43 @@ export function createEventsRouter(store) {
         witnessed: ['yes', 'no', 'unsure'].includes(witnessed) ? witnessed : 'unsure',
         at: Date.now(),
       });
+    } else if (step === 'identify') {
+      /**
+       * 指認位置：**「我認得照片裡的地方」**。
+       *
+       * 這一步是為了補上一個先前的死路：態勢卡對圖資外的事件寫著
+       * 「如果你認得照片裡的地方，請協助確認」，但點進去卻是
+       * 「你現在在『位置待確認』嗎？」——一個無意義的問題。
+       * 通報者說不出自己在哪，但**看照片的人可能一眼就認出來**，
+       * 而系統當時沒有任何管道收下那個答案。
+       *
+       * 與前三問不同的是：這一步**不要求在場**。認得一個地方不需要人在那裡，
+       * 而這正是它的價值——遠方的人也幫得上忙。
+       *
+       * 安全性：只在事件**還沒有場域**時生效（先到先得），而且一律留下紀錄。
+       * 已經有場域的事件不接受覆寫——那會變成一個可以隨意改寫他人通報
+       * 位置的介面。
+       */
+      const { venueId } = req.body ?? {};
+      const venue = typeof venueId === 'string' ? findVenue(venueId) : null;
+      if (!venue) return res.status(400).json({ ok: false, error: '查無此場域' });
+
+      event.identifications = event.identifications ?? [];
+      event.identifications.push({ sessionId, venueId: venue.id, at: Date.now() });
+
+      if (!event.stationId) {
+        event.stationId = venue.id;
+        event.stationName = venue.name;
+        event.placeText = null;
+        event.updatedAt = Date.now();
+        store.upsertEvent(event);
+        store.markCardDirty();
+        return res.json({ ok: true, applied: true, event: toEventSummary(event) });
+      }
+
+      store.upsertEvent(event);
+      // 已經有場域了：紀錄仍然收下（可用於日後的分歧偵測），但不改變事件
+      return res.json({ ok: true, applied: false, event: toEventSummary(event) });
     } else if (step === 'sighting') {
       // 在場才收：軌跡會變成「往哪個方向逃」的建議，不能讓不在現場的人污染它
       const locationVote = event.confirmations.find(

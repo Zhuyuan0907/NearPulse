@@ -29,6 +29,8 @@
 
 import { useEffect, useState } from 'react';
 import { fetchEvents, fetchEvent, confirmEvent, fetchVenue } from '../modules/api.js';
+import VenuePicker from '../components/VenuePicker.jsx';
+import { coarseFix } from '../modules/location.js';
 import { resolveLocation } from '../modules/location.js';
 import Pictogram from '../components/Pictogram.jsx';
 
@@ -70,7 +72,10 @@ export default function ConfirmPage({ eventId }) {
   const [venue, setVenue] = useState(null);    // 第三問的出口按鈕來源
   const [sightingMsg, setSightingMsg] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
   const [notFound, setNotFound] = useState(false);
+  const [fix, setFix] = useState(null);
+  const [identifyMsg, setIdentifyMsg] = useState(null);
 
   // ---- 載入：deep link 直接指名事件，否則列清單 ----
   useEffect(() => {
@@ -81,8 +86,13 @@ export default function ConfirmPage({ eventId }) {
         const found = await fetchEvent(eventId);
         if (found) {
           setTarget(found);
-          setStep('location');
-          fetchVenue(found.stationId).then(setVenue);
+          /**
+           * 圖資外的事件（通報者說不出自己在哪）要問的是**完全不同的問題**：
+           * 不是「你在不在現場」，而是「你認得照片裡的地方嗎」。
+           * 對這種事件問「你現在在『位置待確認』嗎？」是沒有意義的。
+           */
+          setStep(found.stationId ? 'location' : 'identify');
+          if (found.stationId) fetchVenue(found.stationId).then(setVenue);
           return;
         }
         // 查無此事件（可能已經結案）——落回清單，並說明原因
@@ -96,6 +106,17 @@ export default function ConfirmPage({ eventId }) {
       setEvents(list);
     })();
   }, [eventId]);
+
+  /** 指認位置：看照片的人說出這是哪裡。**不要求在場**——遠方的人也認得出來 */
+  async function identifyVenue(venueId, venueName) {
+    const res = await confirmEvent(target.id, { step: 'identify', venueId });
+    if (res.applied) {
+      setFinishedMsg(`感謝指認！這則通報已標記為「${venueName}」，附近的人現在看得到了。`);
+      setStep('done');
+    } else {
+      setIdentifyMsg('這則通報已經被其他人指認過位置了，感謝你的協助。');
+    }
+  }
 
   /** 第一問答案 */
   async function answerLocation(atStation) {
@@ -183,6 +204,41 @@ export default function ConfirmPage({ eventId }) {
               </p>
             </>
           )}
+          {step === 'identify' && (
+            <>
+              <h2>你認得這是哪裡嗎？</h2>
+              <p className="muted">
+                通報者說不出自己的位置。<b>你認得的話，附近的人就能收到警示。</b>
+              </p>
+
+              {/* 通報者給的東西：照片與文字。這是指認的唯一依據 */}
+              {target.photoUrl && (
+                <a className="identify-photo" href={target.photoUrl} target="_blank" rel="noreferrer">
+                  <img src={target.photoUrl} alt="通報者拍攝的現場照片" />
+                </a>
+              )}
+              {target.note && <p className="identify-note">「{target.note}」</p>}
+              {target.photoVenueGuesses?.length > 0 && (
+                <p className="muted">
+                  照片裡出現多個站名，可能在：{target.photoVenueGuesses.join('、')}
+                </p>
+              )}
+
+              {identifyMsg && <p className="sighting-msg">{identifyMsg}</p>}
+
+              <div className="confirm-actions" style={{ flexDirection: 'column', marginTop: 14 }}>
+                <button
+                  className="primary-btn btn-lg btn-block"
+                  onClick={() => setShowPicker(true)}
+                >
+                  我認得——選出是哪個場域
+                </button>
+                <button className="ghost-btn btn-block" onClick={() => setStep('done')}>
+                  認不出來
+                </button>
+              </div>
+            </>
+          )}
           {step === 'sighting' && (
             <>
               <Pictogram name="pin" size={40} className="done-icon" />
@@ -241,6 +297,15 @@ export default function ConfirmPage({ eventId }) {
             </>
           )}
         </div>
+        {showPicker && (
+          <VenuePicker
+            fix={fix}
+            requestFix={async () => { const f = await coarseFix(); setFix(f); return f; }}
+            onPicked={(id, name) => { setShowPicker(false); identifyVenue(id, name); }}
+            onPickedPlace={() => setShowPicker(false)}
+            onCancel={() => setShowPicker(false)}
+          />
+        )}
       </div>
     );
   }

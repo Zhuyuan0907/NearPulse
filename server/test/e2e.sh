@@ -483,6 +483,37 @@ check "不相鄰的多站名仍然不猜" \
 check "最長匹配優先（中山國小 不會被判成 中山）" \
   test "$(anchors "['中山國小']" "null" | json "d['venue']")" = "中山國小"
 
+echo "== 19. 指認位置：通報者說不出來，但看照片的人認得 =="
+# 【為什麼】態勢卡對圖資外的事件寫著「請協助確認」，但點進去卻是
+# 「你現在在『位置待確認』嗎？」——一個無意義的問題。通報者說不出自己在哪，
+# 但看照片的人可能一眼就認出來，而系統當時沒有任何管道收下那個答案。
+curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/json' -d '{
+  "uuid":"e2e-ident-1","sessionId":"id-A","type":"other",
+  "locationClaim":{"source":"freeform","place":"某個地下通道"},
+  "note":"手扶梯旁邊有濃煙"}' > /dev/null
+wait_batch
+# 用 note 精準指定：第 18 段也留下了圖資外事件，取 [0] 會抓錯
+IEVT=$(curl -s "$BASE/api/situation" | json "[e['id'] for s in d['stations'] for e in s['events'] if e.get('note')=='手扶梯旁邊有濃煙'][0]")
+check "圖資外事件會帶出通報者的文字（不是只給「位置待確認」）" \
+  test "$(curl -s "$BASE/api/situation" | json "any(e.get('note')=='手扶梯旁邊有濃煙' for s in d['stations'] if s.get('offMap') for e in s['events'])")" = "True"
+# 指認**不要求在場**：認得一個地方不需要人在那裡，這正是它的價值
+check "指認位置會套用到事件" \
+  test "$(curl -s -X POST "$BASE/api/events/$IEVT/confirm" -H 'Content-Type: application/json' \
+    -d '{"sessionId":"id-B","step":"identify","venueId":"TPE-BL13"}' | json "d['applied'] and d['event']['stationName']=='善導寺'")" = "True"
+# 已經有場域的事件不接受覆寫——否則這會變成可以隨意改寫他人通報位置的介面
+check "已被指認的事件不接受他人改寫" \
+  test "$(curl -s -X POST "$BASE/api/events/$IEVT/confirm" -H 'Content-Type: application/json' \
+    -d '{"sessionId":"id-C","step":"identify","venueId":"TPE-A1"}' | json "d['applied'] is False and d['event']['stationName']=='善導寺'")" = "True"
+wait_batch   # 態勢卡是快取的，指認只標記 dirty，要等下一個 tick 才重建
+check "指認後不再是圖資外，且給得出疏散建議" \
+  test "$(curl -s "$BASE/api/situation" | json "any(not s.get('offMap') and any(e['id']=='$IEVT' and e['plan'] for e in s['events']) for s in d['stations'])")" = "True"
+
+# 沒有錨點就不該指認任何出口為「不要走」——那會把人推向錯的方向
+check "無站內錨點時不產生「不要走」清單" \
+  test "$(curl -s "$BASE/api/venues/TPE-BL13/evacuation?type=crush" | json "d['plan']['avoid'] == [] and d['plan']['anchored'] is False")" = "True"
+check "有錨點時才給「不要走」" \
+  test "$(curl -s "$BASE/api/venues/TPE-BL13/evacuation?exit=2&type=crush" | json "len(d['plan']['avoid']) > 0 and d['plan']['anchored'] is True")" = "True"
+
 echo ""
 echo "======================================"
 echo " 結果：$PASS 通過 · $FAIL 失敗"

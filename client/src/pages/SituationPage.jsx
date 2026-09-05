@@ -373,6 +373,25 @@ export default function SituationPage() {
   const visibleIds = new Set(groups.flatMap((g) => g.events.map((e) => e.id)));
   const pending = card.pending.filter((p) => visibleIds.has(p.eventId));
 
+  /**
+   * 範圍篩選要**套用到整頁**，不只事件區塊。
+   *
+   * 使用者選了「5 公里內」，卻在警示區看到半個城市外的地方，那個選擇
+   * 等於沒有作用——而雜訊正是他要擺脫的東西。沒有座標的項目一律留著：
+   * 我們無從判斷它遠不遠，藏起來等於讓它消失。
+   */
+  const inRange = (x) => {
+    if (!range || !fix) return true;
+    if (!Number.isFinite(x?.lat) || !Number.isFinite(x?.lon)) return true;
+    return roughDistM(fix, x) <= range;
+  };
+  const nearbyAlerts = (card.nearbyAlerts ?? []).filter(inRange);
+  const resolved = (card.resolved ?? []).filter(inRange);
+  const inboundAlerts = (card.inboundAlerts ?? []).filter(
+    (a) => visibleIds.size === 0 || groups.some((g) => g.stationId === a.venueId)
+      || card.stations.some((g) => g.stationName === a.fromVenue && groups.includes(g))
+  );
+
   return (
     <div className="page">
       <OfflineBar />
@@ -448,9 +467,9 @@ export default function SituationPage() {
       {/* 事故列車即將進站。
           放在所有區塊之前，是因為這則警示的**時效最短**——月台上的人
           只有幾十秒可以反應，而他們讓不讓開，決定車廂裡的人出不出得來。 */}
-      {card.inboundAlerts?.length > 0 && (
+      {inboundAlerts.length > 0 && (
         <section className="station-group">
-          {card.inboundAlerts.map((a) => (
+          {inboundAlerts.map((a) => (
             <InboundAlert key={`${a.venueId}-${a.fromVenue}`} alert={a} />
           ))}
         </section>
@@ -458,10 +477,10 @@ export default function SituationPage() {
 
       {/* 鄰近場域警示：事件不在這裡，但離得夠近。
           2025 年那起攻擊跨越了兩個站與一間百貨——下一個場域的人現在就該知道。 */}
-      {card.nearbyAlerts?.length > 0 && (
+      {nearbyAlerts.length > 0 && (
         <section className="station-group">
           <h2 className="section-title">附近場域的警示</h2>
-          {card.nearbyAlerts.map((a) => (
+          {nearbyAlerts.map((a) => (
             <div key={a.venueId} className="nearby-alert">
               <Pictogram name={a.kind ?? 'pin'} size={20} className="nearby-icon" />
               <span>
@@ -476,9 +495,9 @@ export default function SituationPage() {
 
       {/* 已解除：語氣與警示明確區隔——這是讓人放鬆的訊息，
           不能長得像另一則警報，所以用低飽和的綠、不用紅框、不置頂。 */}
-      {card.resolved?.length > 0 && (
+      {resolved.length > 0 && (
         <section className="station-group">
-          {card.resolved.map((r) => (
+          {resolved.map((r) => (
             <div key={r.id} className="resolved-item">
               <div className="resolved-head">
                 {r.wasActive ? '警報解除' : '查無此事件'}
@@ -490,8 +509,8 @@ export default function SituationPage() {
         </section>
       )}
 
-      {groups.length === 0 && card.nearbyAlerts?.length === 0
-        && card.inboundAlerts?.length === 0 && card.resolved?.length === 0 && (
+      {groups.length === 0 && nearbyAlerts.length === 0
+        && inboundAlerts.length === 0 && resolved.length === 0 && (
         <div className="empty-state">
           <p className="empty-line">目前沒有確認中的異常事件</p>
         </div>
@@ -568,11 +587,18 @@ export default function SituationPage() {
                     <div className="evidence-body">
                       {ev.note && <p className="evidence-note">「{ev.note}」</p>}
                       {venue.offMap && (
-                        <p className="evidence-hint">
-                          {ev.photoUrl
-                            ? '系統認不出這是哪裡——如果你認得照片裡的地方，請協助確認。'
-                            : '系統認不出這是哪裡，以上是通報者提供的描述。'}
-                        </p>
+                        <>
+                          <p className="evidence-hint">
+                            通報者說不出自己的位置，系統也認不出來。
+                          </p>
+                          {/* 之前這裡只寫「請協助確認」卻沒有可以指認的地方——
+                              點進去會問「你現在在『位置待確認』嗎？」，那是個
+                              無意義的問題。現在直接連到指認流程。 */}
+                          <a className="chip identify-cta" href={`#/confirm?event=${ev.id}`}>
+                            <Pictogram name="pin" size={16} />
+                            我認得這裡 · 幫忙指認
+                          </a>
+                        </>
                       )}
                       {ev.photoVenueGuesses?.length > 0 && (
                         <p className="evidence-hint">

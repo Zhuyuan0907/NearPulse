@@ -1310,3 +1310,20 @@ button { cursor: pointer; }
   margin-top: 8px;
 }
 .anchor-current { font-size: .8rem; color: var(--egress-lit); }
+
+/* 指認位置：照片是唯一的依據，給它足夠的尺寸 */
+.identify-photo {
+  display: block;
+  max-width: 260px;
+  margin: 14px auto 0;
+  overflow: hidden;
+  border: 1px solid var(--edge-2);
+  border-radius: var(--r-sign);
+}
+.identify-photo img { display: block; width: 100%; }
+.identify-note {
+  margin: 10px 0 0;
+  font-size: .95rem;
+  color: var(--enamel);
+}
+.identify-cta { margin-top: 8px; text-decoration: none; }

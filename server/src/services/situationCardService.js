@@ -225,9 +225,9 @@ export function buildSituationCard(events, now = Date.now()) {
     nearbyAlerts.push(c);
   }
   // 呈現時仍以距離排序：讀的人在意的是「離我多近」，不是我們的挑選邏輯。
-  // 座標只是挑選過程的中間值，不送到 client——卡片的每個位元組都要有用途。
+  // 座標會送到 client——它需要用同一組座標做「範圍內才顯示」的篩選，
+  // 否則使用者選了「5 公里內」，警示區卻還列著半個城市外的地方。
   nearbyAlerts.sort((a, b) => a.distanceM - b.distanceM);
-  for (const a of nearbyAlerts) { delete a.lat; delete a.lon; }
 
   /**
    * 到站警示 —— 通知下一站的人「這班車上有事」。
@@ -287,6 +287,9 @@ export function buildSituationCard(events, now = Date.now()) {
       wasActive: ev.wasActive === true,
       notice: ev.closingNotice,
       closedAt: ev.closedAt,
+      // 讓 client 能用同一組範圍篩選處理它
+      lat: findVenue(ev.stationId)?.lat ?? ev.claimPoint?.lat ?? null,
+      lon: findVenue(ev.stationId)?.lon ?? ev.claimPoint?.lon ?? null,
     }));
 
   /**
