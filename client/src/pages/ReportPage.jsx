@@ -21,6 +21,7 @@ import {
 } from '../modules/location.js';
 import {
   postReport, fetchEventsContext, analyzePhoto, fetchVenue, fetchEvacuation,
+  parsePlaceFromSpeech,
 } from '../modules/api.js';
 import { isSpeechSupported, speak, stopSpeaking } from '../modules/speech.js';
 import { compressPhoto, cropCell } from '../modules/photoCompressor.js';
@@ -67,11 +68,12 @@ const DICTATE_HINT = {
  *        把辨識結果寫進欄位。`base` 是開始講話當下欄位裡已經有的字——
  *        接在後面而不是覆蓋掉，打了一半改用說的才不會被清空。
  */
-function useDictation(applyText) {
+function useDictation(applyText, { onFinal } = {}) {
   const [state, setState] = useState('idle'); // idle | starting | listening
   const [error, setError] = useState(null);
   const sessionRef = useRef(null);
   const baseRef = useRef('');
+  const finalRef = useRef('');
 
   // 離開這一頁就把麥克風關掉——沒有人希望它在背景繼續聽
   useEffect(() => () => sessionRef.current?.stop(), []);
@@ -83,17 +85,25 @@ function useDictation(applyText) {
     }
     setError(null);
     baseRef.current = base;
+    finalRef.current = '';
     setState('starting');
     const session = startDictation({
       onStart: () => setState('listening'),
-      onText: (text) => applyText(baseRef.current, text),
+      onText: (text, isFinal) => {
+        if (isFinal) finalRef.current = text; // 定稿的最後一句
+        applyText(baseRef.current, text);
+      },
       onError: (code) => setError(dictationErrorText(code)),
-      onEnd: () => { sessionRef.current = null; setState('idle'); },
+      onEnd: () => {
+        sessionRef.current = null;
+        setState('idle');
+        if (finalRef.current) onFinal?.(finalRef.current);
+      },
     });
     // 起不來時 startDictation 已經呼叫過 onError，這裡只要把狀態收回去
     if (!session) { setState('idle'); return; }
     sessionRef.current = session;
-  }, [applyText]);
+  }, [applyText, onFinal]);
 
   return { state, error, toggle };
 }
@@ -174,7 +184,20 @@ export default function ReportPage() {
   const applyNoteText = useCallback((base, text) => {
     setNote(`${base}${base ? ' ' : ''}${text}`.slice(0, 140));
   }, []);
-  const placeDictation = useDictation(applyPlaceText);
+
+  /**
+   * 地點語音講完 → 自動把整句縮成乾淨的地點名稱（MiniMax）。
+   *
+   * 「你好我現在在京站地下街」查不到任何東西；「京站地下街」查得到。
+   * 解析結果直接**取代**欄位內容——語音的最終目的就是填這個欄，
+   * 逐字稿不是。解析失敗（無金鑰／逾時／無網路）就保留原句，
+   * 使用者自己看到句子也可以手動刪。
+   */
+  const onPlaceSpoken = useCallback(async (finalText) => {
+    const parsed = await parsePlaceFromSpeech(finalText);
+    if (parsed) setPlaceText(parsed.slice(0, 60));
+  }, []);
+  const placeDictation = useDictation(applyPlaceText, { onFinal: onPlaceSpoken });
   const noteDictation = useDictation(applyNoteText);
 
   const photoInputRef = useRef(null);

@@ -13,6 +13,7 @@
 
 import { nextStations } from '../services/trainService.js';
 import { lookupPlaces, placeLookupMeta } from '../services/placeLookup.js';
+import { parsePlaceFromSpeech } from '../pipeline/advisors/placeParse.js';
 import { Router } from 'express';
 import {
   nearbyVenues,
@@ -63,6 +64,23 @@ export function createVenuesRouter() {
     const q = String(req.query.q ?? '').trim();
     if (!q) return res.json({ ok: true, venues: [] });
     res.json({ ok: true, venues: searchVenues(q) });
+  });
+
+  /**
+   * 語音地點描述 → 乾淨的地點名稱（MiniMax）。
+   *
+   * 「你好我現在在京站地下街」不是地點名稱，是逐字稿——拿去查
+   * Nominatim 會查不到。這裡用 LLM 把句子縮成「京站地下街」，
+   * 前端拿到後可以直接查 lookup，也可以讓使用者過目。
+   *
+   * AI 永遠不在關鍵路徑上：失敗／逾時／無金鑰 → ok:false + 原句，
+   * 前端照用原句，什麼都不壞。
+   */
+  router.post('/parse-place', async (req, res) => {
+    const raw = String(req.body?.text ?? '').trim();
+    if (!raw) return res.status(400).json({ ok: false, error: '缺少 text' });
+    const parsed = await parsePlaceFromSpeech(raw);
+    res.json({ ok: true, place: parsed ?? raw, parsed: Boolean(parsed) });
   });
 
   /**

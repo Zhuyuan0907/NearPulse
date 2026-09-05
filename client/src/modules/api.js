@@ -196,6 +196,26 @@ export async function lookupPlaces(q) {
   }
 }
 
+/**
+ * 語音地點描述 → 乾淨的地點名稱（server 端走 MiniMax）。
+ * 「你好我現在在京站地下街」→「京站地下街」。
+ * 失敗一律回 null：呼叫端照用原句，什麼都不壞。
+ */
+export async function parsePlaceFromSpeech(text) {
+  try {
+    const res = await fetch('/api/venues/parse-place', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.ok && data.parsed ? data.place : null;
+  } catch {
+    return null;
+  }
+}
+
 /** 事件清單（確認頁入口；可帶 station 過濾） */
 export async function fetchEvents(stationId) {
   const params = stationId ? `?station=${encodeURIComponent(stationId)}` : '';
