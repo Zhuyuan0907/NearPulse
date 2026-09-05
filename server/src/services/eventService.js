@@ -30,8 +30,18 @@ export function createCandidateEvent(report, stationName) {
     /** 事件錨點：最接近的出口代碼（如 'M3'）。由照片辨識或使用者點選，
      *  再經 venueService 確定性查表得出——不是 AI 猜的座標。疏散建議的輸入。 */
     nearExitCode: report.nearExitCode ?? null,
+    /**
+     * 錨點觀測序列。**不要覆寫，只能追加**——威脅會移動（無差別攻擊），
+     * 只保留最新位置會讓系統把人往威脅前進的方向趕。見 threatMotion.js。
+     */
+    track: [],
     /** 事件座標（地圖選點）：比出口錨點更精確時的疏散原點 */
     incidentPoint: report.incidentPoint ?? null,
+    /**
+     * 現場有人無法自行疏散。這是**給救援方看的最高優先資訊**——
+     * 知道哪裡有人需要協助，比知道事件本身更能決定資源怎麼派。
+     */
+    assistanceReports: report.needsAssistance ? 1 : 0,
     /** 併入此事件的原始回報（含附件與補充） */
     reports: [report],
     /** 兩段式確認的回覆 */
@@ -88,7 +98,9 @@ export function toEventSummary(event) {
     status: event.status,
     severity: config.eventTypes[event.type]?.severity ?? 'low',
     nearExitCode: event.nearExitCode ?? null, // 場域錨點（疏散建議用）
+    motion: event.motion ?? null,             // 移動威脅判定（threatMotion）
     incidentPoint: event.incidentPoint ?? null, // 事件座標（地圖顯示用）
+    assistanceReports: event.assistanceReports ?? 0, // 回報「有人需要協助」的筆數
     reportCount: event.reports.length,
     confirmationCount: event.confirmations.filter((c) => c.atStation).length,
     createdAt: event.createdAt,

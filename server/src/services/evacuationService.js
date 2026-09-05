@@ -29,6 +29,7 @@
  */
 
 import { findVenue, findExit, distanceM } from './venueService.js';
+import { isAheadOfThreat, motionLine } from './threatMotion.js';
 
 /**
  * 以下兩個半徑是**內部排序用的啟發式**，不對外顯示。
@@ -45,7 +46,7 @@ const PREFER_MIN_DIST_M = 80; // 建議的出口至少要離這麼遠才算「�
  * @param {{lat, lon}|null} point - 使用者在地圖上點的事件位置（比出口更精確時）
  * @returns {{away: Array, avoid: Array}|null} 資料不足時回 null
  */
-export function suggestExits(venueId, nearExitCode, point = null) {
+export function suggestExits(venueId, nearExitCode, point = null, motion = null, mobility = null) {
   const venue = findVenue(venueId);
   if (!venue?.exits?.length) return null;
 
@@ -55,8 +56,9 @@ export function suggestExits(venueId, nearExitCode, point = null) {
     findExit(venue.id, nearExitCode) ??
     { lat: venue.lat, lon: venue.lon };
 
-  const scored = venue.exits
-    .filter((e) => e.code !== nearExitCode) // 事件所在的出口本身不列為去處
+  const usable = venue.exits.filter((e) => e.code !== nearExitCode); // 事件所在的出口不列為去處
+
+  const scored = usable
     .map((e) => ({ exit: e, dist: Math.round(distanceM(origin, e)) }))
     .sort((a, b) => a.dist - b.dist); // 由近而遠
 
@@ -72,7 +74,80 @@ export function suggestExits(venueId, nearExitCode, point = null) {
     away: away.slice(0, 3),
     // 若每個出口都落在避開半徑內，這份清單就沒有篩選作用——寧可不說
     avoid: nearby.length === scored.length ? [] : nearby.slice(0, 3),
+    /**
+     * 全部候選（依距離排序）。無障礙篩選必須從這裡開始，不能用上面的 away——
+     * 可通行的出口本來就稀少，先被距離砍掉三個名額就等於找不到。
+     */
+    all: scored,
   };
+}
+
+/**
+ * 威脅移動時重新篩選出口。
+ *
+ * 靜態事件只要「離事件夠遠」；移動威脅還要「不在它前進的路徑上」。
+ * 這是兩者最關鍵的差別——一個往北移動的威脅，北邊的出口即使距離很遠，
+ * 也可能在你抵達前就被它追上。**把人往威脅前進的方向趕，比不給建議更糟。**
+ */
+function applyMotion(venue, s, motion, nearExitCode) {
+  if (!motion?.moving || motion.bearing === undefined) return s;
+
+  const ahead = [];
+  const behind = [];
+  for (const item of s.away) {
+    (isAheadOfThreat(motion, item.exit) ? ahead : behind).push(item);
+  }
+
+  // 全部候選都在威脅前方 → 退回距離最遠的那些，並把「都在前方」如實講出來
+  const away = behind.length > 0 ? behind : s.away;
+
+  // 前方的出口一律進避開清單（含原本因為太近而入列的）
+  const avoidCodes = new Set(s.avoid.map((x) => x.exit.code));
+  const avoid = [...s.avoid];
+  for (const item of ahead) {
+    if (!avoidCodes.has(item.exit.code)) { avoid.push(item); avoidCodes.add(item.exit.code); }
+  }
+
+  // 保留 s 的其餘欄位（特別是 all）——無障礙篩選需要完整候選清單
+  return { ...s, away, avoid: avoid.slice(0, 4), allAhead: behind.length === 0 && ahead.length > 0 };
+}
+
+// ---------------------------------------------------------------------------
+// 無障礙疏散
+// ---------------------------------------------------------------------------
+
+/**
+ * 篩出「行動不便者真的走得出去」的出口。
+ *
+ * 【為什麼這不是把清單過濾一下就好】
+ * 火災時電梯不可使用——這是消防常識，本專案的避難模板本來就寫著「勿使用電梯」。
+ * 但捷運站裡**大多數的無障礙出口就是電梯**。兩件事合起來的結論很殘酷：
+ *
+ *   火警 + 輪椅使用者 → 多數「無障礙出口」在此刻並不存在
+ *
+ * 國際上的官方準則對這個處境的建議是**前往避難空間待援**，而不是前往出口。
+ * 所以這裡在找不到可用出口時，不會退而求其次給一個有台階的出口
+ * （那對輪椅使用者等於沒有建議），而是切換成「待援」這個**不同性質的答案**，
+ * 並提示對外求援——這才是正確的回答。
+ *
+ * 【安全預設】
+ * `stepFree === null`（OSM 沒有標註）一律**不當成可通行**。
+ * 把「不知道」講成「可以」，對必須依賴這個資訊的人是會害死人的。
+ */
+function filterStepFree(scored, { fire }) {
+  const usable = [];
+  const liftOnly = [];
+  let unknown = 0;
+
+  for (const item of scored) {
+    const e = item.exit;
+    if (e.stepFree === null || e.stepFree === undefined) { unknown++; continue; }
+    if (e.stepFree === 'no') continue;
+    // 火災時電梯不可用 → 依賴電梯達成的無障礙在此刻無效
+    if (fire && e.hasLift) { liftOnly.push(item); continue; }
+    usable.push(item);
+  }
+  return { usable, liftOnly, unknown };
 }
 
 /**
@@ -85,35 +160,116 @@ function label(exit) {
 }
 
 /**
- * 產生一行疏散建議文字。
+ * 產生**結構化**的疏散計畫。
  *
- * @param {string} venueId
- * @param {string|null} nearExitCode
- * @param {{lat, lon}|null} point
- * @param {(from: string|null, to: string) => {minutes: number, samples: number}|null} [measured]
- *        實測步行時間查詢函式（traversalService 提供）。**只有實測值才顯示時間**；
- *        沒有就不講，不用直線距離換算一個假的估計值出來。
- * @returns {string|null} 無出口圖資時回 null，由呼叫端退回通用建議
+ * 為什麼不是回一句話：一整段散文塞進「警示 + 起點 + 去處 + 地標 + 避開 +
+ * 程序說明」之後，在恐慌情境下根本讀不完。眼睛需要的是**可掃視的結構**，
+ * 耳朵才需要完整句子。所以這裡回結構，散文交給 evacuationLine 從結構生成。
+ *
+ * @returns {object|null} 無出口圖資時回 null，由呼叫端退回通用建議
  */
-export function evacuationLine(venueId, nearExitCode, point = null, measured = null) {
-  const s = suggestExits(venueId, nearExitCode, point);
-  if (!s) return null;
+export function evacuationPlan({
+  venueId, nearExitCode = null, point = null, motion = null,
+  incidentType = null, mobility = null,
+} = {}) {
+  const base = suggestExits(venueId, nearExitCode, point, motion);
+  if (!base) return null;
+  const venue = findVenue(venueId);
+  const s = applyMotion(venue, base, motion, nearExitCode);
+  const stepFree = mobility === 'stepFree';
 
-  const describe = (x) => {
-    const m = measured?.(nearExitCode, x.exit.code);
-    // 實測值才有資格出現在文字裡，並標明它是實測、幾個人走過
-    return m
-      ? `${label(x.exit)}——實測步行約 ${m.minutes} 分（${m.samples} 人走過）`
-      : label(x.exit);
+  const brief = (x) => ({ code: x.exit.code, landmark: x.exit.landmark ?? null });
+
+  // ---- 無障礙路線是**性質不同的答案**，先處理 ----
+  if (stepFree) {
+    const known = venue?.accessibility?.known ?? 0;
+    if (known === 0) {
+      return {
+        kind: 'shelter', stepFree: true, from: nearExitCode,
+        reason: '這個場域沒有出口的無障礙資訊',
+        action: '請立即向站務人員求助，並讓周圍的人知道你需要協助',
+        go: [], avoid: [], unknownExits: venue?.exits?.length ?? 0,
+      };
+    }
+
+    const fire = incidentType === 'fire';
+    const { usable, liftOnly, unknown } = filterStepFree(s.all ?? s.away ?? [], { fire });
+    // 篩選順序刻意與一般路徑相反：先過無障礙，再套安全距離與威脅方向。
+    // 可通行的出口本來就稀少，若先用距離砍到剩三個，往往一個都不剩。
+    const notAhead = usable.filter((x) => !isAheadOfThreat(motion, x.exit));
+    const safe = notAhead.filter((x) => x.dist >= PREFER_MIN_DIST_M);
+    const picked = (safe.length > 0 ? safe : notAhead).slice(0, 3);
+
+    if (picked.length > 0) {
+      return {
+        kind: 'exits', stepFree: true, from: nearExitCode,
+        go: picked.map(brief), avoid: [], unknownExits: unknown,
+        note: '請依站內出口指標前進',
+      };
+    }
+
+    return {
+      kind: 'shelter', stepFree: true, from: nearExitCode,
+      reason: fire && liftOnly.length > 0
+        ? `唯一的無障礙出口（${liftOnly.map((x) => x.exit.code).join('、')} 出口）需要電梯，火災時電梯不可使用`
+        : usable.length > 0
+          ? '僅有的無障礙出口位於威脅前進的方向上'
+          : '此處沒有無台階可通行的出口',
+      action: '請前往站內避難空間或月台端點的安全區域待援，並讓周圍的人與站務人員知道你的位置。不要嘗試使用樓梯或電梯',
+      go: [], avoid: [], unknownExits: unknown,
+    };
+  }
+
+  // ---- 一般路線 ----
+  if (s.allAhead) {
+    return {
+      kind: 'shelter', stepFree: false, from: nearExitCode,
+      reason: '可用出口都位於威脅前進的方向上',
+      action: '請優先尋找站內避難空間或聽從現場人員指示，不要盲目往出口移動',
+      go: [], avoid: s.avoid.map(brief), unknownExits: 0,
+    };
+  }
+
+  return {
+    kind: 'exits', stepFree: false, from: nearExitCode,
+    go: s.away.map(brief), avoid: s.avoid.map(brief), unknownExits: 0,
+    note: '請依站內出口指標前進',
   };
+}
 
-  const away = s.away.map(describe).join('、');
-  const here = nearExitCode ? `${nearExitCode} 出口一帶` : '事件位置';
-  const from = nearExitCode ? `遠離 ${here}` : '遠離事件位置';
+/**
+ * 把結構化計畫轉成一句話。
+ *
+ * **這個版本是給耳朵的**（語音播報、以及只需要一行文字的場合）。
+ * 畫面上請直接用 evacuationPlan 的結構排版——散文在恐慌中掃視不了。
+ */
+export function planToSentence(plan, motion = null) {
+  if (!plan) return null;
+  const name = (e) => (e.landmark ? `${e.code} 出口（往${e.landmark}）` : `${e.code} 出口`);
+  const parts = [];
 
-  // 避開清單的篩選在 suggestExits 就做完了（全部都要避開時會清空）
-  const avoidPart =
-    s.avoid.length > 0 ? `；避開 ${s.avoid.map((x) => label(x.exit)).join('、')}` : '';
+  const m = motionLine(motion);
+  if (m) parts.push(m);
 
-  return `${from}，改往 ${away}${avoidPart}。請依站內出口指標前進。`;
+  const from = plan.from ? `遠離 ${plan.from} 出口一帶` : '遠離事件位置';
+  const prefix = plan.stepFree ? '♿ ' : '';
+
+  if (plan.kind === 'shelter') {
+    parts.push(`${prefix}${plan.reason}。${plan.action}。`);
+  } else {
+    const go = plan.go.map(name).join('、');
+    const avoid = plan.avoid.length > 0 ? `；避開 ${plan.avoid.map(name).join('、')}` : '';
+    const unknown = plan.unknownExits > 0
+      ? `（另有 ${plan.unknownExits} 個出口無無障礙資訊，未列入）` : '';
+    parts.push(`${prefix}${from}，改往${plan.stepFree ? '無台階可通行的' : ''} ${go}${unknown}${avoid}。${plan.note}。`);
+  }
+  return parts.join(' ');
+}
+
+/**
+ * 一行疏散建議文字（沿用舊介面，內部走結構化路徑）。
+ * @returns {string|null}
+ */
+export function evacuationLine(opts = {}) {
+  return planToSentence(evacuationPlan(opts), opts.motion ?? null);
 }

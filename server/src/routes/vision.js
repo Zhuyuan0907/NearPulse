@@ -21,7 +21,7 @@
 
 import { Router } from 'express';
 import { config } from '../config.js';
-import { analyzePhoto, isVisionEnabled } from '../pipeline/advisors/vision.js';
+import { analyzePhoto, isVisionEnabled, visionMode } from '../pipeline/advisors/vision.js';
 import { resolveAnchors } from '../services/venueService.js';
 
 export function createVisionRouter(store) {
@@ -61,6 +61,8 @@ export function createVisionRouter(store) {
       ok: true,
       stage: safeStage,
       enabled: isVisionEnabled(),
+      // 'interactive' | 'deferred' | 'off'——前端據此決定要不要等結果
+      mode: visionMode(),
       result,
       candidates: anchors.candidates,
       photoRef,

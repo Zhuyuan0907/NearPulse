@@ -334,6 +334,9 @@ button { cursor: pointer; }
 }
 /* Leaflet 預設是淺色 UI，壓成深色以免在昏暗環境刺眼 */
 .leaflet-container { background: #10151b; }
+/* 官方 OSM 圖磚是淺色的，在深色介面上會刺眼。用很輕的濾鏡降亮度即可——
+   刻意不做反相：那會讓地圖不像 OSM，文字也會變得難讀。 */
+.leaflet-tile-pane { filter: brightness(0.82) saturate(0.9) contrast(1.05); }
 .leaflet-control-attribution {
   font-size: 10px;
   color: var(--muted);
@@ -450,7 +453,6 @@ button { cursor: pointer; }
 .card-time { font-size: 0.75rem; color: var(--muted); }
 
 .station-group { margin-top: 18px; }
-.station-name { margin: 0 0 8px; font-size: 1.05rem; }
 
 .event-card {
   padding: 14px;
@@ -463,17 +465,21 @@ button { cursor: pointer; }
 .event-active { border-left-color: var(--accent); }
 .event-candidate { border-left-color: var(--muted); border-style: dashed; }
 
-.event-title {
+/* ---- 事件卡：一眼看懂「什麼事 + 多嚴重 + 往哪走」 ---- */
+
+.event-top {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  font-size: 1.1rem;
-  font-weight: 700;
+  justify-content: space-between;
+  gap: 10px;
 }
+.event-type { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.01em; }
+.event-where { margin-top: 2px; font-size: 0.78rem; color: var(--muted); }
+
 .threat {
-  padding: 2px 10px;
-  font-size: 0.72rem;
+  flex-shrink: 0;
+  padding: 3px 12px;
+  font-size: 0.75rem;
   font-weight: 700;
   border: 1px solid currentColor;
   border-radius: 999px;
@@ -483,25 +489,95 @@ button { cursor: pointer; }
 .threat-low { color: var(--blue); }
 .threat-unverified { color: var(--muted); }
 
-.zone-chip {
-  min-height: auto;
-  padding: 2px 10px;
-  font-size: 0.72rem;
-  color: var(--blue);
-  border-color: var(--blue);
-}
-
-.advice { margin: 10px 0 0; font-size: 0.95rem; }
-.evac-line {
-  margin: 10px 0 0;
-  padding: 10px 12px;
-  font-size: 0.9rem;
-  background: #12261a;
-  border-left: 3px solid var(--ok);
+/* 需要最先看到的旗標：移動中、有人需協助 */
+.flag {
+  margin-top: 10px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
   border-radius: var(--r-sm);
 }
-.timeline { margin: 8px 0 0; font-style: italic; }
-.event-meta { margin: 10px 0 0; font-size: 0.78rem; color: var(--muted); }
+.flag-move { color: var(--accent); background: #2a1518; }
+.flag-assist { color: var(--warn); background: #2a2113; }
+
+/* ---- 疏散計畫：結構化，不是一整段字 ----
+   出口編號放最前面且放大，因為站內指標系統就是用編號導引的——
+   使用者抬頭就能把螢幕上的「3」對上牆上的「← 3 出口」。 */
+.plan { margin-top: 12px; }
+.plan-block + .plan-block { margin-top: 8px; }
+.plan-block {
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+}
+.plan-go { background: #12261a; border-left: 3px solid var(--ok); }
+.plan-avoid { background: #2a1518; border-left: 3px solid var(--accent); }
+
+.plan-head {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+.plan-go .plan-head { color: var(--ok); }
+.plan-avoid .plan-head { color: var(--accent); }
+
+.exit-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 6px;
+}
+.exit-code {
+  min-width: 46px;
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.plan-go .exit-code { color: var(--ok); }
+.plan-avoid .exit-code { color: var(--accent); text-decoration: line-through; }
+.exit-where { font-size: 0.9rem; color: var(--text); }
+
+.plan-note { margin: 8px 0 0; font-size: 0.75rem; color: var(--muted); }
+
+/* 避難待援：與「往哪走」性質不同的答案，視覺上必須明確分開 */
+.plan-shelter {
+  padding: 12px;
+  background: #2a1518;
+  border: 1px solid var(--accent);
+  border-radius: var(--r-sm);
+}
+.plan-head-stop { font-size: 0.95rem; color: var(--accent); letter-spacing: 0; }
+.plan-reason { margin: 6px 0 0; font-size: 0.9rem; font-weight: 700; }
+.plan-action { margin: 6px 0 0; font-size: 0.88rem; }
+
+.advice { margin: 12px 0 0; font-size: 0.85rem; color: var(--muted); }
+
+.event-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+/* ---- 場域標題：地下場域不只有捷運站 ---- */
+.venue-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 1.05rem;
+}
+.venue-head-icon { font-size: 1.2rem; }
+.venue-head-name { font-weight: 700; }
+.venue-head-kind {
+  padding: 2px 8px;
+  font-size: 0.68rem;
+  font-weight: 400;
+  color: var(--muted);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+}
 
 .pending-btn {
   display: block;
@@ -518,6 +594,43 @@ button { cursor: pointer; }
 
 .empty-state { padding: 40px 16px; text-align: center; color: var(--muted); }
 .empty-icon { font-size: 2.5rem; }
+
+/* 離線狀態列：語氣是「告知」不是「警告」——離線在這個 App 裡是常態 */
+.offline-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  font-size: 0.82rem;
+  color: var(--text);
+  background: var(--bg-elev);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+}
+
+/* 有人無法自行疏散：救援方最需要看到的一行 */
+.assist-flag {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  font-weight: 700;
+  color: var(--warn);
+  background: #2a2113;
+  border-left: 3px solid var(--warn);
+  border-radius: var(--r-sm);
+}
+
+/* 移動威脅：視覺上必須比一般警示更搶眼——它會讓疏散方向整個翻轉 */
+.threat-moving {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  font-weight: 700;
+  color: var(--accent);
+  background: #2a1518;
+  border-left: 3px solid var(--accent);
+  border-radius: var(--r-sm);
+}
+.threat-moving .muted { display: block; font-weight: 400; }
 
 /* ---------------------------------------------------------------------------
    確認頁：全螢幕單一提問

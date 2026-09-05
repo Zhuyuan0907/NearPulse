@@ -26,8 +26,11 @@ import {
   applyTransition,
 } from '../services/eventService.js';
 import { buildSituationCard } from '../services/situationCardService.js';
-import { findVenue } from '../services/venueService.js';
+import { findVenue, findExit } from '../services/venueService.js';
+import { assessMotion } from '../services/threatMotion.js';
 import { transcribeAudio } from './advisors/stt.js';
+import { analyzePhoto, visionMode } from './advisors/vision.js';
+import { resolveAnchors } from '../services/venueService.js';
 import { llmNarrate } from './advisors/llm.js';
 
 export function startBatchWorker(store, { log = console.log } = {}) {
@@ -72,10 +75,21 @@ export function startBatchWorker(store, { log = console.log } = {}) {
         log(`[batch] 新事件 ${event.id}：${event.stationId} ${event.type}`);
       } else {
         event.reports.push(report);
-        // 位置：最新一筆帶錨點/座標的回報覆寫（後到的回報通常更清楚）
+        // 最新位置仍然更新（靜態事件用得到）……
         if (report.nearExitCode) event.nearExitCode = report.nearExitCode;
         if (report.incidentPoint) event.incidentPoint = report.incidentPoint;
+        // 「有人需要協助」只累加不歸零——救援抵達前這個資訊都是有效的
+        if (report.needsAssistance) {
+          event.assistanceReports = (event.assistanceReports ?? 0) + 1;
+        }
       }
+
+      // ……但**軌跡只追加不覆寫**：威脅會移動，只留最新位置會讓系統
+      // 把人往威脅前進的方向趕。這是移動威脅追蹤的原料。
+      appendObservation(event, report);
+
+      // 每次有新觀測就重算移動判定（純函式、確定性，不需要 AI）
+      event.motion = assessMotion(event.track, now);
 
       event.updatedAt = now; // 有新訊號進來，重置凍結計時
       store.upsertEvent(event);
@@ -98,14 +112,76 @@ export function startBatchWorker(store, { log = console.log } = {}) {
     }
 
     // ---- 步驟 5：重算態勢卡（有變動才重算） ----
+    // 包在 try 裡：卡片建構是純衍生的工作，它出錯不該讓**整個回報服務**停擺。
+    // （實測過一次：疏散建議的一個 undefined 讓 batch worker 拋例外、
+    //   Node 程序直接結束，連 POST /api/reports 都收不了。）
     if (store.isCardDirty()) {
-      const { card, etag, bytes } = buildSituationCard(store.listEvents(), now);
-      store.setCard({ card, etag, bytes });
-      if (bytes > config.situationCardTargetBytes) {
-        log(`[warn] 態勢卡 ${bytes} bytes 超過 50KB 目標`);
+      try {
+        const { card, etag, bytes } = buildSituationCard(store.listEvents(), now);
+        store.setCard({ card, etag, bytes });
+        if (bytes > config.situationCardTargetBytes) {
+          log(`[warn] 態勢卡 ${bytes} bytes 超過 50KB 目標`);
+        }
+      } catch (err) {
+        // 沿用上一張卡（讀取端看到的是稍舊但正確的內容），並保持髒標記以便下輪重試
+        log(`[error] 態勢卡建構失敗，沿用上一張：${err.message}`);
       }
     }
   }
+}
+
+/**
+ * 延後辨識：讀照片上的字 → 確定性查表 → 補上出口錨點。
+ * 全程 fire-and-forget，任何一步失敗都只是「少一個位置」，不影響事件成立。
+ */
+async function deferredAnchor(store, event, report) {
+  const res = await analyzePhoto({
+    base64: report.photo.base64,
+    mimeType: report.photo.mimeType ?? 'image/webp',
+    stage: 'read',
+    deferred: true,
+  });
+  if (res.pending || !res.texts?.length) return;
+
+  const { candidates } = resolveAnchors({
+    texts: res.texts,
+    venueId: event.stationId,
+  });
+  const top = candidates?.[0];
+  if (!top?.exitCode) return;
+
+  // 使用者自己標的位置永遠優先——辨識只補「還沒有位置」的事件
+  if (!event.nearExitCode && !event.incidentPoint) {
+    event.nearExitCode = top.exitCode;
+    // 這是一次遲到的觀測，時間仍以「回報當下」計，軌跡才不會被扭曲
+    appendObservation(event, { ...report, nearExitCode: top.exitCode });
+    event.motion = assessMotion(event.track, Date.now());
+    store.upsertEvent(event);
+    store.markCardDirty();
+  }
+}
+
+/**
+ * 把一筆回報的位置資訊追加成一次「錨點觀測」。
+ * 座標優先序與疏散一致：地圖選點（最精確）→ 出口錨點。兩者皆無就不記錄——
+ * 沒有位置的回報無法貢獻軌跡，但它仍然是有效的回報（位置永遠不擋通報）。
+ */
+function appendObservation(event, report) {
+  const point =
+    report.incidentPoint ??
+    (report.nearExitCode ? findExit(event.stationId, report.nearExitCode) : null);
+  if (!point) return;
+
+  event.track = event.track ?? [];
+  event.track.push({
+    lat: point.lat,
+    lon: point.lon,
+    at: report.receivedAt,
+    sessionId: report.sessionId, // 移動判定要求觀測來自互相獨立的目擊者
+    exitCode: report.nearExitCode ?? null,
+  });
+  // 軌跡不需要無限成長：判定只看最近的觀測
+  if (event.track.length > 20) event.track = event.track.slice(-20);
 }
 
 /**
@@ -122,12 +198,20 @@ function runAdvisors(store, event, report) {
       })
       .catch(() => {}); // advisor 失敗靜默——補充層失敗不是錯誤
   }
-  // 視覺錨點分析在回報端就跑完了（/api/vision 兩階段），結果以 nearExitCode
-  // 隨回報帶上來——這裡不需要、也不應該再對同一張圖付第二次錢。
+  // ---- 延後視覺辨識 ----
+  // 快的供應商（gpt-4o-mini 約 1~2 秒）在回報端就跑完了，結果以 nearExitCode
+  // 隨回報帶上來，這裡不必再付一次錢。
   //
-  // 注意這裡刻意沒有「AI 補寫位置」的路徑：v0.2 曾讓 Vision 回傳的格位直接
-  // 寫進事件並驅動疏散方向，而那個格位其實是影像座標。位置一律走
-  // 「讀字 → venueService 查表 → 使用者在地圖上確認」這條確定性路徑。
+  // 但慢的供應商（opencode 免費層實測 34.5 秒）無法互動式使用——若在回報端等，
+  // 使用者要盯著轉圈半分鐘。延後模式改成：回報立刻成立，辨識在這裡非同步跑，
+  // 錨點稍後補上。這正是「advisor fire-and-forget、永不擋回報」的原始設計。
+  //
+  // ⚠️ 補上的是**讀到的字經查表得出的出口代碼**，不是 AI 給的座標。
+  // v0.2 曾讓 Vision 回傳的格位直接寫進事件並驅動疏散方向，而那個格位
+  // 其實是影像座標——位置一律走「讀字 → 確定性查表」這條路。
+  if (visionMode() === 'deferred' && report.photo?.base64 && !report.nearExitCode) {
+    deferredAnchor(store, event, report).catch(() => {});
+  }
 
   // LLM 時間線敘事：每次有新回報都重產一次（stub 為確定性字串）
   llmNarrate(event)

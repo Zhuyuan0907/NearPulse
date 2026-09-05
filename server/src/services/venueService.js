@@ -41,12 +41,35 @@ const VENUES = snapshot.venues ?? [];
 /** id → venue */
 const byId = new Map(VENUES.map((v) => [v.id, v]));
 
-/** 別名（含各路線代碼、中英文站名）→ venue。OCR 讀到任何一種寫法都查得到 */
+/**
+ * 別名（含路線代碼、中英文站名）→ venue。OCR 讀到任何一種寫法都查得到。
+ *
+ * ⚠️ **有歧義的別名一律不註冊**，而不是先到先得。
+ * 路線代碼只在同一城市內唯一——`R14` 同時是台北圓山與高雄巨蛋。
+ * 先到先得會讓查詢安靜地回傳錯的場域（實際踩過這個 bug：使用者選了圓山，
+ * 畫面顯示巨蛋）。查不到會逼使用者手選或提供位置線索，那是安全的失敗方式；
+ * 猜錯不是。
+ */
 const byAlias = new Map();
-for (const v of VENUES) {
-  for (const a of [v.id, ...(v.aliases ?? [])]) {
-    const key = normalizeName(a);
-    if (key && !byAlias.has(key)) byAlias.set(key, v);
+{
+  const seen = new Map(); // key -> venue | AMBIGUOUS
+  const AMBIGUOUS = Symbol('ambiguous');
+  for (const v of VENUES) {
+    for (const a of [v.id, ...(v.aliases ?? [])]) {
+      const key = normalizeName(a);
+      if (!key) continue;
+      const prev = seen.get(key);
+      if (prev === undefined) seen.set(key, v);
+      else if (prev !== v && prev !== AMBIGUOUS) seen.set(key, AMBIGUOUS);
+    }
+  }
+  let dropped = 0;
+  for (const [k, v] of seen) {
+    if (v === AMBIGUOUS) { dropped++; continue; }
+    byAlias.set(k, v);
+  }
+  if (dropped > 0) {
+    console.log(`[venues] ${dropped} 個別名有歧義（跨城市共用代碼），已排除以免查錯場域`);
   }
 }
 

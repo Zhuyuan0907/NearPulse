@@ -15,7 +15,8 @@ import { config } from '../config.js';
 import { countIndependentPositives } from '../pipeline/cluster.js';
 import { getAdvice } from '../pipeline/advisors/llm.js';
 import { toEventSummary } from './eventService.js';
-import { evacuationLine } from './evacuationService.js';
+import { findVenue } from './venueService.js';
+import { evacuationPlan } from './evacuationService.js';
 
 /** 威脅等級映射：active 依類型嚴重度、candidate 一律 unverified */
 function threatLevelOf(event) {
@@ -39,18 +40,33 @@ export function buildSituationCard(events, now = Date.now()) {
       byStation.set(ev.stationId, {
         stationId: ev.stationId,
         stationName: ev.stationName,
+        // 場域類型：地下場域不只有捷運站，還有地下街與地下停車場
+        kind: findVenue(ev.stationId)?.kind ?? null,
         events: [],
       });
     }
     byStation.get(ev.stationId).events.push({
       ...toEventSummary(ev),
       threatLevel: threatLevelOf(ev),
+      // 有人無法自行疏散——這是給救援方的最高優先資訊
+      assistanceReports: ev.assistanceReports ?? 0,
       independentSignals: countIndependentPositives(ev),
       advice: getAdvice(ev.type, ev.status),
       // 疏散向量在這裡就算好寫進卡片——與 advice 同一條路徑。
       // client 不持有圖資也不做幾何運算，只負責顯示。
       // 無出口圖資的場域回 null，UI 退回通用建議文字。
-      evacuation: evacuationLine(ev.stationId, ev.nearExitCode, ev.incidentPoint),
+      // **結構化**的疏散計畫，不是一整段散文——恐慌情境下眼睛需要可掃視的結構。
+      // 散文只在語音播報時由 client 從結構組出來。
+      plan: evacuationPlan({
+        venueId: ev.stationId, nearExitCode: ev.nearExitCode,
+        point: ev.incidentPoint, motion: ev.motion, incidentType: ev.type,
+      }),
+      // 無障礙版一起預算進卡片：讀取端切換時不必再發請求，離線也能用
+      planStepFree: evacuationPlan({
+        venueId: ev.stationId, nearExitCode: ev.nearExitCode,
+        point: ev.incidentPoint, motion: ev.motion, incidentType: ev.type,
+        mobility: 'stepFree',
+      }),
     });
   }
 

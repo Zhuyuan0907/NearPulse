@@ -1,3 +1,8 @@
 node_modules/
 dist/
 *.log
+
+# Android
+android/build/
+android/.gradle/
+android/local.properties

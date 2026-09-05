@@ -22,6 +22,7 @@ import { config } from '../config.js';
  *   nearExitCode?: string|null, // 事件最接近的出口代碼（如 'M3'），由照片辨識或使用者點選
  *   photoRoi?: 'A1'~'C3'|null,  // 照片九宮格中「有地點標示」的那一格（僅供追溯）
  *   incidentPoint?: {lat, lon}, // 使用者在地圖上點的事件位置（比出口更精確時）
+ *   needsAssistance?: boolean,  // 現場有人無法自行疏散（行動不便／受困）
  *   note?: string,              // 文字補充（選配，≤140 字）
  *   attachToEventId?: string, // 使用者點了「同一件」時帶入
  *   audio?: { base64, mimeType },  // 選配：hold-to-talk 語音
@@ -63,6 +64,9 @@ export function validateReport(body) {
     Math.abs(pt.lat) <= 90 && Math.abs(pt.lon) <= 180;
   body.incidentPoint = validPoint ? { lat: pt.lat, lon: pt.lon } : null;
 
+  // 需要協助：布林值以外一律當成 false（寧可漏報也不要誤報成有人受困）
+  body.needsAssistance = body.needsAssistance === true;
+
   // 文字補充：超長截斷（不擋）
   if (typeof body.note === 'string' && body.note.length > 140) body.note = body.note.slice(0, 140);
   if (body.note != null && typeof body.note !== 'string') body.note = null;
@@ -91,6 +95,7 @@ export function normalizeReport(body) {
     nearExitCode: body.nearExitCode ?? null, // 場域錨點（確定性查表得出）
     photoRoi: body.photoRoi ?? null,         // 照片九宮格（僅供追溯）
     incidentPoint: body.incidentPoint ?? null, // 地圖選點（最精確的事件位置）
+    needsAssistance: body.needsAssistance === true, // 有人無法自行疏散
     note: body.note ?? null,                 // 文字補充（選配）
     attachToEventId: body.attachToEventId ?? null,
     audio: body.audio ?? null,

@@ -1,4 +1,4 @@
-# NearPulse 系統架構（v0.4.0 實作版）
+# NearPulse 系統架構（v0.5.0 實作版）
 
 > 地下通勤場域的非同步災情儀表板——極簡寫入、批次聚合、超輕量讀取。
 
@@ -108,14 +108,16 @@ server/src/
   services/eventService.js  狀態機執行 + 事件摘要
   services/anchorParser.js  出口代碼／站名解析（建表與查表共用，避免規則漂移）
   services/venueService.js  場域查表、鄰近搜尋、錨點解析、示意幾何
-  services/evacuationService.js  疏散向量（真實公尺距離，純函式）
+  services/evacuationService.js  疏散建議（含移動威脅與無障礙分支，純函式）
+  services/threatMotion.js  移動威脅判定（軌跡 → 方向；防誤判是重點）
   services/situationCardService.js  態勢卡建構 + ETag（含預算好的疏散文字）
   routes/reports.js         POST /api/reports、GET /api/reports/context
   routes/events.js          GET /api/events、POST /api/events/:id/confirm
   routes/situation.js       GET /api/situation（ETag/304）
   routes/vision.js          POST /api/vision（兩段式分析 + 錨點候選 + photoRef）
   routes/venues.js          GET /api/venues/nearby|search|:id
-scripts/build-venues.mjs    離線產生 OSM 快照（非 server 依賴）
+scripts/extract-osm.mjs     .osm.pbf → 過濾後的 JSON（本機，零限流）
+scripts/build-venues.mjs    抽取檔 → venues.json（非 server 依賴）
 
 client/src/
   modules/session.js        無身份 session UUID
@@ -126,6 +128,15 @@ client/src/
   components/VenuePicker.jsx    鄰近場域點選（搜尋為後備）
   components/PhotoRoiPicker.jsx 照片九宮格：標出有站名/出口牌的那一格
   components/VenueMap.jsx       真實 OSM 地圖（Leaflet，動態載入不進首屏）
+  components/OfflineBar.jsx     離線狀態與待送出回報
+  modules/speech.js             疏散指示語音播報（瀏覽器內建，離線可用）
+  modules/offline.js            連線狀態追蹤
+public/sw.js                    Service Worker：離線殼 + 回報排隊
+
+android/                        Android app（補上網頁做不到的感測器層）
+  app/src/main/.../sensor/AltitudeEstimator.kt    氣壓計樓層偵測
+  app/src/main/.../sensor/CrowdMotionDetector.kt  人流停滯偵測
+  app/src/test/                 21 項單元測試（純邏輯，JVM 可跑）
   pages/ReportPage.jsx      回報 3 秒流程
   pages/ConfirmPage.jsx     兩段式確認
   pages/SituationPage.jsx   態勢卡（讀取端）
@@ -182,6 +193,59 @@ server/src/data/venues.json   519 場域 / 614 出口 / 165KB，進版控
 | 場域級 | 地下停車場 | 只有一個帶名字的點 | 僅能回報「在某停車場」，UI 自動降級 |
 
 資料授權：OSM 為 ODbL，`venues.json` 內含姓名標示，UI 頁尾顯示。
+
+### v0.5 改為本機解析（零限流）
+
+Overpass 公開實例只有 2 個併發槽，補方向地標的上百次查詢會被反覆 429。
+改為下載 Geofabrik 抽取檔在本機解析：**全台 101 秒、零限流、可任意重跑**，
+而且能一次看到所有標籤——這直接促成了無障礙功能（`wheelchair` 標籤原本
+沒人想到要查）。
+
+| 指標 | v0.3（Overpass） | v0.5（本機） |
+|---|---|---|
+| 場域數 | 519 | **778**（含日本關西） |
+| 出口數 | 614 | **1340** |
+| 方向地標覆蓋 | 23% | **96%** |
+| 無障礙資料 | — | 42% 出口有標註 |
+| 建表耗時 | 20 分鐘仍失敗 | **101 秒** |
+
+## 10. 移動威脅追蹤
+
+火警不會跑，但**無差別攻擊會**。事件從「一個點」改為「一條錨點軌跡」
+（只追加不覆寫），由 `threatMotion.js` 做確定性判定。
+
+防誤判是這個模組的重點——一條假軌跡會把人往威脅方向趕，比沒有功能更糟：
+
+| 判準 | 擋掉的情況 |
+|---|---|
+| 觀測必須來自不同 session | 同一人邊走邊回報（最可能的假陽性） |
+| 間隔 ≥ 20 秒 | 多人同時回報同一件事 |
+| 位移 ≥ 30m | 定位誤差 |
+| 速度 0.3~6 m/s | 兩起獨立事件被誤併 |
+| 多段方向發散 > 75° | 不硬給方向，改說「位置不一致」 |
+
+疏散建議跟著翻轉：位於威脅前進方向（夾角 ≤70°）的出口進避開清單；
+若所有出口都在前方，誠實說「請尋找避難空間」。
+
+## 11. 無障礙疏散
+
+**火災時電梯不可用，而捷運站裡多數無障礙出口就是電梯**——兩者相乘的結論是：
+對輪椅使用者而言，火警時多數「無障礙出口」並不存在。國際官方準則對這個處境
+的建議是前往避難空間待援，而非前往出口。
+
+所以這不是把出口清單過濾一下，而是**切換成性質不同的答案**：
+
+```
+府中站  推擠（電梯可用）→ 改往無台階可通行的 1 出口
+        火警（電梯禁用）→ 無障礙出口需要電梯，火災時不可使用
+                          請前往避難空間待援
+```
+
+**安全預設**：`wheelchair` 沒有標註一律視為「未知」，絕不當成可通行。
+把「不知道」講成「可以」，對必須依賴這個資訊的人是會害死人的。
+
+篩選順序刻意與一般路徑相反：**先過無障礙，再套安全距離與威脅方向**。
+可通行的出口本來就稀少，若先用距離砍到剩三個，往往一個都不剩。
 
 ## 9. 地圖（v0.4 修訂）
 

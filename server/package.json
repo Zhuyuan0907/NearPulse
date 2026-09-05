@@ -11,5 +11,9 @@
   },
   "dependencies": {
     "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "osm-pbf-parser": "^2.3.0",
+    "through2": "^5.0.11"
   }
 }

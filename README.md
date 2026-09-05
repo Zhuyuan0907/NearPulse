@@ -41,17 +41,25 @@ cd client && npm run dev      # :5173，/api 已代理到 :3000
 ## 端到端驗證（不開瀏覽器、不需任何 API 金鑰）
 
 ```bash
-bash server/test/e2e.sh   # 27 項：場域圖資 → 回報 → 批次 → 確認 → 升級 → 疏散 → ETag 304
+bash server/test/e2e.sh   # 37 項：場域圖資 → 回報 → 批次 → 確認 → 升級 → 疏散 → ETag 304
 ```
 
 ## 場域圖資（OpenStreetMap）
 
-全台 519 個地下場域、614 個出口，由 OSM 離線產生後進版控——server 執行時
-完全不碰外部網路。需要更新時：
+**778 個地下場域、1340 個出口**（含日本關西），由 OSM 離線產生後進版控——
+server 執行時完全不碰外部網路。
+
+資料改由**本機解析 Geofabrik 抽取檔**產生，不再打 Overpass：公開實例只有
+2 個併發槽，補方向地標需要上百次查詢會被反覆限流；本機解析全台 **101 秒**跑完、
+零限流、且能一次看到所有標籤。
 
 ```bash
-node server/scripts/build-venues.mjs            # 全台灣（分區查詢 Overpass）
-node server/scripts/build-venues.mjs --taipei   # 只做台北（快速驗證）
+# 1. 下載區域抽取檔（一次即可）
+curl -O https://download.geofabrik.de/asia/taiwan-latest.osm.pbf
+
+# 2. 抽取 → 建表
+node server/scripts/extract-osm.mjs taiwan-latest.osm.pbf /tmp/tw.json --survey
+node server/scripts/build-venues.mjs /tmp/tw.json
 ```
 
 資料授權：© OpenStreetMap contributors（ODbL）。詳見 `LICENSE`。
@@ -93,7 +101,7 @@ gpt-4o-mini + detail low）；STT/LLM 仍為 stub。
 
 所有 advisor 失敗、逾時或未設定時回傳同一種降級形狀，呼叫端無從分辨，
 因此 AI 永遠不可能擋住一筆回報——**不設任何金鑰也能跑完整條流程**
-（`server/test/e2e.sh` 27 項檢查即在無金鑰環境下驗證）。
+（`server/test/e2e.sh` 37 項檢查即在無金鑰環境下驗證）。
 
 ### 選配：啟用 Vision 辨識
 

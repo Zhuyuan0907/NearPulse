@@ -19,7 +19,7 @@ import {
   venueGeometry,
   venueMeta,
 } from '../services/venueService.js';
-import { evacuationLine } from '../services/evacuationService.js';
+import { evacuationLine, evacuationPlan } from '../services/evacuationService.js';
 import { getAdvice } from '../pipeline/advisors/llm.js';
 
 export function createVenuesRouter() {
@@ -61,11 +61,21 @@ export function createVenuesRouter() {
     const point = Number.isFinite(lat) && Number.isFinite(lon) ? { lat, lon } : null;
     const type = typeof req.query.type === 'string' ? req.query.type : 'other';
 
+    const mobility = req.query.mobility === 'stepFree' ? 'stepFree' : null;
     res.json({
       ok: true,
       venueName: venue.name,
       advice: getAdvice(type, 'active'),
-      evacuation: evacuationLine(venue.id, exit, point),
+      evacuation: evacuationLine({ venueId: venue.id, nearExitCode: exit, point, incidentType: type }),
+      evacuationStepFree: evacuationLine({
+        venueId: venue.id, nearExitCode: exit, point, incidentType: type, mobility: 'stepFree',
+      }),
+      plan: evacuationPlan({ venueId: venue.id, nearExitCode: exit, point, incidentType: type }),
+      planStepFree: evacuationPlan({
+        venueId: venue.id, nearExitCode: exit, point, incidentType: type, mobility: 'stepFree',
+      }),
+      mobility,
+      accessibility: venue.accessibility ?? null,
     });
   });
 

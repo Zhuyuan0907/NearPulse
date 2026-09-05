@@ -12,6 +12,7 @@
  */
 
 import { getSessionId } from './session.js';
+import { setCardStale } from './offline.js';
 
 const jsonHeaders = { 'Content-Type': 'application/json' };
 
@@ -33,7 +34,7 @@ const VISION_DEGRADED = { pending: true, roiCell: null, texts: [], anomalies: []
 export async function postReport({
   uuid, type, locationClaim, attachToEventId = null,
   nearExitCode = null, incidentPoint = null, photoRoi = null,
-  note = null, audio = null, photo = null, photoRef = null,
+  needsAssistance = false, note = null, audio = null, photo = null, photoRef = null,
 }) {
   const res = await fetch('/api/reports', {
     method: 'POST',
@@ -47,6 +48,7 @@ export async function postReport({
       nearExitCode,               // 場域錨點（出口代碼，確定性查表得出）
       incidentPoint,              // 地圖選點 { lat, lon }（最精確的事件位置）
       photoRoi,                   // 照片九宮格（影像座標，僅供追溯）
+      needsAssistance,            // 現場有人無法自行疏散（救援優先資訊）
       note,                       // 文字補充（≤140 字，選配）
       audio,                      // { base64, mimeType } | null
       // 有 ref 就不重傳圖；沒有才帶 base64
@@ -70,7 +72,9 @@ export async function postReport({
  * @returns {Promise<{result, candidates, photoRef, enabled}>}
  */
 export async function analyzePhoto({ base64, mimeType, stage = 'locate', venueId, lat, lon }) {
-  const fallback = { result: VISION_DEGRADED, candidates: [], photoRef: null, enabled: false };
+  const fallback = {
+    result: VISION_DEGRADED, candidates: [], photoRef: null, enabled: false, mode: 'off',
+  };
   try {
     const res = await fetch('/api/vision', {
       method: 'POST',
@@ -84,6 +88,7 @@ export async function analyzePhoto({ base64, mimeType, stage = 'locate', venueId
       candidates: data.candidates ?? [],
       photoRef: data.photoRef ?? null,
       enabled: Boolean(data.enabled),
+      mode: data.mode ?? 'off', // interactive | deferred | off
     };
   } catch {
     // 網路中斷也不能擋回報——照片改走完整上傳路徑
@@ -132,12 +137,13 @@ export async function fetchVenue(venueId) {
  * 即時疏散建議——送出回報後立刻要用，不等 10 秒的批次 tick。
  * 內容與態勢卡一致（server 端同一個 evacuationService）。
  */
-export async function fetchEvacuation({ venueId, exitCode, point, type }) {
+export async function fetchEvacuation({ venueId, exitCode, point, type, mobility }) {
   try {
     const p = new URLSearchParams();
     if (exitCode) p.set('exit', exitCode);
     if (point) { p.set('lat', point.lat); p.set('lon', point.lon); }
     if (type) p.set('type', type);
+    if (mobility) p.set('mobility', mobility);
     const res = await fetch(`/api/venues/${encodeURIComponent(venueId)}/evacuation?${p}`);
     if (!res.ok) return null;
     return await res.json();
@@ -193,6 +199,9 @@ export function startSituationPolling(onCard, { intervalMs = 12_000 } = {}) {
     try {
       const headers = etag ? { 'If-None-Match': etag } : {};
       const res = await fetch('/api/situation', { headers });
+      // Service Worker 在離線時會回上次的快取並加這個標頭——
+      // 讀取端必須誠實標示「這是舊資料」，不能讓人以為是即時的
+      setCardStale(res.headers.get('X-NearPulse-Offline') === '1');
       if (res.status === 304) return; // 未變動——沿用上一次內容
       etag = res.headers.get('ETag');
       const data = await res.json();

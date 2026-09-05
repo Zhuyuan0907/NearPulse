@@ -7,13 +7,16 @@
  *   2. 點地圖任一處 —— 事件不在出口旁（月台中段、通道中間）時用
  *   3. GPS 定位 —— 訊號夠好時（地面層、出入口附近）一鍵採用
  *
- * 為什麼底圖用 CARTO 而非 tile.openstreetmap.org：
- * OSM 官方圖磚的使用政策明文不供應用程式正式流量使用。CARTO 的底圖同樣是
- * OpenStreetMap 資料（姓名標示照給），且深色版與本專案的深色 UI 一致，
- * 在地下昏暗環境也較不刺眼。要換回官方圖磚只需改 TILE 常數。
+ * 底圖用**官方 OpenStreetMap 圖磚**——就是大家認得的那張 OSM 地圖。
  *
- * 頻寬：圖磚只在使用者真的展開地圖時才載入，且縮放層級鎖在站體尺度，
- * 一次視野約 4~6 張圖磚。讀取端態勢卡完全不載入本元件。
+ * ⚠️ OSM 官方圖磚的使用政策不供高流量的正式服務使用（開發與展示屬可接受
+ * 範圍）。日後正式上線時把 TILE 換成自架圖磚或商用供應商即可，其餘不動。
+ *
+ * 深色 UI 配淺色地圖會刺眼，所以加一層很輕的 CSS 濾鏡降亮度——
+ * 刻意不做反相：那會讓地圖不像 OSM，文字也會變得難讀。
+ *
+ * 頻寬：圖磚只在使用者真的展開地圖時才載入，縮放層級鎖在站體尺度，
+ * 一次視野約 4~6 張。讀取端態勢卡完全不載入本元件。
  */
 
 import { useEffect, useRef } from 'react';
@@ -21,9 +24,9 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 const TILE = {
-  url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-  attribution: '© OpenStreetMap contributors © CARTO',
-  maxZoom: 20,
+  url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+  attribution: '© OpenStreetMap contributors',
+  maxZoom: 19,
 };
 
 /** 出口圖釘：直接把編號寫在釘子上，不必點開才知道是幾號出口 */

@@ -79,8 +79,59 @@ function normalizeAnomalies(raw) {
   return Array.isArray(raw) ? raw.filter((a) => ANOMALY_KEYS.includes(a)) : [];
 }
 
+/**
+ * 從回應文字裡挖出第一個 JSON 物件。
+ * 免費層的 reasoning model 不一定遵守 response_format，常常在 JSON 前後
+ * 夾雜說明文字——嚴格 JSON.parse 會整個失敗，但內容其實是可用的。
+ */
+function looseJson(text) {
+  if (!text) return {};
+  try { return JSON.parse(text); } catch { /* 繼續嘗試 */ }
+  const m = text.match(/\{[\s\S]*\}/);
+  if (!m) return {};
+  try { return JSON.parse(m[0]); } catch { return {}; }
+}
+
 const PROVIDERS = {
   none: null,
+
+  /**
+   * opencode zen 的免費層。
+   *
+   * 實測（2026-09）：`big-pickle` 與 `mimo-v2.5-free` 支援影像且真的讀得出
+   * 中文站名，但延遲約 34 秒、且免費層速率限制很緊。因此只能配 deferred 模式，
+   * 互動式會讓使用者盯著轉圈半分鐘。
+   *
+   * 認證用 x-api-key（不是 Bearer——這點與多數 OpenAI 相容閘道不同）。
+   */
+  async opencode({ base64, mimeType, stage, signal }) {
+    const res = await fetch('https://opencode.ai/zen/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'x-api-key': process.env.OPENCODE_API_KEY ?? '',
+        'Content-Type': 'application/json',
+      },
+      signal,
+      body: JSON.stringify({
+        model: config.vision.model,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: PROMPTS[stage] },
+              { type: 'image_url', image_url: { url: `data:${mimeType};base64,${base64}` } },
+            ],
+          },
+        ],
+        // reasoning model 會先花掉大量 token 思考；給太少的話 content 會是空的
+        max_tokens: 3000,
+        temperature: 0,
+      }),
+    });
+    if (!res.ok) throw new Error(`opencode ${res.status}`);
+    const data = await res.json();
+    return looseJson(data.choices?.[0]?.message?.content);
+  },
 
   async openai({ base64, mimeType, stage, signal }) {
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -119,15 +170,26 @@ const PROVIDERS = {
   },
 };
 
-/** 目前生效的供應商——未設金鑰時 openai 自動失效，落回 none */
+/** 目前生效的供應商——缺對應金鑰時自動失效，落回 none（降級形狀一致） */
 function resolveProvider() {
   const name = config.vision.provider;
   if (name === 'openai' && !process.env.OPENAI_API_KEY) return null;
+  if (name === 'opencode' && !process.env.OPENCODE_API_KEY) return null;
   return PROVIDERS[name] ?? null;
 }
 
 export function isVisionEnabled() {
   return resolveProvider() !== null;
+}
+
+/**
+ * 互動還是延後？由供應商的實測延遲決定。
+ * 延後模式下，回報端不等辨識結果，錨點由批次端稍後補上。
+ */
+export function visionMode() {
+  if (!isVisionEnabled()) return 'off';
+  if (config.vision.mode) return config.vision.mode;
+  return config.vision.provider === 'opencode' ? 'deferred' : 'interactive';
 }
 
 /**
@@ -138,14 +200,18 @@ export function isVisionEnabled() {
  * @param {'locate'|'read'} [input.stage] - 預設 'locate'
  * @returns {Promise<{pending, roiCell, texts, anomalies}>}
  */
-export async function analyzePhoto({ base64, mimeType = 'image/webp', stage = 'locate' } = {}) {
+export async function analyzePhoto({
+  base64, mimeType = 'image/webp', stage = 'locate', deferred = false,
+} = {}) {
   const provider = resolveProvider();
   if (!provider || !base64 || !PROMPTS[stage]) {
     return degraded({ receivedBytes: base64?.length ?? 0 });
   }
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), config.vision.timeoutMs);
+  // 延後模式沒有人在等，逾時可以放寬（免費層的 reasoning model 要 30 秒以上）
+  const budget = deferred ? config.vision.deferredTimeoutMs : config.vision.timeoutMs;
+  const timer = setTimeout(() => controller.abort(), budget);
 
   try {
     const parsed = await provider({ base64, mimeType, stage, signal: controller.signal });

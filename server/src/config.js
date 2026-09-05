@@ -56,8 +56,19 @@ export const config = {
   vision: {
     provider: process.env.VISION_PROVIDER ?? 'openai',
     model: process.env.VISION_MODEL ?? 'gpt-4o-mini',
-    /** 逾時上限：規格目標是 1 秒內回，這是「絕不卡住使用者」的保險絲 */
+    /**
+     * 互動 or 延後。**由供應商的實測延遲決定，不是偏好問題。**
+     *   interactive —— 拍完照當場等結果（gpt-4o-mini 約 1~2 秒）
+     *   deferred    —— 回報立刻成立，辨識在批次端非同步跑，錨點稍後補上
+     *
+     * opencode 的免費層實測 34.5 秒（reasoning model），互動式完全不可行；
+     * 但延後模式剛好符合本專案「advisor 是 fire-and-forget、永不擋回報」的架構。
+     */
+    mode: process.env.VISION_MODE ?? null, // null = 依供應商自動決定
+    /** 互動模式的逾時：這是「絕不卡住使用者」的保險絲 */
     timeoutMs: Number(process.env.VISION_TIMEOUT_MS ?? 6_000),
+    /** 延後模式的逾時：沒有人在等，可以放寬 */
+    deferredTimeoutMs: Number(process.env.VISION_DEFERRED_TIMEOUT_MS ?? 90_000),
     /** low detail：成本與延遲最低，對柱號/招牌/燈箱文字已足夠 */
     detail: 'low',
     /** 照片暫存（/api/vision → 回報帶 photoRef，省掉第二次上傳）存活時間 */

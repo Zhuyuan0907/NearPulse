@@ -26,6 +26,7 @@ import { isSpeechSupported, speak, stopSpeaking } from '../modules/speech.js';
 import { isVoiceSupported, createRecorder } from '../modules/voiceRecorder.js';
 import { compressPhoto, cropCell } from '../modules/photoCompressor.js';
 import VenuePicker from '../components/VenuePicker.jsx';
+import OfflineBar from '../components/OfflineBar.jsx';
 import PhotoRoiPicker from '../components/PhotoRoiPicker.jsx';
 
 /**
@@ -67,6 +68,9 @@ export default function ReportPage() {
 
   // ---- 選配補充 ----
   const [note, setNote] = useState('');
+  // 無障礙偏好記在 sessionStorage：需要的人不必每次重選，但關頁即滅（不留個資）
+  const [stepFree, setStepFree] = useState(() => sessionStorage.getItem('np_step_free') === '1');
+  const [needsAssistance, setNeedsAssistance] = useState(false);
   const [audioClip, setAudioClip] = useState(null);
   const [recording, setRecording] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
@@ -80,6 +84,7 @@ export default function ReportPage() {
   const [suggestedCell, setSuggestedCell] = useState(null);
   const [visionBusy, setVisionBusy] = useState(false);
   const [visionOff, setVisionOff] = useState(false);
+  const [visionMode, setVisionMode] = useState('off'); // interactive | deferred | off
   const [readTexts, setReadTexts] = useState([]);
   const [candidates, setCandidates] = useState([]);
 
@@ -175,15 +180,16 @@ export default function ReportPage() {
     const res = await analyzePhoto({ ...compressed, stage: 'locate' });
     setPhotoRef(res.photoRef);
     setVisionOff(!res.enabled);
+    setVisionMode(res.mode);
     setSuggestedCell(res.result.roiCell);
 
-    // AI 已經指出是哪一格了，不該再要使用者點一下確認——直接接著讀字。
-    // 判斷錯的時候使用者再改格即可（省一次點擊 + 一次來回等待）。
-    if (res.result.roiCell) {
-      await runRead(res.result.roiCell, file);
-    } else {
-      setVisionBusy(false);
-    }
+    // 延後模式（慢速供應商，實測 34 秒）：不在這裡等。
+    // 照片會隨回報送出，辨識在批次端非同步跑，位置稍後自動補上。
+    if (res.mode === 'deferred') { setVisionBusy(false); return; }
+
+    // 互動模式：AI 已經指出是哪一格，不該再要使用者點一下確認——直接接著讀字。
+    if (res.result.roiCell) await runRead(res.result.roiCell, file);
+    else setVisionBusy(false);
   }
 
   /**
@@ -239,6 +245,7 @@ export default function ReportPage() {
         nearExitCode,
         incidentPoint,
         photoRoi: roiCell,
+        needsAssistance,
         note: note.trim() || null,
         audio: audioClip,
         photo,
@@ -252,6 +259,7 @@ export default function ReportPage() {
         exitCode: nearExitCode,
         point: incidentPoint,
         type: selectedType,
+        mobility: stepFree ? 'stepFree' : null,
       }).then(setEvac);
     } catch {
       setError('送出失敗，請再試一次');
@@ -293,17 +301,19 @@ export default function ReportPage() {
   if (done) {
     // 播報的內容 = 螢幕上看到的內容。濃煙中看不到螢幕、人又在移動，
     // 用聽的才真的接收得到；瀏覽器內建語音是離線的，不需要網路。
-    const spoken = [evac?.advice, evac?.evacuation].filter(Boolean).join('。');
+    // 有勾無障礙就顯示／播報無障礙版本——那是性質不同的答案，不是同一句話的變體
+    const evacText = stepFree ? (evac?.evacuationStepFree ?? evac?.evacuation) : evac?.evacuation;
+    const spoken = [evac?.advice, evacText].filter(Boolean).join('。');
     return (
       <div className="page">
         <div className="done-box">
           <div className="done-icon">✅</div>
           <h2>已通報</h2>
 
-          {evac?.evacuation ? (
+          {evacText ? (
             <>
               <p className="advice">{evac.advice}</p>
-              <p className="evac-line">🧭 {evac.evacuation}</p>
+              <p className="evac-line">🧭 {evacText}</p>
               {isSpeechSupported() && (
                 <button
                   className="primary-btn btn-block btn-lg"
@@ -342,6 +352,8 @@ export default function ReportPage() {
 
   return (
     <div className={`page${selectedType ? ' page-with-dock' : ''}`}>
+      <OfflineBar />
+
       {/* ===== ① 我在哪 ===== */}
       <button
         className={`loc-bar${claim ? '' : ' loc-unset'}`}
@@ -420,6 +432,30 @@ export default function ReportPage() {
         <>
           <h2 className="section-title">事件在哪裡？（愈精確，疏散建議愈有用）</h2>
 
+          {/* 無障礙路線：一鍵切換，不需帳號、不留紀錄（關頁即滅）。
+              勾選後疏散建議會改成「無台階可通行」的版本——
+              火災時電梯不可用，所以那往往是完全不同的答案。 */}
+          <div className="supp-row" style={{ marginBottom: 10 }}>
+            <button
+              className={`chip${stepFree ? ' chip-active' : ''}`}
+              style={{ flex: 1, minHeight: 48 }}
+              onClick={() => {
+                const next = !stepFree;
+                setStepFree(next);
+                sessionStorage.setItem('np_step_free', next ? '1' : '0');
+              }}
+            >
+              ♿ {stepFree ? '已選：需要無台階路線' : '我需要無台階路線'}
+            </button>
+            <button
+              className={`chip${needsAssistance ? ' chip-active' : ''}`}
+              style={{ flex: 1, minHeight: 48 }}
+              onClick={() => setNeedsAssistance(!needsAssistance)}
+            >
+              🆘 {needsAssistance ? '已標記：有人需協助' : '有人無法自行疏散'}
+            </button>
+          </div>
+
           <div className="supp-row">
             <button className="ghost-btn btn-lg" onClick={() => photoInputRef.current?.click()}>
               📷 拍照定位
@@ -449,6 +485,12 @@ export default function ReportPage() {
               />
               {visionOff && (
                 <p className="muted">（視覺辨識未啟用——照片仍會附上，位置請用地圖確認）</p>
+              )}
+              {visionMode === 'deferred' && (
+                <p className="muted">
+                  照片已收下。辨識在背景進行（約 30 秒），位置會自動補上——
+                  你現在就可以直接送出，不必等。
+                </p>
               )}
               {readTexts.length > 0 && (
                 <p className="ok-note">
