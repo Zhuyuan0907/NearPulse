@@ -154,6 +154,10 @@ export function normalizeReport(body) {
     attachToEventId: body.attachToEventId ?? null,
     audio: body.audio ?? null,
     photo: body.photo ?? null,
+    // 感測器旁證（選配、漸進增強）：加速度計下樓模式、磁場異常、
+    // 原生橋接的樓層估計。前端沒有感測器時整個物件是 null——
+    // 現階段僅存查與批次端預留，不參與任何門檻判斷。
+    sensorEvidence: body.sensorEvidence ?? null,
     receivedAt: Date.now(),
   };
 }

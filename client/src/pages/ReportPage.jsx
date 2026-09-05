@@ -29,6 +29,10 @@ import OfflineBar from '../components/OfflineBar.jsx';
 import PhotoRoiPicker from '../components/PhotoRoiPicker.jsx';
 import Pictogram from '../components/Pictogram.jsx';
 import { isDictationSupported, startDictation } from '../modules/dictate.js';
+import {
+  detectSensors, watchVerticalMotion, watchMagneticAnomaly,
+  sensorEvidenceForReport,
+} from '../modules/sensors.js';
 
 const VenueMap = lazy(() => import('../components/VenueMap.jsx'));
 
@@ -93,6 +97,29 @@ export default function ReportPage() {
 
   const photoInputRef = useRef(null);
   const rawFileRef = useRef(null);
+
+  // ---- 感測器旁證（漸進增強：有就用、沒有就 null，流程完全不受影響）----
+  // 加速度計的下樓模式 + 磁力計的磁場異常都是「在地下」的旁證，
+  // 收集後附在回報上（server 可用可不用）。氣壓計沒有 Web API——
+  // 樓層估計只存在於 android/ 原生模組，WebView 情境經 native bridge 餵入。
+  const [verticalState, setVerticalState] = useState(null);
+  const [magneticAnomaly, setMagneticAnomaly] = useState(null);
+  const verticalRef = useRef(null);
+  const magneticRef = useRef(null);
+
+  useEffect(() => {
+    const caps = detectSensors();
+    if (caps.motion) {
+      verticalRef.current = watchVerticalMotion(setVerticalState); // iOS 未授權時回 null，靜默退場
+    }
+    if (caps.orientation) {
+      magneticRef.current = watchMagneticAnomaly(setMagneticAnomaly);
+    }
+    return () => {
+      verticalRef.current?.stop();
+      magneticRef.current?.stop();
+    };
+  }, []);
 
   const hasLocationClue = Boolean(
     claim?.stationId || placeText.trim() || fix || photo || photoRef
@@ -278,9 +305,16 @@ export default function ReportPage() {
     if (!readyToSubmit) return;
     setSubmitting(true);
     try {
+      // 感測器旁證：有多少收集多少，沒有就是 null（附加欄位，不擋流程）
+      const sensorEvidence = sensorEvidenceForReport({
+        gpsOk: fix ? true : null,
+        vertical: verticalState,
+        magnetic: magneticAnomaly,
+      });
       await postReport({
         uuid: crypto.randomUUID(),
         type: selectedType,
+        sensorEvidence,
         locationClaim: claim
           ? { ...claim, timestamp: Date.now() }
           : {
