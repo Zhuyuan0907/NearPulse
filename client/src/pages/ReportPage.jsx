@@ -23,7 +23,6 @@ import {
   postReport, fetchEventsContext, analyzePhoto, fetchVenue, fetchEvacuation,
 } from '../modules/api.js';
 import { isSpeechSupported, speak, stopSpeaking } from '../modules/speech.js';
-import { isVoiceSupported, createRecorder } from '../modules/voiceRecorder.js';
 import { compressPhoto, cropCell } from '../modules/photoCompressor.js';
 import VenuePicker from '../components/VenuePicker.jsx';
 import OfflineBar from '../components/OfflineBar.jsx';
@@ -83,8 +82,8 @@ export default function ReportPage() {
   const [onTrain, setOnTrain] = useState(false);
   // 使用者指認的下一站——通知該站月台的依據
   const [nextVenueId, setNextVenueId] = useState(null);
-  const [audioClip, setAudioClip] = useState(null);
-  const [recording, setRecording] = useState(false);
+  const [noteDictating, setNoteDictating] = useState(false);
+  const noteDictationRef = useRef(null);
   const [showDetails, setShowDetails] = useState(false);
   const [gpsBusy, setGpsBusy] = useState(false);
 
@@ -106,7 +105,6 @@ export default function ReportPage() {
   const [dictating, setDictating] = useState(false);
   const dictationRef = useRef(null);
 
-  const recorderRef = useRef(null);
   const photoInputRef = useRef(null);
   const rawFileRef = useRef(null); // 保留原圖：裁切要從原圖裁才有解析度紅利
 
@@ -169,6 +167,30 @@ export default function ReportPage() {
       if (state === 'granted') coarseFix().then(setFix);
     });
   }, [applyVenue]);
+
+  /**
+   * 補充描述的語音輸入。
+   *
+   * 與地點描述共用同一個模組，但**寫進 note 而不是 placeText**。
+   * 一樣不會自動送出——辨識在吵雜的月台上會出錯，而這段文字會被
+   * 其他人讀到，必須讓使用者過目。
+   */
+  function toggleNoteDictation() {
+    if (noteDictationRef.current) {
+      noteDictationRef.current.stop();
+      noteDictationRef.current = null;
+      setNoteDictating(false);
+      return;
+    }
+    const base = note.trim();
+    const session = startDictation({
+      onText: (text) => setNote(`${base}${base ? ' ' : ''}${text}`.slice(0, 140)),
+      onEnd: () => { noteDictationRef.current = null; setNoteDictating(false); },
+    });
+    if (!session) return;
+    noteDictationRef.current = session;
+    setNoteDictating(true);
+  }
 
   /** 語音輸入地點描述：開始／停止 */
   function toggleDictation() {
@@ -351,7 +373,6 @@ export default function ReportPage() {
         onTrain,
         nextVenueId: onTrain ? nextVenueId : null,
         note: note.trim() || null,
-        audio: audioClip,
         photo,
         photoRef,
       });
@@ -376,7 +397,7 @@ export default function ReportPage() {
 
   function resetDraft() {
     setSelectedType(null); setMatchEvent(null); setAttachChoice(null);
-    setNote(''); setAudioClip(null); setShowDetails(false); setOnTrain(false); setNextVenueId(null); setNeedsAssistance(false);
+    setNote(''); setShowDetails(false); setOnTrain(false); setNextVenueId(null); setNeedsAssistance(false);
     setPhoto(null); setPhotoRef(null); setRoiCell(null); setSuggestedCell(null);
     setReadTexts([]); setCandidates([]); setVenueSwitchedTo(null); setPlaceText('');
     setNearExitCode(null); setIncidentPoint(null);
@@ -385,24 +406,6 @@ export default function ReportPage() {
     setEvac(null); stopSpeaking();
   }
 
-  // ---- hold-to-talk：按下開錄、放開即停 ----
-  async function handleMicDown() {
-    if (!isVoiceSupported() || recording) return;
-    try {
-      recorderRef.current = createRecorder();
-      await recorderRef.current.start();
-      setRecording(true);
-    } catch {
-      // 麥克風授權失敗（恐慌中最常見）→ 安靜放棄，語音只是補充層
-    }
-  }
-  async function handleMicUp() {
-    if (!recorderRef.current) return;
-    setRecording(false);
-    const clip = await recorderRef.current.stop();
-    recorderRef.current = null;
-    if (clip) setAudioClip(clip);
-  }
 
   // ===================== 送出完成 =====================
   if (done) {
@@ -812,19 +815,26 @@ export default function ReportPage() {
             </button>
           ) : (
             <div className="card stack">
-              {isVoiceSupported() ? (
+              {/* 【從「錄音附件」改成「語音轉文字」】
+                  舊版是按住說話、放開送出，錄下一段音檔附在回報上。
+                  兩個問題：
+                    1. 按住不放在手機上很脆弱——手指稍微移動觸發 onPointerLeave
+                       就取消了，而點一下則是開了立刻關，什麼都沒發生
+                    2. **那段音檔沒有人讀得到**。stt.js 從頭到尾是 stub，
+                       也沒有播放介面，等於錄了丟進黑洞
+                  現在改用瀏覽器內建辨識，點一下開始、再點一次結束，
+                  結果直接寫進下面的文字欄讓使用者過目再送出。 */}
+              {isDictationSupported() ? (
                 <button
-                  className={`mic-btn${recording ? ' mic-recording' : ''}`}
-                  onPointerDown={handleMicDown}
-                  onPointerUp={handleMicUp}
-                  onPointerLeave={handleMicUp}
+                  className={`mic-btn${noteDictating ? ' mic-recording' : ''}`}
+                  onClick={toggleNoteDictation}
                 >
-                  {recording ? <>放開送出</> : <><Pictogram name="mic" size={18} />按住說話</>}
+                  <Pictogram name="mic" size={18} />
+                  {noteDictating ? '聽著呢——再點一次結束' : '用說的（會轉成文字）'}
                 </button>
               ) : (
-                <p className="muted">（此瀏覽器不支援錄音，可改用文字）</p>
+                <p className="muted">（此瀏覽器不支援語音輸入，請用打字）</p>
               )}
-              {audioClip && <p className="ok-note">已收錄語音補充</p>}
               <textarea
                 className="note-input"
                 placeholder="輸入文字（140 字內）"
