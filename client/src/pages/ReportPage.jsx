@@ -28,7 +28,7 @@ import VenuePicker from '../components/VenuePicker.jsx';
 import OfflineBar from '../components/OfflineBar.jsx';
 import PhotoRoiPicker from '../components/PhotoRoiPicker.jsx';
 import Pictogram from '../components/Pictogram.jsx';
-import { isDictationSupported, startDictation } from '../modules/dictate.js';
+import { isDictationSupported, startDictation, dictationErrorText } from '../modules/dictate.js';
 import {
   detectSensors, watchVerticalMotion, watchMagneticAnomaly,
   sensorEvidenceForReport,
@@ -46,6 +46,83 @@ const TYPES = [
 
 /** GPS 誤差小於這個值才值得拿來當事件位置（否則只用於收斂場域清單） */
 const GPS_USABLE_ACCURACY_M = 60;
+
+/** 麥克風鈕底下那一行字：狀態要用講的，不能只靠顏色變化 */
+const DICTATE_HINT = {
+  idle: '點一下開始說',
+  starting: '麥克風啟動中…',
+  listening: '正在聽…再點一下結束',
+};
+
+/**
+ * 語音輸入的狀態機（地點描述與補充各用一份）。
+ *
+ * **點一下開始、再點一下結束**——不是按住說話。
+ * `SpeechRecognition.start()` 要 200~800ms 才真的開始收音，而一次自然的
+ * 點按只有 100ms 上下；按住說話的寫法等於在麥克風開起來之前就把它關掉，
+ * 講什麼都進不到輸入框。手指些微移出按鈕（pointerleave）也會中斷。
+ * 完整理由見 `modules/dictate.js` 的檔頭。
+ *
+ * @param {(base: string, text: string) => void} applyText
+ *        把辨識結果寫進欄位。`base` 是開始講話當下欄位裡已經有的字——
+ *        接在後面而不是覆蓋掉，打了一半改用說的才不會被清空。
+ */
+function useDictation(applyText) {
+  const [state, setState] = useState('idle'); // idle | starting | listening
+  const [error, setError] = useState(null);
+  const sessionRef = useRef(null);
+  const baseRef = useRef('');
+
+  // 離開這一頁就把麥克風關掉——沒有人希望它在背景繼續聽
+  useEffect(() => () => sessionRef.current?.stop(), []);
+
+  const toggle = useCallback((base = '') => {
+    if (sessionRef.current) {          // 第二次點擊 = 講完了
+      sessionRef.current.stop();
+      return;
+    }
+    setError(null);
+    baseRef.current = base;
+    setState('starting');
+    const session = startDictation({
+      onStart: () => setState('listening'),
+      onText: (text) => applyText(baseRef.current, text),
+      onError: (code) => setError(dictationErrorText(code)),
+      onEnd: () => { sessionRef.current = null; setState('idle'); },
+    });
+    // 起不來時 startDictation 已經呼叫過 onError，這裡只要把狀態收回去
+    if (!session) { setState('idle'); return; }
+    sessionRef.current = session;
+  }, [applyText]);
+
+  return { state, error, toggle };
+}
+
+/** 麥克風圓鈕 + 狀態字 + 失敗原因。兩個欄位共用同一個外觀與行為 */
+function MicButton({ dictation, base, size = 30, className = '', label }) {
+  const { state, error, toggle } = dictation;
+  const on = state === 'listening';
+  return (
+    <>
+      <span className="where-say-row">
+        <button
+          type="button"
+          className={`holdtalk-btn ${className}${on ? ' holdtalk-rec' : ''}${state === 'starting' ? ' holdtalk-wait' : ''}`}
+          aria-label={on ? '結束語音輸入' : label}
+          aria-pressed={on}
+          onClick={() => toggle(base)}
+        >
+          <Pictogram name="mic" size={size} />
+        </button>
+        <span className={`holdtalk-state${on ? ' holdtalk-state-rec' : ''}`}>
+          {DICTATE_HINT[state]}
+        </span>
+      </span>
+      {/* 用 span 而非 p：地點描述那張卡是把它放在 <span> 裡面的 */}
+      {error && <span className="dictate-err">{error}</span>}
+    </>
+  );
+}
 
 export default function ReportPage() {
   // ---- 頁面步驟：type → where → detail ----
@@ -75,8 +152,6 @@ export default function ReportPage() {
   const [needsAssistance, setNeedsAssistance] = useState(false);
   const [onTrain, setOnTrain] = useState(false);
   const [nextVenueId, setNextVenueId] = useState(null);
-  const [noteDictating, setNoteDictating] = useState(false);
-  const noteDictationRef = useRef(null);
 
   // ---- 照片與視覺定位 ----
   const [photo, setPhoto] = useState(null);
@@ -91,8 +166,16 @@ export default function ReportPage() {
   const [candidates, setCandidates] = useState([]);
   const [venueSwitchedTo, setVenueSwitchedTo] = useState(null);
   const [placeText, setPlaceText] = useState('');
-  const [dictating, setDictating] = useState(false);
-  const dictationRef = useRef(null);
+
+  // ---- 語音輸入：地點描述與補充各一份，互不干擾 ----
+  const applyPlaceText = useCallback((base, text) => {
+    setPlaceText(`${base}${base ? ' ' : ''}${text}`.slice(0, 60));
+  }, []);
+  const applyNoteText = useCallback((base, text) => {
+    setNote(`${base}${base ? ' ' : ''}${text}`.slice(0, 140));
+  }, []);
+  const placeDictation = useDictation(applyPlaceText);
+  const noteDictation = useDictation(applyNoteText);
 
   const photoInputRef = useRef(null);
   const rawFileRef = useRef(null);
@@ -165,41 +248,6 @@ export default function ReportPage() {
       });
     });
   }, [applyVenue]);
-
-  /** 補充描述的語音輸入（按住說話） */
-  function toggleNoteDictation() {
-    if (noteDictationRef.current) {
-      noteDictationRef.current.stop();
-      noteDictationRef.current = null;
-      setNoteDictating(false);
-      return;
-    }
-    const base = note.trim();
-    const session = startDictation({
-      onText: (text) => setNote(`${base}${base ? ' ' : ''}${text}`.slice(0, 140)),
-      onEnd: () => { noteDictationRef.current = null; setNoteDictating(false); },
-    });
-    if (!session) return;
-    noteDictationRef.current = session;
-    setNoteDictating(true);
-  }
-
-  /** 語音輸入地點描述：開始／停止 */
-  function toggleDictation() {
-    if (dictationRef.current) {
-      dictationRef.current.stop();
-      dictationRef.current = null;
-      setDictating(false);
-      return;
-    }
-    const session = startDictation({
-      onText: (text) => setPlaceText(text.slice(0, 60)),
-      onEnd: () => { dictationRef.current = null; setDictating(false); },
-    });
-    if (!session) return;
-    dictationRef.current = session;
-    setDictating(true);
-  }
 
   /** 需要定位時才實際去要（場域選擇器與 GPS 按鈕共用） */
   const ensureFix = useCallback(async () => {
@@ -542,8 +590,12 @@ export default function ReportPage() {
                   </button>
 
                   {/* 自己描述：輸入框與麥克風包在**同一個邊框卡**裡——
-                      邊框延伸到麥克風，視覺上宣告「這兩個都是描述地點的方式」。 */}
-                  <label className="where-opt where-freeform where-say">
+                      邊框延伸到麥克風，視覺上宣告「這兩個都是描述地點的方式」。
+
+                      這裡刻意**不是** <label>：label 會把內部任何點擊
+                      都導到它包住的 <input>，按麥克風時鍵盤會跳出來、
+                      版面一位移手指就離開按鈕，語音等於按不到。 */}
+                  <div className="where-opt where-freeform where-say">
                     <Pictogram name="map" size={24} />
                     <span>
                       <b>自己描述</b>
@@ -553,32 +605,24 @@ export default function ReportPage() {
                           type="text"
                           inputMode="text"
                           maxLength={60}
+                          aria-label="地點描述"
                           placeholder="例：京站地下街 B1"
                           value={placeText}
                           onChange={(e) => setPlaceText(e.target.value)}
                         />
                       </span>
-                      {/* 用說的——大麥克風圓鈕，與第 2 頁按住說話同款。
+                      {/* 用說的——大麥克風圓鈕，與第 2 頁同款。
                           恐慌中打字是懲罰，說一句只要兩秒。 */}
                       {isDictationSupported() && (
-                        <span className="where-say-row">
-                          <button
-                            type="button"
-                            className={`holdtalk-btn holdtalk-sm${dictating ? ' holdtalk-rec' : ''}`}
-                            aria-label={dictating ? '停止語音輸入' : '按住說出地點'}
-                            onPointerDown={(e) => { e.preventDefault(); if (!dictating) toggleDictation(); }}
-                            onPointerUp={() => { if (dictationRef.current) dictationRef.current.stop(); }}
-                            onPointerLeave={() => { if (dictationRef.current) dictationRef.current.stop(); }}
-                          >
-                            <Pictogram name="mic" size={30} />
-                          </button>
-                          <span className={`holdtalk-state${dictating ? ' holdtalk-state-rec' : ''}`}>
-                            {dictating ? '正在聽…放開結束' : '按住說出地點'}
-                          </span>
-                        </span>
+                        <MicButton
+                          dictation={placeDictation}
+                          base={placeText.trim()}
+                          className="holdtalk-sm"
+                          label="用說的說出地點"
+                        />
                       )}
                     </span>
-                  </label>
+                  </div>
                 </div>
               )}
 
@@ -760,23 +804,17 @@ export default function ReportPage() {
           <h1 className="headline">要補充什麼嗎？</h1>
           <p className="subhead">不補也可以，直接送出</p>
 
-          {/* 按住說話：大麥克風圓鈕。
+          {/* 用說的：大麥克風圓鈕。點一下開始、再點一下結束。
               沒有語音支援的手機（budget 機、iOS Safari）看不到它，
               直接看到「不補充也可以，直接送出」——永遠有最短路徑。 */}
           {isDictationSupported() ? (
             <div className="holdtalk">
-              <button
-                className={`holdtalk-btn${noteDictating ? ' holdtalk-rec' : ''}`}
-                aria-label="按住說話"
-                onPointerDown={(e) => { e.preventDefault(); if (!noteDictating) toggleNoteDictation(); }}
-                onPointerUp={() => { if (noteDictationRef.current) noteDictationRef.current.stop(); }}
-                onPointerLeave={() => { if (noteDictationRef.current) noteDictationRef.current.stop(); }}
-              >
-                <Pictogram name="mic" size={40} />
-              </button>
-              <div className={`holdtalk-state${noteDictating ? ' holdtalk-state-rec' : ''}`}>
-                {noteDictating ? '正在聽…放開結束' : '按住說話'}
-              </div>
+              <MicButton
+                dictation={noteDictation}
+                base={note.trim()}
+                size={40}
+                label="用說的補充"
+              />
             </div>
           ) : (
             <p className="muted" style={{ textAlign: 'center', margin: '4px 0 8px' }}>

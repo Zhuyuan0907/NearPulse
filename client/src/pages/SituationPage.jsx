@@ -417,6 +417,8 @@ export default function SituationPage() {
   );
   const current = flatEvents[Math.min(eventIndex, flatEvents.length - 1)];
   const alertCount = inboundAlerts.length + nearbyAlerts.length + resolved.length;
+  // 沒有一個場域有座標就畫不出總覽地圖（只有場域級資料的地下停車場等）
+  const hasOverview = groups.some((g) => Number.isFinite(g.lat));
 
   return (
     <div className="page">
@@ -427,127 +429,145 @@ export default function SituationPage() {
         <span className="card-time">更新於 {time(card.generatedAt)}</span>
       </div>
 
-      {/* 【你在哪】
-          這一頁通篇在講「附近」——1 公里內、5 公里內、鄰近場域警示——
-          但先前從來沒說過「附近」是相對於哪裡。使用者不知道基準點，
-          那些篩選就等於在猜。
-          三種基準，語氣依可信度遞減：手選的場域 → 定位 → 收不到。 */}
-      <div className="here-bar">
-        <Pictogram name="pin" size={18} className="here-icon" />
-        {here ? (
-          <span className="here-body">
-            <b>{here.name}</b>
-            <span className="here-sub">上次確認的位置</span>
-          </span>
-        ) : fix ? (
-          <span className="here-body">
-            <b>依目前定位</b>
-            <span className="here-sub">誤差約 {Math.round(fix.accuracy)}m</span>
-          </span>
-        ) : (
-          <span className="here-body">
-            <b>不知道你在哪</b>
-            <span className="here-sub">僅顯示全部事件</span>
-          </span>
-        )}
-        <a className="here-action" href="#/">變更</a>
-      </div>
-
-      {/* 無台階開關：獨立列，不與篩選混在一起。
-          它決定每張事件卡的疏散內容（電梯火災不可用 → 答案整個不同），
-          屬於「閱讀偏好」而不是「篩選條件」，放這裡、給滿寬、當下狀態清楚。 */}
-      <button
-        className={`acc-toggle${stepFree ? ' acc-on' : ''}`}
-        role="switch"
-        aria-checked={stepFree}
-        onClick={toggleStepFree}
-      >
-        <Pictogram name="stepFree" size={20} className="acc-pict" />
-        <span className="acc-body">
-          <b>無台階路線</b>
-          <span className="acc-sub">{stepFree ? '已開啟——疏散指示將避開樓梯' : '輪椅、嬰兒車、行動不便時開啟'}</span>
-        </span>
-        <span className="acc-knob" aria-hidden="true" />
-      </button>
-
-      {/* ---- 範圍篩選：只留距離 chips，搜尋收合進「找特定地點」 ----
-          搜尋框對多數人是雜訊（他們要的是「附近有沒有大事」，不是找某站），
-          但趕著確認家人所在站的人需要它——所以收合成一顆按鈕，
-          要的人才展開，不要的人永遠不會看到輸入框。 */}
-      {card.stations.length > 1 && (
-        <div className="filter-bar">
-          <div className="filter-ranges">
-            {RANGES.map((r) => (
-              <button
-                key={r.id}
-                className={`chip${range === r.id ? ' chip-active' : ''}`}
-                disabled={r.id !== 0 && !fix}
-                onClick={() => setRange(r.id)}
-              >
-                {r.label}
-              </button>
-            ))}
-          </div>
-          {searchOpen ? (
-            <div className="filter-search-row">
-              <input
-                className="note-input filter-search"
-                type="search"
-                placeholder="輸入場域名稱"
-                value={query}
-                autoFocus
-                onChange={(e) => setQuery(e.target.value)}
-              />
-              <button className="chip" onClick={() => { setSearchOpen(false); setQuery(''); }}>
-                取消
-              </button>
-            </div>
+      {/* ===================================================================
+          控制面板：一個框，內部用細線分列
+          -------------------------------------------------------------------
+          舊版把「你在哪」「無台階」「範圍篩選」「展開地圖」「周邊訊息」
+          各做成一張有邊框的卡——五層框疊在事件之前，每一層都在喊
+          「我是一個獨立區塊」，結果是真正的主體（事件卡）被擠到第二屏，
+          而每一個框看起來都一樣重要。
+          這些其實是同一類東西：**看事件之前的設定**。所以合成一張面板，
+          外框只有一層，列與列之間用 1px 細線分開就夠了。
+          =================================================================== */}
+      <section className="sit-panel">
+        {/* 【你在哪】
+            這一頁通篇在講「附近」——1 公里內、5 公里內、鄰近場域警示——
+            但先前從來沒說過「附近」是相對於哪裡。使用者不知道基準點，
+            那些篩選就等於在猜。
+            三種基準，語氣依可信度遞減：手選的場域 → 定位 → 收不到。 */}
+        <div className="sit-row sit-here">
+          <Pictogram name="pin" size={18} className="here-icon" />
+          {here ? (
+            <span className="here-body">
+              <b>{here.name}</b>
+              <span className="here-sub">上次確認的位置</span>
+            </span>
+          ) : fix ? (
+            <span className="here-body">
+              <b>依目前定位</b>
+              <span className="here-sub">誤差約 {Math.round(fix.accuracy)}m</span>
+            </span>
           ) : (
-            <button className="filter-more" onClick={() => setSearchOpen(true)}>
-              找特定地點
-            </button>
+            <span className="here-body">
+              <b>不知道你在哪</b>
+              <span className="here-sub">僅顯示全部事件</span>
+            </span>
           )}
-          {!fix && (
-            <p className="muted-2">收不到定位，無法依距離篩選。</p>
-          )}
-          {hiddenCount > 0 && (
-            <p className="muted-2">{hiddenCount} 件在範圍外。</p>
-          )}
+          <a className="here-action" href="#/">變更</a>
         </div>
-      )}
 
-      {/* ---- 總覽地圖：改為**預設收合**，與事件地圖互斥 ----
-          舊版總覽地圖預設展開、事件卡又各有一張地圖，上下兩張地圖
-          讓人不知道該看哪張。現在：進頁面先看文字（任何網路都到得了），
-          想看空間分佈再開總覽；事件卡的地圖仍然是獨立開關（點開才載入）。
-          地圖是補充視角，不是這頁的主體。 */}
-      {groups.some((g) => Number.isFinite(g.lat)) && (
-        mapOpen ? (
-          <>
-            <Suspense fallback={<div className="incident-map-loading">地圖載入中…</div>}>
-              <OverviewMap groups={groups} userFix={fix} onPick={scrollToGroup} />
-            </Suspense>
-            <button className="chip map-toggle" onClick={toggleMap}>收合地圖</button>
-          </>
-        ) : (
-          <button className="chip map-toggle" onClick={toggleMap}>
-            <Pictogram name="map" size={18} />
-            展開總覽地圖（{groups.length} 個地點）
-          </button>
-        )
-      )}
-
-      {/* ---- 警示與雜項：收合成一行，要的人才展開 ----
-          進站警示、鄰近警示、已解除原本各佔一個 section 縱向堆疊，
-          3 個事件時頁面長度是事件卡的三倍。恐慌中的人要的是
-          「目前有幾件事、我在看哪一件」，次要訊息收合不消失。 */}
-      {alertCount > 0 && (
-        <button className="alerts-summary" onClick={() => setAlertsOpen(!alertsOpen)}>
-          <Pictogram name="sighting" size={16} />
-          {alertCount} 則周邊訊息
-          <span className="alerts-arrow">{alertsOpen ? '收合' : '展開'}</span>
+        {/* 無台階開關：它決定每張事件卡的疏散內容（電梯火災不可用 →
+            答案整個不同），屬於「閱讀偏好」而不是「篩選條件」，
+            所以自成一列、給滿寬、當下狀態一眼可分。 */}
+        <button
+          className={`sit-row sit-acc${stepFree ? ' acc-on' : ''}`}
+          role="switch"
+          aria-checked={stepFree}
+          onClick={toggleStepFree}
+        >
+          <Pictogram name="stepFree" size={20} className="acc-pict" />
+          <span className="acc-body">
+            <b>無台階路線</b>
+            <span className="acc-sub">{stepFree ? '已開啟——疏散指示將避開樓梯' : '輪椅、嬰兒車、行動不便時開啟'}</span>
+          </span>
+          <span className="acc-knob" aria-hidden="true" />
         </button>
+
+        {/* ---- 範圍篩選：只留距離 chips，搜尋收合進「找特定地點」 ----
+            搜尋框對多數人是雜訊（他們要的是「附近有沒有大事」，不是找某站），
+            但趕著確認家人所在站的人需要它——所以收合成一顆按鈕，
+            要的人才展開，不要的人永遠不會看到輸入框。 */}
+        {card.stations.length > 1 && (
+          <div className="sit-row sit-filter">
+            <div className="filter-ranges">
+              {RANGES.map((r) => (
+                <button
+                  key={r.id}
+                  className={`chip${range === r.id ? ' chip-active' : ''}`}
+                  disabled={r.id !== 0 && !fix}
+                  onClick={() => setRange(r.id)}
+                >
+                  {r.label}
+                </button>
+              ))}
+              {!searchOpen && (
+                <button className="filter-more" onClick={() => setSearchOpen(true)}>
+                  找特定地點
+                </button>
+              )}
+            </div>
+            {searchOpen && (
+              <div className="filter-search-row">
+                <input
+                  className="note-input filter-search"
+                  type="search"
+                  placeholder="輸入場域名稱"
+                  value={query}
+                  autoFocus
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+                <button className="chip" onClick={() => { setSearchOpen(false); setQuery(''); }}>
+                  取消
+                </button>
+              </div>
+            )}
+            {!fix && (
+              <p className="muted-2">收不到定位，無法依距離篩選。</p>
+            )}
+            {hiddenCount > 0 && (
+              <p className="muted-2">{hiddenCount} 件在範圍外。</p>
+            )}
+          </div>
+        )}
+
+        {/* ---- 補充視角：總覽地圖與周邊訊息併成同一列 ----
+            兩者性質相同（「還想多看一點」的入口），而且都預設收合——
+            各給一張卡是把兩個次要入口撐成兩個主要區塊。
+            地圖預設收合的理由不變：進頁面先看文字，任何網路都到得了。 */}
+        {(hasOverview || alertCount > 0) && (
+          <div className="sit-row sit-links">
+            {hasOverview && (
+              <button className="sit-link" onClick={toggleMap} aria-expanded={mapOpen}>
+                <Pictogram name="map" size={16} />
+                <span className="sit-link-text">總覽地圖<span className="sit-link-sub">{groups.length} 個地點</span></span>
+                <span className="sit-link-arrow" aria-hidden="true">{mapOpen ? '▲' : '▼'}</span>
+              </button>
+            )}
+            {alertCount > 0 && (
+              <button
+                className="sit-link"
+                onClick={() => setAlertsOpen(!alertsOpen)}
+                aria-expanded={alertsOpen}
+              >
+                <Pictogram name="sighting" size={16} />
+                <span className="sit-link-text">周邊訊息<span className="sit-link-sub">{alertCount} 則</span></span>
+                <span className="sit-link-arrow" aria-hidden="true">{alertsOpen ? '▲' : '▼'}</span>
+              </button>
+            )}
+          </div>
+        )}
+      </section>
+
+      {hasOverview && mapOpen && (
+        <Suspense fallback={<div className="incident-map-loading">地圖載入中…</div>}>
+          <OverviewMap groups={groups} userFix={fix} onPick={scrollToGroup} />
+        </Suspense>
       )}
+
+      {/* 周邊訊息展開：**一個框裝完**，列與列之間只用細線。
+          原本三種訊息（進站警示／鄰近警示／已解除）各是一張帶左側色條的卡，
+          展開後就是一疊框。只有進站警示保留實心紅牌——那是時效以秒計的事，
+          其餘兩種是背景資訊，不該長得像另一則警報。 */}
       {alertCount > 0 && alertsOpen && (
         <div className="alerts-detail">
           {inboundAlerts.map((a) => (
@@ -584,20 +604,34 @@ export default function SituationPage() {
       {/* ---- 事件分頁：一屏一卡，左右切換 ---- */}
       {current && (
         <>
-          {/* 頁籤列：第幾件／共幾件 + 事件間快速切換 */}
+          {/* ---- 事件頁籤：**要看得懂是哪一件事** ----
+              舊版一個頁籤只有一個 16px 的圖標。火警與攻擊在那個尺寸下
+              形狀差異幾乎消失，而且完全看不出是哪一個場域——使用者只能
+              一個一個點開才知道自己在看什麼，等於把「掃一眼」變成「試誤」。
+              現在每個頁籤直接寫出「類型 + 場域」，圖標退為輔助；
+              當前那一則用實心標示牌強調，未確認的用虛線框（不只靠顏色）。 */}
           {flatEvents.length > 1 && (
-            <div className="ev-tabs">
-              {flatEvents.map(({ venue, ev }, i) => (
-                <button
-                  key={ev.id}
-                  className={`ev-tab${i === eventIndex ? ' ev-tab-on' : ''}`}
-                  onClick={() => setEventIndex(i)}
-                  aria-label={`${venue.stationName} ${ev.typeLabel}`}
-                >
-                  <Pictogram name={pictOf(ev.typeLabel)} size={16} />
-                </button>
-              ))}
-              <span className="ev-count">{eventIndex + 1}/{flatEvents.length}</span>
+            <div className="ev-switch">
+              <div className="ev-switch-head">
+                目前有 <b>{flatEvents.length}</b> 件事——你在看第 <b>{eventIndex + 1}</b> 件
+              </div>
+              <div className="ev-tabs" role="tablist" aria-label="事件清單">
+                {flatEvents.map(({ venue, ev }, i) => (
+                  <button
+                    key={ev.id}
+                    role="tab"
+                    aria-selected={i === eventIndex}
+                    className={`ev-tab ev-tab-${ev.status}${i === eventIndex ? ' ev-tab-on' : ''}`}
+                    onClick={() => setEventIndex(i)}
+                  >
+                    <Pictogram name={pictOf(ev.typeLabel)} size={18} className="ev-tab-pict" />
+                    <span className="ev-tab-text">
+                      <b className="ev-tab-type">{ev.typeLabel}</b>
+                      <span className="ev-tab-where">{venue.stationName}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 

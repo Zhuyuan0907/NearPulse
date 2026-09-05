@@ -1220,17 +1220,63 @@ button { cursor: pointer; }
    範圍篩選與總覽地圖
    =========================================================================== */
 
-.filter-bar {
-  padding: 10px 12px;
-  margin: 12px 0;
+/* ---------------------------------------------------------------------------
+   目前狀況的控制面板：一個框，內部分列
+   ---------------------------------------------------------------------------
+   「你在哪」「無台階」「範圍」「總覽地圖／周邊訊息」原本各是一張有邊框的卡。
+   它們其實是同一類東西——**看事件之前的設定**——所以合成一張面板：
+   外框一層，列與列之間 1px 細線。框留給真正要強調的事件標示牌。
+   --------------------------------------------------------------------------- */
+.sit-panel {
+  margin: 10px 0 12px;
+  overflow: hidden;
   background: var(--tunnel-2);
   border: 1px solid var(--edge);
   border-radius: var(--r-tap);
 }
-.filter-ranges { display: flex; flex-wrap: wrap; gap: 8px; }
+.sit-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  padding: 10px 12px;
+  color: var(--enamel);
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+.sit-row + .sit-row { border-top: 1px solid var(--edge); }
+
+.sit-filter { flex-direction: column; align-items: stretch; gap: 0; }
+.filter-ranges { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .filter-ranges .chip:disabled { opacity: .4; }
-.filter-search { min-height: 42px; margin-top: 8px; font-size: .9rem; }
-.filter-bar .muted-2 { margin: 8px 0 0; }
+.filter-search { min-height: 42px; font-size: .9rem; }
+.sit-filter .muted-2 { margin: 8px 0 0; }
+
+/* 補充視角：總覽地圖與周邊訊息並排成一列。兩者都是「還想多看一點」
+   的收合入口，各給一張卡是把兩個次要項撐成兩個主要區塊。 */
+.sit-links { gap: 0; padding: 0; }
+.sit-link {
+  display: flex;
+  flex: 1;
+  gap: 8px;
+  align-items: center;
+  min-height: 46px;
+  padding: 8px 12px;
+  font-size: .84rem;
+  font-weight: 600;
+  color: var(--enamel);
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+.sit-link > .pict { flex: none; color: var(--dim); }
+.sit-link + .sit-link { border-left: 1px solid var(--edge); }
+.sit-link-text { display: flex; flex: 1; flex-direction: column; gap: 1px; min-width: 0; }
+.sit-link-sub { font-size: .72rem; font-weight: 400; color: var(--dim); }
+.sit-link-arrow { flex: none; font-size: .62rem; color: var(--info-lit); }
 
 /* 「找特定地點」：搜尋的收合入口。多數人不需要搜尋（他們要的是
    「附近有沒有大事」），但趕著確認家人所在站的人需要——
@@ -1248,6 +1294,8 @@ button { cursor: pointer; }
 }
 .filter-search-row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
 .filter-search-row .filter-search { flex: 1; margin-top: 0; }
+/* 收在距離 chips 那一行的最後面——它跟距離一樣是「要看哪些」的選擇 */
+.filter-ranges .filter-more { margin: 0 0 0 auto; }
 
 /* ===========================================================================
    無台階開關：獨立一列的閱讀偏好切換
@@ -1257,20 +1305,7 @@ button { cursor: pointer; }
    舊版做成一顆小 chip 與距離篩選排在一起，存在感不足、語意也混淆。
    =========================================================================== */
 
-.acc-toggle {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  width: 100%;
-  min-height: var(--tap);
-  padding: 10px 14px;
-  margin-top: 10px;
-  text-align: left;
-  color: var(--enamel);
-  background: var(--tunnel-2);
-  border: 1px solid var(--edge-2);
-  border-radius: var(--r-tap);
-}
+.sit-acc { gap: 12px; min-height: var(--tap); }
 /* 開啟時整列變實心藍——狀態要一眼可分，不能只靠小字變化 */
 .acc-on {
   color: #fff;
@@ -1422,17 +1457,9 @@ button { cursor: pointer; }
    「你在哪」——這一頁通篇在講「附近」，得先說清楚基準點
    =========================================================================== */
 
-.here-bar {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  padding: 10px 12px;
-  margin-top: 10px;
-  background: var(--tunnel-2);
-  border: 1px solid var(--edge);
-  border-left: 4px solid var(--info);
-  border-radius: 0 var(--r-tap) var(--r-tap) 0;
-}
+/* 面板的第一列。左側藍色細條保留——它是整頁「附近」的基準點，
+   值得一個色彩錨，但不再需要自己的一個框。 */
+.sit-here { box-shadow: inset 3px 0 0 var(--info); }
 .here-icon { color: var(--info-lit); }
 .here-body { display: flex; flex: 1; flex-direction: column; gap: 1px; min-width: 0; }
 .here-body b { font-size: 1rem; }
@@ -1590,8 +1617,12 @@ button { cursor: pointer; }
 .send-summary .muted { margin-left: auto; font-size: 0.8rem; }
 
 /* ===========================================================================
-   按住說話：大麥克風圓鈕（倣 dev-zhuyuan 手機版的直覺樣式）
-   —— 恐慌中「按住」比「點兩下」更符合直覺：按住＝我在講，放開＝講完了
+   語音輸入：大麥克風圓鈕
+   ---------------------------------------------------------------------------
+   曾經是「按住說話」。直覺上很對，實作上不成立——`SpeechRecognition.start()`
+   要 200~800ms 才真的開始收音，而一次自然的點按只有 100ms 上下，
+   pointerup 在麥克風開起來之前就把它關掉了，講什麼都進不到輸入框。
+   現在是**點一下開始、再點一下結束**，狀態靠底下那行字和圓鈕顏色講清楚。
    =========================================================================== */
 
 .holdtalk { padding: 18px 0 6px; text-align: center; }
@@ -1632,6 +1663,23 @@ button { cursor: pointer; }
   color: var(--dim);
 }
 .holdtalk-state-rec { color: var(--halt-lit); }
+
+/* 啟動中：麥克風還沒真的開起來。這一段有 200~800ms，不講的話
+   使用者會以為沒反應而再點一次——那一下剛好把它關掉。 */
+.holdtalk-wait { opacity: .6; }
+
+/* 語音失敗的原因。沒權限、沒網路、非 HTTPS 是三件完全不同的事，
+   一律靜默的話使用者只會覺得「這功能壞了」。每一句都以「請直接打字」收尾，
+   因為打字永遠是走得通的那條路。 */
+.dictate-err {
+  display: block;
+  margin-top: 8px;
+  font-size: .78rem;
+  line-height: 1.5;
+  color: var(--caution);
+  text-align: center;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .holdtalk-rec { animation: none; }
 }
@@ -1652,60 +1700,84 @@ button { cursor: pointer; }
    「掃全部」變成「按一下下一則」。
    =========================================================================== */
 
-/* 周邊訊息摘要行：平時只佔一行 */
-.alerts-summary {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  width: 100%;
-  min-height: 40px;
-  padding: 8px 12px;
-  margin: 10px 0;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--dim);
-  text-align: left;
+/* ---- 周邊訊息展開：一個框裝完，列與列之間只有細線 ----
+   三種訊息（進站警示／鄰近警示／已解除）原本各是一張帶左側色條的卡，
+   展開後就是一疊框，而它們的重要性其實都低於事件卡本身。
+   例外是進站警示：那是時效以秒計的事，實心紅牌照舊。 */
+.alerts-detail {
+  margin-bottom: 10px;
+  overflow: hidden;
   background: var(--tunnel-2);
-  border: 1px dashed var(--edge-2);
+  border: 1px solid var(--edge);
   border-radius: var(--r-tap);
 }
-.alerts-arrow {
-  margin-left: auto;
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--info-lit);
+.alerts-detail > * + * { border-top: 1px solid var(--edge); }
+.alerts-detail .inbound-alert { margin: 0; border-radius: 0; }
+.alerts-detail .nearby-alert,
+.alerts-detail .resolved-item {
+  margin: 0;
+  padding: 11px 13px;
+  background: transparent;
+  border-left: none;
+  border-radius: 0;
 }
-.alerts-detail { margin-bottom: 8px; }
+/* 左側色條拿掉了，語氣改由圖標與標題的顏色承擔 */
+.alerts-detail .nearby-icon { color: var(--caution); }
 
-/* 事件頁籤：每則一個小圖標鈕，目前頁高亮 */
+/* ---------------------------------------------------------------------------
+   事件頁籤：**要看得懂是哪一件事**
+   ---------------------------------------------------------------------------
+   舊版一個頁籤只有一個 16px 圖標。火警與攻擊在那個尺寸下形狀差異幾乎消失，
+   而且完全看不出是哪一個場域——使用者只能一個一個點開才知道自己在看什麼，
+   等於把「掃一眼」變成「試誤」。現在直接寫出類型與場域名。
+   --------------------------------------------------------------------------- */
+.ev-switch { margin: 14px 0 10px; }
+.ev-switch-head {
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  color: var(--dim);
+}
+.ev-switch-head b { color: var(--enamel); }
+
 .ev-tabs {
   display: flex;
   gap: 8px;
-  align-items: center;
-  margin: 12px 0 8px;
+  align-items: stretch;
+  /* 事件多的時候橫向捲，不換行——換行會把控制區撐成一整塊 */
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
+.ev-tabs::-webkit-scrollbar { display: none; }
 .ev-tab {
   display: flex;
+  flex: none;
+  gap: 8px;
   align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
-  color: var(--dim);
+  min-height: 48px;
+  padding: 7px 12px 7px 10px;
+  color: var(--enamel);
+  text-align: left;
   background: var(--tunnel-2);
-  border: 2px solid var(--edge);
+  border: 1px solid var(--edge);
   border-radius: var(--r-tap);
 }
+.ev-tab-pict { flex: none; color: var(--dim); }
+.ev-tab-text { display: flex; flex-direction: column; gap: 1px; }
+.ev-tab-type { font-size: 0.95rem; font-weight: 700; line-height: 1.2; }
+.ev-tab-where { font-size: 0.74rem; color: var(--dim); }
+/* 未確認：虛線框。色盲與強光下不能只靠顏色分辨 */
+.ev-tab-candidate { border-style: dashed; border-color: var(--caution); }
+/* 目前這一則：實心標示牌，跟事件卡的語彙一致 */
 .ev-tab-on {
-  color: var(--enamel);
+  color: #fff;
   background: var(--panel);
   border-color: var(--enamel);
+  box-shadow: inset 0 0 0 1px var(--enamel);
 }
-.ev-count {
-  margin-left: auto;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--dim);
-}
+.ev-tab-on .ev-tab-pict { color: #fff; }
+.ev-tab-on .ev-tab-where { color: rgba(255, 255, 255, .72); }
 
 /* 事件位置一行：取代舊的 meta 表格 */
 .ev-loc {

@@ -2,6 +2,12 @@ node_modules/
 dist/
 *.log
 
+# 金鑰一律只從環境變數來，永遠不進版控。
+# 範本請放 .env.example（不含任何真實金鑰）。
+.env
+.env.*
+!.env.example
+
 # Android
 android/build/
 android/.gradle/
