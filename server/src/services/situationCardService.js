@@ -17,7 +17,7 @@ import { getAdvice } from '../pipeline/advisors/llm.js';
 import { toEventSummary } from './eventService.js';
 import { distanceM, findVenue, nearbyVenues } from './venueService.js';
 import { evacuationPlan } from './evacuationService.js';
-import { arrivalForecast } from './trainService.js';
+import { arrivalForecast, wheelchairCarsAt } from './trainService.js';
 
 /** 事件在列車上時的到站預告；其餘情況一律 null */
 function arrivalOf(ev, now) {
@@ -32,7 +32,12 @@ function arrivalOf(ev, now) {
   // client 用 arriveAt 自行倒數（見 trainService.arrivalForecast 的說明）。
   if (!f) return null;
   const { etaSec, ...stable } = f;
-  return stable;
+  return {
+    ...stable,
+    // 官方唯一公開的車廂級資訊。輪椅使用者在車上時，這是他實際所在的位置，
+    // 也是站務人員知道要去哪裡接應的位置。
+    wheelchairCars: wheelchairCarsAt(f.venueId),
+  };
 }
 
 /** 威脅等級映射：active 依類型嚴重度、candidate 一律 unverified */

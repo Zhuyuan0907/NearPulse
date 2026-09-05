@@ -692,11 +692,43 @@ function buildNetwork(venues, tdx) {
     }
   }
 
+  /**
+   * 開門側與輪椅席車廂（政府資料開放平臺 dataset 128416）。
+   *
+   * 使用者問「哪一節車廂離樓梯近」——查證後確認**沒有任何開放資料**
+   * 有車廂↔出口對應（日本的乗換案内是向 ナビット 購買人工實測資料；
+   * TDX 與 OSM 都沒有）。但開門側是官方公開的，而且對車廂裡的人同樣有用：
+   * 知道下一站往哪側開門，就能在到站前先移動到正確的那一側。
+   *
+   * 以 TDX 的 StationID 為鍵合併——轉乘站的多個代碼會落到同一個 venue，
+   * 而每筆 doorSide 都帶 line 標記，所以不會互相蓋掉。
+   */
+  let doorSide = {};
+  let wheelchairCars = {};
+  try {
+    const open = JSON.parse(readFileSync(resolve(__dirname, '../src/data/trtc-open.json'), 'utf8'));
+    for (const [code, info] of Object.entries(open.stations ?? {})) {
+      const venueId = toVenue(code);
+      if (!venueId) continue;
+      if (info.doorSide?.length) {
+        doorSide[venueId] = [...(doorSide[venueId] ?? []), ...info.doorSide];
+      }
+      if (info.wheelchairCars) wheelchairCars[venueId] = info.wheelchairCars;
+    }
+  } catch {
+    console.log('[build-venues] 沒有 TRTC 開放資料快照，略過開門側'
+      + '（可執行 node scripts/fetch-trtc-open.mjs 產生）');
+    doorSide = {}; wheelchairCars = {};
+  }
+
   return {
     source: '交通部運輸資料流通服務平臺（TDX）— 台北捷運 TRTC',
+    doorSideSource: '政府資料開放平臺 dataset 128416（臺北捷運車站無障礙設施資料）',
     operator: 'TRTC',
     routes,
     runTimes,
+    doorSide,
+    wheelchairCars,
     unmappedRoutes: unmapped,
     implausibleRoutes: implausible,
   };
@@ -723,6 +755,8 @@ function updateNetworkOnly() {
   console.log(`[build-venues] 路網已更新：${n.routes.length} 條有方向路線、`
     + `${Object.keys(n.runTimes).length} 段官方行車時間`
     + (n.unmappedRoutes ? `（${n.unmappedRoutes} 條站點對不上而略過）` : ''));
+  console.log(`  開門側資訊    ${Object.keys(n.doorSide).length} 站`
+    + `、輪椅席車廂 ${Object.keys(n.wheelchairCars).length} 站`);
   if (n.implausibleRoutes.length > 0) {
     console.error(`[build-venues] ❌ ${n.implausibleRoutes.length} 條路線的相鄰站距不合理，已排除：`);
     for (const m of n.implausibleRoutes) console.error(`    ${m}`);

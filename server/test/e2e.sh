@@ -300,6 +300,24 @@ check "疏散計畫帶出口座標（態勢卡地圖用）" \
 check "疏散計畫帶避開半徑與事件原點（地圖圓圈用）" \
   test "$(curl -s "$BASE/api/venues/TPE-BL13/evacuation?exit=2&type=fire" | json "d['plan']['avoidRadiusM'] > 0 and d['plan']['origin']['lat'] > 0")" = "True"
 
+# 【開門側：「哪一節車廂」問題的可行替代】
+# 車廂↔樓梯／出口的對應**沒有任何開放資料**——日本的乗換案内是向民間購買
+# 人工實測資料，TDX 整份 spec 沒有月台門或車廂欄位，OSM 的
+# railway:platform:section 全台灣 0 筆。但開門側是官方公開的，而且不需要
+# 知道車廂編號就能執行：到站前先移動到會開門的那一側。
+check "到站預告帶開門側（政府開放資料 128416）" \
+  test "$(echo "$TCARD" | json "[e['arrival']['doorSide']['side'] for s in d['stations'] for e in s['events'] if e.get('arrival')][0]")" = "left"
+# 西門是疊式月台，兩個方向開門側**相反**——這是解析器最容易錯的形態
+check "疊式月台的開門側依方向不同（西門 往南港展覽館=右／往頂埔=左）" \
+  test "$(curl -s "$BASE/api/venues/TPE-BL13/evacuation?exit=2&type=fire" > /dev/null; \
+    node -e "import('./src/services/trainService.js').then(t=>{
+      const a=t.doorSideAt('TPE-BL11','BL','南港展覽館')?.side;
+      const b=t.doorSideAt('TPE-BL11','BL','頂埔')?.side;
+      console.log(a==='right' && b==='left');})" 2>/dev/null | tail -1)" = "true"
+# 輪椅席車廂是官方唯一公開的車廂級資訊，對無障礙疏散直接有用
+check "到站預告帶輪椅席車廂（官方唯一公開的車廂級資訊）" \
+  test "$(echo "$TCARD" | json "len([e['arrival']['wheelchairCars'] for s in d['stations'] for e in s['events'] if e.get('arrival')][0]) >= 1")" = "True"
+
 echo "== 15. 目擊位置回報：歹徒動態怎麼更新 =="
 # 【為什麼有這一段】移動判定的原料是「(時間, 錨點, 目擊者)」三元組，而在加入
 # 第三問之前，這些三元組只能從新回報取得——一個剛答完「有，我看到了」的

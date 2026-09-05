@@ -851,3 +851,19 @@ button { cursor: pointer; }
 
 /* 次級說明文字：比 .muted 再輕一階，用於解釋排序邏輯這類「知道更好、不知道也不影響」的資訊 */
 .muted-2 { font-size: 0.8rem; color: #6e7681; }
+
+/* 開門側：車廂內最可執行的一則指示，給它獨立的視覺重量 */
+.door-side {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 14px;
+  margin: 10px 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  background: #1a2430;
+  border: 1px solid var(--blue);
+  border-radius: var(--r-sm);
+}
+.door-side-icon { font-size: 1.3rem; }
+.door-side b { color: var(--blue); }

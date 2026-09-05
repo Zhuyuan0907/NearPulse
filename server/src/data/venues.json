@@ -39915,6 +39915,7 @@
  ],
  "network": {
   "source": "交通部運輸資料流通服務平臺（TDX）— 台北捷運 TRTC",
+  "doorSideSource": "政府資料開放平臺 dataset 128416（臺北捷運車站無障礙設施資料）",
   "operator": "TRTC",
   "routes": [
    {
@@ -40580,8 +40581,1783 @@
    "TPE-R03|TPE-R02": 93,
    "TPE-R22|TPE-R22A": 157
   },
+  "doorSide": {
+   "TPE-BR13": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-BR12": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-BR11": [
+    {
+     "line": "BR",
+     "towards": null,
+     "side": "right"
+    },
+    {
+     "line": "G",
+     "towards": null,
+     "side": "left"
+    },
+    {
+     "line": "BR",
+     "towards": null,
+     "side": "right"
+    },
+    {
+     "line": "G",
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-BL15": [
+    {
+     "line": "BR",
+     "towards": null,
+     "side": "right"
+    },
+    {
+     "line": "BL",
+     "towards": null,
+     "side": "left"
+    },
+    {
+     "line": "BR",
+     "towards": null,
+     "side": "right"
+    },
+    {
+     "line": "BL",
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-BR09": [
+    {
+     "line": "BR",
+     "towards": null,
+     "side": "right"
+    },
+    {
+     "line": "R",
+     "towards": null,
+     "side": "left"
+    },
+    {
+     "line": "BR",
+     "towards": null,
+     "side": "right"
+    },
+    {
+     "line": "R",
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-BR08": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-BR07": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-BR06": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-BR05": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-BR04": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-BR03": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-BR02": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-BR01": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-BR14": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-BR15": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-BR16": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-BR17": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-BR18": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-BR19": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-BR20": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-BR21": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-BR22": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-BR23": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-BL23": [
+    {
+     "line": "BR",
+     "towards": null,
+     "side": "left"
+    },
+    {
+     "line": "BL",
+     "towards": null,
+     "side": "both"
+    },
+    {
+     "line": "BR",
+     "towards": null,
+     "side": "left"
+    },
+    {
+     "line": "BL",
+     "towards": null,
+     "side": "both"
+    }
+   ],
+   "TPE-G03A": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-G01": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "both"
+    }
+   ],
+   "TPE-G02": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-G03": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-G04": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    },
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-G05": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-G06": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-G07": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-G08": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-G09": [
+    {
+     "line": "O",
+     "towards": [
+      "蘆洲",
+      "迴龍"
+     ],
+     "side": "left"
+    },
+    {
+     "line": "O",
+     "towards": [
+      "南勢角"
+     ],
+     "side": "right"
+    },
+    {
+     "line": "G",
+     "towards": [
+      "松山"
+     ],
+     "side": "right"
+    },
+    {
+     "line": "G",
+     "towards": [
+      "新店"
+     ],
+     "side": "left"
+    },
+    {
+     "line": "O",
+     "towards": [
+      "蘆洲",
+      "迴龍"
+     ],
+     "side": "left"
+    },
+    {
+     "line": "O",
+     "towards": [
+      "南勢角"
+     ],
+     "side": "right"
+    },
+    {
+     "line": "G",
+     "towards": [
+      "松山"
+     ],
+     "side": "right"
+    },
+    {
+     "line": "G",
+     "towards": [
+      "新店"
+     ],
+     "side": "left"
+    }
+   ],
+   "TPE-G10": [
+    {
+     "line": "R",
+     "towards": [
+      "淡水"
+     ],
+     "side": "left"
+    },
+    {
+     "line": "R",
+     "towards": [
+      "象山",
+      "大安"
+     ],
+     "side": "right"
+    },
+    {
+     "line": "G",
+     "towards": [
+      "松山"
+     ],
+     "side": "right"
+    },
+    {
+     "line": "G",
+     "towards": [
+      "新店"
+     ],
+     "side": "left"
+    },
+    {
+     "line": "R",
+     "towards": [
+      "淡水"
+     ],
+     "side": "left"
+    },
+    {
+     "line": "R",
+     "towards": [
+      "象山",
+      "大安"
+     ],
+     "side": "right"
+    },
+    {
+     "line": "G",
+     "towards": [
+      "松山"
+     ],
+     "side": "right"
+    },
+    {
+     "line": "G",
+     "towards": [
+      "新店"
+     ],
+     "side": "left"
+    }
+   ],
+   "TPE-G11": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-O04": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-O03": [
+    {
+     "line": null,
+     "towards": [
+      "蘆洲",
+      "迴龍"
+     ],
+     "side": "right"
+    },
+    {
+     "line": null,
+     "towards": [
+      "南勢角"
+     ],
+     "side": "left"
+    }
+   ],
+   "TPE-O02": [
+    {
+     "line": "O",
+     "towards": [
+      "蘆洲",
+      "迴龍"
+     ],
+     "side": "left"
+    },
+    {
+     "line": "O",
+     "towards": [
+      "南勢角"
+     ],
+     "side": "right"
+    },
+    {
+     "line": "Y",
+     "towards": null,
+     "side": "right"
+    },
+    {
+     "line": "O",
+     "towards": [
+      "蘆洲",
+      "迴龍"
+     ],
+     "side": "left"
+    },
+    {
+     "line": "O",
+     "towards": [
+      "南勢角"
+     ],
+     "side": "right"
+    },
+    {
+     "line": "Y",
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-O01": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "both"
+    }
+   ],
+   "TPE-R09": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-A1": [
+    {
+     "line": "R",
+     "towards": null,
+     "side": "left"
+    },
+    {
+     "line": "BL",
+     "towards": null,
+     "side": "left"
+    },
+    {
+     "line": "R",
+     "towards": null,
+     "side": "left"
+    },
+    {
+     "line": "BL",
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-G14": [
+    {
+     "line": "R",
+     "towards": null,
+     "side": "left"
+    },
+    {
+     "line": "G",
+     "towards": null,
+     "side": "left"
+    },
+    {
+     "line": "R",
+     "towards": null,
+     "side": "left"
+    },
+    {
+     "line": "G",
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-R12": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-O11": [
+    {
+     "line": "R",
+     "towards": null,
+     "side": "left"
+    },
+    {
+     "line": "O",
+     "towards": null,
+     "side": "left"
+    },
+    {
+     "line": "R",
+     "towards": null,
+     "side": "left"
+    },
+    {
+     "line": "O",
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-R14": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-R15": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-R16": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-R17": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-R18": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-R19": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-R20": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-R21": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-R22": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-R22A": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-R23": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-R24": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-R25": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-R26": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-R27": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-R28": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "both"
+    }
+   ],
+   "TPE-BL01": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "both"
+    }
+   ],
+   "TPE-BL02": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-BL03": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-BL04": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-BL05": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-BL06": [
+    {
+     "line": null,
+     "towards": [
+      "南港展覽館"
+     ],
+     "side": "left"
+    },
+    {
+     "line": null,
+     "towards": [
+      "頂埔"
+     ],
+     "side": "right"
+    }
+   ],
+   "TPE-BL07": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    },
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-BL08": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-BL09": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-BL10": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-BL11": [
+    {
+     "line": "BL",
+     "towards": [
+      "南港展覽館"
+     ],
+     "side": "right"
+    },
+    {
+     "line": "BL",
+     "towards": [
+      "頂埔"
+     ],
+     "side": "left"
+    },
+    {
+     "line": "G",
+     "towards": [
+      "松山"
+     ],
+     "side": "left"
+    },
+    {
+     "line": "G",
+     "towards": [
+      "新店"
+     ],
+     "side": "right"
+    },
+    {
+     "line": "BL",
+     "towards": [
+      "南港展覽館"
+     ],
+     "side": "right"
+    },
+    {
+     "line": "BL",
+     "towards": [
+      "頂埔"
+     ],
+     "side": "left"
+    },
+    {
+     "line": "G",
+     "towards": [
+      "松山"
+     ],
+     "side": "left"
+    },
+    {
+     "line": "G",
+     "towards": [
+      "新店"
+     ],
+     "side": "right"
+    }
+   ],
+   "TPE-BL13": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-BL14": [
+    {
+     "line": "BL",
+     "towards": null,
+     "side": "left"
+    },
+    {
+     "line": "O",
+     "towards": null,
+     "side": "left"
+    },
+    {
+     "line": "BL",
+     "towards": null,
+     "side": "left"
+    },
+    {
+     "line": "O",
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-BL16": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-BL17": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-BL18": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-BL19": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-BL20": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-BL21": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-BL22": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-R01": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "both"
+    }
+   ],
+   "TPE-R02": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-R03": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-R04": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-R06": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-G13": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-G17": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-G18": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-G19": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "both"
+    }
+   ],
+   "TPE-O19": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-O18": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-O17": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    },
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-O16": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-A2": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-O14": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-O13": [
+    {
+     "line": null,
+     "towards": [
+      "迴龍"
+     ],
+     "side": "left"
+    },
+    {
+     "line": null,
+     "towards": [
+      "南勢角"
+     ],
+     "side": "right"
+    }
+   ],
+   "TPE-O12": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-O10": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-O09": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-G15": [
+    {
+     "line": "O",
+     "towards": null,
+     "side": "left"
+    },
+    {
+     "line": "G",
+     "towards": null,
+     "side": "right"
+    },
+    {
+     "line": "O",
+     "towards": null,
+     "side": "left"
+    },
+    {
+     "line": "G",
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-O06": [
+    {
+     "line": "O",
+     "towards": [
+      "蘆洲",
+      "迴龍"
+     ],
+     "side": "right"
+    },
+    {
+     "line": "O",
+     "towards": [
+      "南勢角"
+     ],
+     "side": "left"
+    },
+    {
+     "line": "R",
+     "towards": [
+      "淡水"
+     ],
+     "side": "right"
+    },
+    {
+     "line": "R",
+     "towards": [
+      "象山",
+      "大安"
+     ],
+     "side": "left"
+    },
+    {
+     "line": "O",
+     "towards": [
+      "蘆洲",
+      "迴龍"
+     ],
+     "side": "right"
+    },
+    {
+     "line": "O",
+     "towards": [
+      "南勢角"
+     ],
+     "side": "left"
+    },
+    {
+     "line": "R",
+     "towards": [
+      "淡水"
+     ],
+     "side": "right"
+    },
+    {
+     "line": "R",
+     "towards": [
+      "象山",
+      "大安"
+     ],
+     "side": "left"
+    }
+   ],
+   "TPE-O54": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "both"
+    }
+   ],
+   "TPE-O53": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-O52": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-O51": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-O50": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-O21": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "both"
+    }
+   ],
+   "TPE-O20": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "left"
+    }
+   ],
+   "TPE-Y08": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-Y09": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-Y10": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-Y12": [
+    {
+     "line": null,
+     "towards": [
+      "新北產業園區"
+     ],
+     "side": "left"
+    },
+    {
+     "line": null,
+     "towards": [
+      "大坪林"
+     ],
+     "side": "right"
+    }
+   ],
+   "TPE-Y13": [
+    {
+     "line": null,
+     "towards": [
+      "新北產業園區"
+     ],
+     "side": "right"
+    },
+    {
+     "line": null,
+     "towards": [
+      "大坪林"
+     ],
+     "side": "left"
+    }
+   ],
+   "TPE-Y14": [
+    {
+     "line": null,
+     "towards": [
+      "新北產業園區"
+     ],
+     "side": "right"
+    },
+    {
+     "line": null,
+     "towards": [
+      "大坪林"
+     ],
+     "side": "left"
+    }
+   ],
+   "TPE-Y15": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-Y17": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-Y19": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "right"
+    }
+   ],
+   "TPE-A3": [
+    {
+     "line": null,
+     "towards": null,
+     "side": "both"
+    }
+   ]
+  },
+  "wheelchairCars": {
+   "TPE-BR13": [
+    1,
+    4
+   ],
+   "TPE-BR12": [
+    1,
+    4
+   ],
+   "TPE-BR11": [
+    1,
+    4,
+    6
+   ],
+   "TPE-BL15": [
+    1,
+    4,
+    6
+   ],
+   "TPE-BR09": [
+    1,
+    4,
+    6
+   ],
+   "TPE-BR08": [
+    1,
+    4
+   ],
+   "TPE-BR07": [
+    1,
+    4
+   ],
+   "TPE-BR06": [
+    1,
+    4
+   ],
+   "TPE-BR05": [
+    1,
+    4
+   ],
+   "TPE-BR04": [
+    1,
+    4
+   ],
+   "TPE-BR03": [
+    1,
+    4
+   ],
+   "TPE-BR02": [
+    1,
+    4
+   ],
+   "TPE-BR01": [
+    1,
+    4
+   ],
+   "TPE-BR14": [
+    1,
+    4
+   ],
+   "TPE-BR15": [
+    1,
+    4
+   ],
+   "TPE-BR16": [
+    1,
+    4
+   ],
+   "TPE-BR17": [
+    1,
+    4
+   ],
+   "TPE-BR18": [
+    1,
+    4
+   ],
+   "TPE-BR19": [
+    1,
+    4
+   ],
+   "TPE-BR20": [
+    1,
+    4
+   ],
+   "TPE-BR21": [
+    1,
+    4
+   ],
+   "TPE-BR22": [
+    1,
+    4
+   ],
+   "TPE-BR23": [
+    1,
+    4
+   ],
+   "TPE-BL23": [
+    1,
+    4,
+    6
+   ],
+   "TPE-G03A": [
+    1,
+    3
+   ],
+   "TPE-G01": [
+    1,
+    6
+   ],
+   "TPE-G02": [
+    1,
+    6
+   ],
+   "TPE-G03": [
+    1,
+    6,
+    3
+   ],
+   "TPE-G04": [
+    1,
+    6,
+    4
+   ],
+   "TPE-G05": [
+    1,
+    6
+   ],
+   "TPE-G06": [
+    1,
+    6
+   ],
+   "TPE-G07": [
+    1,
+    6
+   ],
+   "TPE-G08": [
+    1,
+    6
+   ],
+   "TPE-G09": [
+    1,
+    6
+   ],
+   "TPE-G10": [
+    1,
+    6
+   ],
+   "TPE-G11": [
+    1,
+    6
+   ],
+   "TPE-O04": [
+    1,
+    6
+   ],
+   "TPE-O03": [
+    1,
+    6
+   ],
+   "TPE-O02": [
+    1,
+    6,
+    4
+   ],
+   "TPE-O01": [
+    1,
+    6
+   ],
+   "TPE-R09": [
+    1,
+    6
+   ],
+   "TPE-A1": [
+    1,
+    6
+   ],
+   "TPE-G14": [
+    1,
+    6
+   ],
+   "TPE-R12": [
+    1,
+    6
+   ],
+   "TPE-O11": [
+    1,
+    6
+   ],
+   "TPE-R14": [
+    1,
+    6
+   ],
+   "TPE-R15": [
+    1,
+    6
+   ],
+   "TPE-R16": [
+    1,
+    6
+   ],
+   "TPE-R17": [
+    1,
+    6
+   ],
+   "TPE-R18": [
+    1,
+    6
+   ],
+   "TPE-R19": [
+    1,
+    6
+   ],
+   "TPE-R20": [
+    1,
+    6
+   ],
+   "TPE-R21": [
+    1,
+    6
+   ],
+   "TPE-R22": [
+    1,
+    6,
+    3
+   ],
+   "TPE-R22A": [
+    1,
+    3
+   ],
+   "TPE-R23": [
+    1,
+    6
+   ],
+   "TPE-R24": [
+    1,
+    6
+   ],
+   "TPE-R25": [
+    1,
+    6
+   ],
+   "TPE-R26": [
+    1,
+    6
+   ],
+   "TPE-R27": [
+    1,
+    6
+   ],
+   "TPE-R28": [
+    1,
+    6
+   ],
+   "TPE-BL01": [
+    1,
+    6
+   ],
+   "TPE-BL02": [
+    1,
+    6
+   ],
+   "TPE-BL03": [
+    1,
+    6
+   ],
+   "TPE-BL04": [
+    1,
+    6
+   ],
+   "TPE-BL05": [
+    1,
+    6
+   ],
+   "TPE-BL06": [
+    1,
+    6
+   ],
+   "TPE-BL07": [
+    1,
+    6,
+    4
+   ],
+   "TPE-BL08": [
+    1,
+    6
+   ],
+   "TPE-BL09": [
+    1,
+    6
+   ],
+   "TPE-BL10": [
+    1,
+    6
+   ],
+   "TPE-BL11": [
+    1,
+    6
+   ],
+   "TPE-BL13": [
+    1,
+    6
+   ],
+   "TPE-BL14": [
+    1,
+    6
+   ],
+   "TPE-BL16": [
+    1,
+    6
+   ],
+   "TPE-BL17": [
+    1,
+    6
+   ],
+   "TPE-BL18": [
+    1,
+    6
+   ],
+   "TPE-BL19": [
+    1,
+    6
+   ],
+   "TPE-BL20": [
+    1,
+    6
+   ],
+   "TPE-BL21": [
+    1,
+    6
+   ],
+   "TPE-BL22": [
+    1,
+    6
+   ],
+   "TPE-R01": [
+    1,
+    6
+   ],
+   "TPE-R02": [
+    1,
+    6
+   ],
+   "TPE-R03": [
+    1,
+    6
+   ],
+   "TPE-R04": [
+    1,
+    6
+   ],
+   "TPE-R06": [
+    1,
+    6
+   ],
+   "TPE-G13": [
+    1,
+    6
+   ],
+   "TPE-G17": [
+    1,
+    6
+   ],
+   "TPE-G18": [
+    1,
+    6
+   ],
+   "TPE-G19": [
+    1,
+    6
+   ],
+   "TPE-O19": [
+    1,
+    6
+   ],
+   "TPE-O18": [
+    1,
+    6
+   ],
+   "TPE-O17": [
+    1,
+    6,
+    4
+   ],
+   "TPE-O16": [
+    1,
+    6
+   ],
+   "TPE-A2": [
+    1,
+    6
+   ],
+   "TPE-O14": [
+    1,
+    6
+   ],
+   "TPE-O13": [
+    1,
+    6
+   ],
+   "TPE-O12": [
+    1,
+    6
+   ],
+   "TPE-O10": [
+    1,
+    6
+   ],
+   "TPE-O09": [
+    1,
+    6
+   ],
+   "TPE-G15": [
+    1,
+    6
+   ],
+   "TPE-O06": [
+    1,
+    6
+   ],
+   "TPE-O54": [
+    1,
+    6
+   ],
+   "TPE-O53": [
+    1,
+    6
+   ],
+   "TPE-O52": [
+    1,
+    6
+   ],
+   "TPE-O51": [
+    1,
+    6
+   ],
+   "TPE-O50": [
+    1,
+    6
+   ],
+   "TPE-O21": [
+    1,
+    6
+   ],
+   "TPE-O20": [
+    1,
+    6
+   ],
+   "TPE-Y08": [
+    1,
+    4
+   ],
+   "TPE-Y09": [
+    1,
+    4
+   ],
+   "TPE-Y10": [
+    1,
+    4
+   ],
+   "TPE-Y12": [
+    1,
+    4
+   ],
+   "TPE-Y13": [
+    1,
+    4
+   ],
+   "TPE-Y14": [
+    1,
+    4
+   ],
+   "TPE-Y15": [
+    1,
+    4
+   ],
+   "TPE-Y17": [
+    1,
+    4
+   ],
+   "TPE-Y19": [
+    1,
+    4
+   ],
+   "TPE-A3": [
+    1,
+    4
+   ]
+  },
   "unmappedRoutes": 0,
   "implausibleRoutes": []
  },
- "networkUpdatedAt": "2026-09-05T02:27:48.238Z"
+ "networkUpdatedAt": "2026-09-05T03:26:18.643Z"
 }

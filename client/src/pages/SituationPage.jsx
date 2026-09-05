@@ -96,11 +96,29 @@ function EvacPlan({ plan, arrival }) {
         {/* 車廂內唯一有意義的「進度」：還要撐多久門才會開。
             秒數來自 TDX 官方站間行車時間，不是估的。 */}
         {arrival && <ArrivalCountdown arrival={arrival} />}
+
+        {/* 開門側。**這是「哪一節車廂」問題的可行替代**——車廂↔樓梯的對應
+            沒有任何開放資料（日本的乗換案内是向民間購買人工實測資料），
+            但開門側是官方公開的，而且不需要知道車廂編號就能執行：
+            到站前先移動到會開門的那一側，門一開就出得去。 */}
+        {arrival?.doorSide?.label && (
+          <div className="door-side">
+            <span className="door-side-icon">🚪</span>
+            <span>
+              下一站是<b>{arrival.doorSide.label}開門</b>——
+              現在就往{arrival.doorSide.label}車門移動
+            </span>
+          </div>
+        )}
+
         <p className="plan-action">{plan.action}</p>
+
         {arrival && (
           <p className="plan-note">
             已通知 <b>{arrival.name}</b> 月台的人讓開車門動線。
-            開門前請盡量靠近車門，並協助行動不便者先下車。
+            {plan.stepFree && arrival.wheelchairCars?.length > 0 && (
+              <>{' '}輪椅席位於第 {arrival.wheelchairCars.join('、')} 節車廂。</>
+            )}
           </p>
         )}
       </div>

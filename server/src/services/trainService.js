@@ -42,6 +42,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 /** 沒有官方行車時間時的保守預設。TDX 全線中位數 92 秒，取整為 90。 */
 const FALLBACK_RUN_SEC = 90;
 
+const SIDE_LABEL = { left: '左側', right: '右側', both: '兩側' };
+
 let network = null;
 /**
  * venueId → [{ routeIdx, index }]，建一次就好。
@@ -82,6 +84,46 @@ function runTimeSec(fromVenueId, toVenueId) {
   const rev = network?.runTimes?.[`${toVenueId}|${fromVenueId}`];
   if (Number.isFinite(rev)) return { sec: rev, estimated: false };
   return { sec: FALLBACK_RUN_SEC, estimated: true };
+}
+
+/**
+ * 某站、某路線、某方向的開門側。
+ *
+ * 【這是「哪一節車廂」問題的可行替代】
+ * 車廂↔樓梯／出口的對應**沒有任何開放資料**：日本的乗換案内是向
+ * 株式会社ナビット 購買人工實測資料；TDX 整份 spec 沒有月台門或車廂欄位；
+ * OSM 的 `railway:platform:section` 全台灣 0 筆。台北捷運Go 有此功能但未開放。
+ *
+ * 但開門側是官方公開的，而且對車廂裡的人同樣可執行：**到站前先移動到
+ * 會開門的那一側**，門一開就出得去。它不需要知道車廂編號就成立。
+ *
+ * 匹配規則：line 為 null 表示該站所有路線皆同；towards 為 null 表示
+ * 兩個方向皆同（北捷靠右行駛，島式月台對兩個方向都在左側，所以多數站
+ * 確實與方向無關；需要分方向的 16 筆資料裡明確寫了終點站名）。
+ */
+export function doorSideAt(venueId, lineNo, towards) {
+  load();
+  const entries = network?.doorSide?.[venueId] ?? [];
+  if (entries.length === 0) return null;
+
+  const byLine = entries.filter((e) => !e.line || e.line === lineNo);
+  if (byLine.length === 0) return null;
+
+  // 有標方向的優先——那是為了區分同一站不同方向而存在的
+  const towardsNames = String(towards ?? '').split('／').filter(Boolean);
+  const directional = byLine.find(
+    (e) => e.towards?.some((t) => towardsNames.some((n) => n.includes(t) || t.includes(n)))
+  );
+  const hit = directional ?? byLine.find((e) => !e.towards);
+  if (!hit) return null;
+
+  return { side: hit.side, label: SIDE_LABEL[hit.side] ?? null, directional: Boolean(directional) };
+}
+
+/** 輪椅席所在的車廂（官方唯一公開的車廂級資訊） */
+export function wheelchairCarsAt(venueId) {
+  load();
+  return network?.wheelchairCars?.[venueId] ?? null;
 }
 
 /** 這個場域有沒有路網資料（決定 UI 要不要問「下一站」） */
@@ -165,6 +207,12 @@ export function arrivalForecast({ fromVenueId, nextVenueId, departedAt, now = Da
      * 倒數由 client 自己算，順帶還能做到每秒更新而不是每 12 秒跳一次。
      */
     arriveAt: departed + candidate.runSec * 1000,
+    /**
+     * 下一站的開門側。這是「往哪一側車門移動」的依據——
+     * 我們給不出「第幾節車廂」（無開放資料），但給得出「哪一側」，
+     * 而後者不需要車廂編號就能執行。
+     */
+    doorSide: doorSideAt(nextVenueId, candidate.lineNo, candidate.towards),
     etaSec: Math.max(0, candidate.runSec - Math.max(0, Math.round((now - departed) / 1000))),
   };
 }
