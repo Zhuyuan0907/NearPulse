@@ -793,3 +793,61 @@ button { cursor: pointer; }
 .map-plan-mark { font-size: 0.9rem; }
 .map-plan-go { color: #0d1117; background: var(--ok); }
 .map-plan-avoid { color: #fff; background: #6e2530; }
+
+/* ===========================================================================
+   目擊位置回報（確認流程第三問）
+   ---------------------------------------------------------------------------
+   前兩問決定事件成不成立，這一問決定它往哪裡去。出口編號放最前面、字大，
+   與態勢卡的疏散區塊刻意用同一套呈現——站內指標系統就是用編號導引的。
+   =========================================================================== */
+
+.sighting-cta {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.sighting-exits {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+  /* 出口多的站（台北車站 27 個）不該把「完成」按鈕推到畫面外 */
+  max-height: 46vh;
+  overflow-y: auto;
+}
+.sighting-exit {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  min-height: 56px;
+  padding: 8px 14px;
+  color: var(--text);
+  text-align: left;
+  background: var(--card);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+}
+.sighting-exit:disabled { opacity: 0.5; }
+.sighting-code {
+  min-width: 52px;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--warn);
+}
+.sighting-where { font-size: 0.85rem; color: var(--muted); }
+.sighting-msg {
+  padding: 10px 12px;
+  margin-top: 12px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  background: #10161d;
+  border-left: 3px solid var(--warn);
+  border-radius: var(--r-sm);
+}
+
+/* 次級說明文字：比 .muted 再輕一階，用於解釋排序邏輯這類「知道更好、不知道也不影響」的資訊 */
+.muted-2 { font-size: 0.8rem; color: #6e7681; }

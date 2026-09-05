@@ -24,6 +24,7 @@ import {
 import {
   createCandidateEvent,
   applyTransition,
+  appendObservation,
 } from '../services/eventService.js';
 import { buildSituationCard } from '../services/situationCardService.js';
 import { findVenue, findExit } from '../services/venueService.js';
@@ -94,7 +95,7 @@ export function startBatchWorker(store, { log = console.log } = {}) {
 
       // ……但**軌跡只追加不覆寫**：威脅會移動，只留最新位置會讓系統
       // 把人往威脅前進的方向趕。這是移動威脅追蹤的原料。
-      appendObservation(event, report);
+      appendObservation(event, { ...report, at: report.receivedAt });
 
       // 每次有新觀測就重算移動判定（純函式、確定性，不需要 AI）
       event.motion = assessMotion(event.track, now);
@@ -162,34 +163,11 @@ async function deferredAnchor(store, event, report) {
   if (!event.nearExitCode && !event.incidentPoint) {
     event.nearExitCode = top.exitCode;
     // 這是一次遲到的觀測，時間仍以「回報當下」計，軌跡才不會被扭曲
-    appendObservation(event, { ...report, nearExitCode: top.exitCode });
+    appendObservation(event, { ...report, nearExitCode: top.exitCode, at: Date.now() });
     event.motion = assessMotion(event.track, Date.now());
     store.upsertEvent(event);
     store.markCardDirty();
   }
-}
-
-/**
- * 把一筆回報的位置資訊追加成一次「錨點觀測」。
- * 座標優先序與疏散一致：地圖選點（最精確）→ 出口錨點。兩者皆無就不記錄——
- * 沒有位置的回報無法貢獻軌跡，但它仍然是有效的回報（位置永遠不擋通報）。
- */
-function appendObservation(event, report) {
-  const point =
-    report.incidentPoint ??
-    (report.nearExitCode ? findExit(event.stationId, report.nearExitCode) : null);
-  if (!point) return;
-
-  event.track = event.track ?? [];
-  event.track.push({
-    lat: point.lat,
-    lon: point.lon,
-    at: report.receivedAt,
-    sessionId: report.sessionId, // 移動判定要求觀測來自互相獨立的目擊者
-    exitCode: report.nearExitCode ?? null,
-  });
-  // 軌跡不需要無限成長：判定只看最近的觀測
-  if (event.track.length > 20) event.track = event.track.slice(-20);
 }
 
 /**

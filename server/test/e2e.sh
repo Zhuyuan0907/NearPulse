@@ -300,6 +300,48 @@ check "疏散計畫帶出口座標（態勢卡地圖用）" \
 check "疏散計畫帶避開半徑與事件原點（地圖圓圈用）" \
   test "$(curl -s "$BASE/api/venues/TPE-BL13/evacuation?exit=2&type=fire" | json "d['plan']['avoidRadiusM'] > 0 and d['plan']['origin']['lat'] > 0")" = "True"
 
+echo "== 15. 目擊位置回報：歹徒動態怎麼更新 =="
+# 【為什麼有這一段】移動判定的原料是「(時間, 錨點, 目擊者)」三元組，而在加入
+# 第三問之前，這些三元組只能從新回報取得——一個剛答完「有，我看到了」的
+# 現場目擊者，明明最清楚歹徒在哪，卻沒有管道說出來。
+for S in sgt-A sgt-B; do
+  curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/json' -d "{
+    \"uuid\":\"e2e-sight-$S\",\"sessionId\":\"$S\",\"type\":\"attack\",
+    \"locationClaim\":{\"source\":\"manual\",\"stationId\":\"TPE-A1\",\"confidence\":1.0,\"timestamp\":1},
+    \"nearExitCode\":\"M3\"}" > /dev/null
+done
+wait_batch
+SEVT=$(curl -s "$BASE/api/reports/context?station=TPE-A1&type=attack" | json "d['events'][0]['id']")
+sight() { curl -s -X POST "$BASE/api/events/$SEVT/confirm" -H 'Content-Type: application/json' -d "$1"; }
+
+# 軌跡會變成「往哪個方向逃」的建議——不在現場的人絕不能污染它
+check "不在現場者的目擊位置被拒絕（軌跡不可被遠端污染）" \
+  test "$(sight '{"sessionId":"e2e-outsider","step":"sighting","nearExitCode":"M8"}' | json "d['ok']")" = "False"
+
+sight '{"sessionId":"e2e-eyeA","step":"location","atStation":true}' > /dev/null
+sight '{"sessionId":"e2e-eyeA","step":"witness","atStation":true,"witnessed":"yes"}' > /dev/null
+check "在場目擊者的位置寫入事件軌跡" \
+  test "$(sight '{"sessionId":"e2e-eyeA","step":"sighting","nearExitCode":"M6"}' | json "d['recorded']")" = "True"
+# 同一個人可以回報多次：歹徒會一直移動，一次目擊不是一張票
+check "同一目擊者可重複回報位置（觀測不是投票）" \
+  test "$(sight '{"sessionId":"e2e-eyeA","step":"sighting","nearExitCode":"M6"}' | json "d['recorded']")" = "True"
+
+sleep 22   # threatMotion 要求觀測間隔 >= 20 秒，否則不成立為一段位移
+sight '{"sessionId":"e2e-eyeB","step":"location","atStation":true}' > /dev/null
+sight '{"sessionId":"e2e-eyeB","step":"witness","atStation":true,"witnessed":"yes"}' > /dev/null
+SRES=$(sight '{"sessionId":"e2e-eyeB","step":"sighting","nearExitCode":"M8"}')
+# 兩個**互相獨立**的目擊者、不同出口、間隔足夠 → 才算移動
+check "兩位獨立目擊者的位置差 → 判定移動中" \
+  test "$(echo "$SRES" | json "d['motion']['moving']")" = "True"
+check "移動判定給出方位（疏散建議據此避開）" \
+  test "$(echo "$SRES" | json "bool(d['motion']['compass'])")" = "True"
+# 立刻重算，不等批次：歹徒移動時 10 秒是很長的時間
+check "目擊回報立即反映在態勢卡（不等批次 tick）" \
+  test "$(curl -s "$BASE/api/situation" | json "any(e.get('motion',{}).get('moving') for s in d['stations'] for e in s['events'])")" = "True"
+# 軌跡的用途就是這個：讓其他人別往他前進的方向走
+check "威脅前進方向上的出口被排除在建議之外" \
+  test "$(curl -s "$BASE/api/situation" | json "any(e['motion'].get('moving') and len(e['plan'].get('avoid') or []) > 0 for s in d['stations'] for e in s['events'] if e.get('motion'))")" = "True"
+
 echo ""
 echo "======================================"
 echo " 結果：$PASS 通過 · $FAIL 失敗"

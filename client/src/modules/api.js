@@ -176,11 +176,22 @@ export async function fetchEvents(stationId) {
  * 兩段式確認：提交某一問的答案。
  * step='location'（在/不在）或 step='witness'（有/沒有/沒注意）
  */
-export async function confirmEvent(eventId, { step, atStation, witnessed }) {
+export async function confirmEvent(
+  eventId,
+  { step, atStation, witnessed, nearExitCode = null, point = null }
+) {
   const res = await fetch(`/api/events/${eventId}/confirm`, {
     method: 'POST',
     headers: jsonHeaders,
-    body: JSON.stringify({ sessionId: getSessionId(), step, atStation, witnessed }),
+    body: JSON.stringify({
+      sessionId: getSessionId(),
+      step,
+      atStation,
+      witnessed,
+      // 第三問（sighting）用：目擊到的位置 → 事件軌跡 → 移動方向判定
+      nearExitCode,
+      point,
+    }),
   });
   return res.json();
 }

@@ -12,10 +12,27 @@
  *         [沒有] ×N（在場）且多於正向 → cancelled
  *
  * 同一 session 對同一事件只算一票（重複投票被忽略）。
+ *
+ * 【第三問：他現在在哪】
+ * 前兩問決定事件**成不成立**；第三問決定它**往哪裡去**。
+ *
+ * 移動威脅判定的原料是「(時間, 錨點, 目擊者) 三元組」，而在此之前這些三元組
+ * 只能從**新回報**取得——一個剛答完「有，我看到了」的現場目擊者，
+ * 明明是全系統最清楚歹徒位置的人，卻沒有任何管道說出來。這是實際的缺口。
+ *
+ * 所以第三問是 `sighting`：答完見證票後追問「他現在在哪個出口附近」，
+ * 一鍵寫進事件軌跡。它和前兩問有三點本質差異：
+ *
+ *   1. **不是投票，是觀測**——同一個人可以回報多次（歹徒會一直移動），
+ *      所以不做一人一票的去重。
+ *   2. **不影響事件狀態**——不計入門檻、不參與否證。看錯位置不該讓事件被取消。
+ *   3. **仍要求在場**——不在現場的人「覺得他往那邊跑了」會直接污染軌跡，
+ *      而軌跡會變成疏散方向建議。這是最不能放寬的一道。
  */
 
 import { Router } from 'express';
-import { toEventSummary } from '../services/eventService.js';
+import { appendObservation, toEventSummary } from '../services/eventService.js';
+import { assessMotion } from '../services/threatMotion.js';
 
 export function createEventsRouter(store) {
   const router = Router();
@@ -89,6 +106,45 @@ export function createEventsRouter(store) {
         atStation: true,
         witnessed: ['yes', 'no', 'unsure'].includes(witnessed) ? witnessed : 'unsure',
         at: Date.now(),
+      });
+    } else if (step === 'sighting') {
+      // 在場才收：軌跡會變成「往哪個方向逃」的建議，不能讓不在現場的人污染它
+      const locationVote = event.confirmations.find(
+        (c) => c.sessionId === sessionId && c.step === 'location'
+      );
+      const isOnSite = locationVote ? locationVote.atStation === true : atStation === true;
+      if (!isOnSite) {
+        return res.status(403).json({ ok: false, error: '未確認在場，目擊位置無效' });
+      }
+
+      const { nearExitCode, point } = req.body ?? {};
+      const validPoint =
+        point && Number.isFinite(point.lat) && Number.isFinite(point.lon)
+          ? { lat: point.lat, lon: point.lon }
+          : null;
+
+      const recorded = appendObservation(event, {
+        incidentPoint: validPoint,
+        nearExitCode: typeof nearExitCode === 'string' ? nearExitCode : null,
+        sessionId,
+        at: Date.now(),
+      });
+      if (!recorded) {
+        // 「我說不出是哪個出口」是合理的答案，不是錯誤——照收，只是不進軌跡
+        return res.json({ ok: true, recorded: false, event: toEventSummary(event) });
+      }
+
+      // **立刻**重算移動判定，不等下一個批次 tick。
+      // 歹徒在移動時，10 秒是很長的時間；而這是純函式，重算成本可以忽略。
+      event.motion = assessMotion(event.track, Date.now());
+      event.updatedAt = Date.now();
+      store.upsertEvent(event);
+      store.markCardDirty();
+      return res.json({
+        ok: true,
+        recorded: true,
+        motion: event.motion,
+        event: toEventSummary(event),
       });
     } else {
       return res.status(400).json({ ok: false, error: '不支援的 step' });

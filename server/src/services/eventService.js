@@ -13,6 +13,7 @@
 
 import { randomUUID } from 'node:crypto';
 import { config } from '../config.js';
+import { findExit } from './venueService.js';
 
 /**
  * 建立一個新的 candidate 事件。
@@ -126,4 +127,34 @@ export function toEventSummary(event) {
     hasAudio: event.reports.some((r) => r.audio),
     hasPhoto: event.reports.some((r) => r.photo),
   };
+}
+
+/**
+ * 把一次「在某時、某錨點看到」追加進事件軌跡。
+ *
+ * 座標優先序與疏散一致：地圖選點（最精確）→ 出口錨點。兩者皆無就不記錄——
+ * 沒有位置的觀測無法貢獻軌跡，但它仍然是有效的回報／確認
+ *（位置永遠不擋通報，這是專案的硬性原則）。
+ *
+ * **兩條路徑都會呼叫這裡**：新回報（batchWorker），以及現場目擊者在確認頁
+ * 回答「他現在在哪」（events 路由）。移動判定的品質完全取決於這兩條路徑
+ * 餵進來的觀測數量，所以它必須是共用的一份實作，不能各寫一份。
+ */
+export function appendObservation(event, { incidentPoint, nearExitCode, sessionId, at }) {
+  const point =
+    incidentPoint ??
+    (nearExitCode ? findExit(event.stationId, nearExitCode) : null);
+  if (!point) return false;
+
+  event.track = event.track ?? [];
+  event.track.push({
+    lat: point.lat,
+    lon: point.lon,
+    at: at ?? Date.now(),
+    sessionId, // 移動判定要求觀測來自互相獨立的目擊者
+    exitCode: nearExitCode ?? null,
+  });
+  // 軌跡不需要無限成長：判定只看最近的觀測
+  if (event.track.length > 20) event.track = event.track.slice(-20);
+  return true;
 }

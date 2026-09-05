@@ -349,6 +349,17 @@ export default function SituationPage() {
                   defaultOpen={ev.status === 'active' && ev.threatLevel === 'high'}
                 />
 
+                {/* 目擊回報入口。
+                    移動威脅的軌跡靠的是「不同人、不同時間、不同位置」的觀測，
+                    而態勢卡是現場的人最常盯著的畫面——入口放這裡，
+                    看到歹徒移動的人才有地方說。只對進行中的高警戒事件顯示：
+                    低嚴重度事件不需要追蹤軌跡，多一顆按鈕只是雜訊。 */}
+                {ev.status === 'active' && ev.threatLevel === 'high' && (
+                  <a className="chip sighting-cta" href={`#/confirm?event=${ev.id}`}>
+                    🧭 我看到他往哪走了
+                  </a>
+                )}
+
                 <div className="event-foot">
                   {isSpeechSupported() && (
                     <button className="chip" onClick={() => speak(planToSpeech(ev, plan))}>

@@ -97,7 +97,12 @@ export default function IncidentMap({ plan, incidentPoint }) {
     for (const [mode, list] of [['go', plan?.go ?? []], ['avoid', plan?.avoid ?? []]]) {
       for (const e of list) {
         if (!Number.isFinite(e.lat) || !Number.isFinite(e.lon)) continue;
-        L.marker([e.lat, e.lon], { icon: exitIcon(e.code, mode), interactive: false }).addTo(map);
+        // 出口圖釘畫在事件點之上。**被避開的出口本來就緊鄰事件點**
+        // （那正是它被避開的原因），預設層序會讓 ✕ 蓋住它的編號——
+        // 而編號是這張圖上最需要讀到的字。
+        L.marker([e.lat, e.lon], {
+          icon: exitIcon(e.code, mode), interactive: false, zIndexOffset: 1000,
+        }).addTo(map);
         points.push([e.lat, e.lon]);
       }
     }
