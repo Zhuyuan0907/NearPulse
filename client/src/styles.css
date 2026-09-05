@@ -1,38 +1,86 @@
 /* ============================================================================
-   NearPulse 樣式 —— 恐慌情境優先
+   NearPulse 樣式 —— 月台燈箱
    ============================================================================
-   設計約束（每一條都對應真實的使用情境，不是美感偏好）：
+   【視覺概念】
+   這個產品要回答的只有一個問題：往哪走、別往哪走。
+   而那套視覺語言**已經存在、而且是法定的**——ISO 7010／CNS 的緊急出口標示，
+   使用者就站在它底下。所以介面不該長得像一個「在講指標牌的儀表板」，
+   而該像頭頂那塊指標牌的延伸。
 
+   關鍵作法：資訊用**發光的標示牌**呈現（飽和色塊 + 白字），
+   不是「深色卡片 + 1px 邊框」。後者是通用後台的預設樣貌，
+   而且會讓所有資訊看起來一樣重要——指標系統剛好相反，
+   它靠色塊大小與飽和度把「往這裡走」推到最前面。
+
+   顏色不是美感偏好，是引用：
+     綠  ISO 7010 安全狀態（逃生路線）——法定的「這邊出去」
+     紅  標示紅（禁止／消防）——法定的「不要往這裡」
+     琥珀 標示警告——我們用在「未經確認」
+
+   設計約束（每一條都對應真實的使用情境）：
      恐慌         主要動作永遠在拇指區（畫面底部固定），一隻手就能完成
      手抖／濕手   觸控目標 >= 56px，關鍵按鈕 >= 72px
      地下昏暗     深底高對比；不用純黑（OLED 滑動會有拖影）
-     色盲安全     嚴重度不只用顏色，一律附文字標籤與圖示
+     色盲安全     嚴重度不只用顏色，一律附文字標籤與形狀
      資訊分層     未經確認 vs 已確認在視覺上必須一眼可分，不能只差一個顏色
      單手可及     內容寬度上限 480px，重要控制項靠下
 ============================================================================ */
 
 :root {
-  --bg: #0d1117;
-  --bg-elev: #161b22;
-  --card: #1c2128;
-  --border: #30363d;
-  --border-strong: #444c56;
-  --text: #f0f6fc;
-  --muted: #9198a1;
+  /* 陰影中的混凝土。刻意偏冷灰綠——不是把黑加一點藍（那是後台的預設暗色）， */
+  /* 而是車站牆面在昏暗中的顏色。 */
+  --tunnel: #15181a;
+  --tunnel-2: #1c2124;
+  --panel: #232a2e;
+  --edge: #333c41;
+  --edge-2: #48545a;
 
-  --accent: #ff5252;   /* 高嚴重度 */
-  --warn: #ffb347;     /* 中嚴重度 */
-  --ok: #3fb950;       /* 安全／已完成 */
-  --blue: #58a6ff;     /* 資訊／互動 */
+  --enamel: #f2f4f3;   /* 標示牌面白，微冷 */
+  --dim: #8a9298;
 
-  --r-sm: 10px;
-  --r-md: 14px;
-  --r-lg: 20px;
+  /* 以下三色引用自實體標示系統，不是挑的 */
+  --egress: #00843d;   /* ISO 7010 安全狀態綠：逃生路線 */
+  --egress-lit: #00a651;
+  --halt: #c8102e;     /* 標示紅：禁止／消防 */
+  --halt-lit: #e4344f;
+  --caution: #f2a900;  /* 標示警告琥珀：未經確認 */
+  --info: #0a59ae;     /* 板南線藍，兼作一般資訊色 */
+  --info-lit: #4a9eff;
+
+  /* 台北捷運實際路線色——場域識別用真的顏色，使用者本來就認得 */
+  --line-BL: #0a59ae;
+  --line-R:  #e3002c;
+  --line-G:  #008659;
+  --line-O:  #f8b61c;
+  --line-BR: #99552b;
+  --line-Y:  #ffdb00;
+
+  /* 圓角依角色分開，不是全站同一個值。 */
+  /* 標示牌是方的（2px 只為了不刮眼）；可按的東西才明顯圓。 */
+  --r-sign: 3px;
+  --r-tap: 10px;
+  --r-pill: 999px;
 
   --tap: 56px;         /* 最小觸控目標 */
   --tap-lg: 72px;      /* 關鍵動作 */
 
   --safe-b: env(safe-area-inset-bottom, 0px);
+
+  /* 相容層：舊類別仍在用這些名字，逐步汰換 */
+  --bg: var(--tunnel);
+  --bg-elev: var(--tunnel-2);
+  --card: var(--panel);
+  --border: var(--edge);
+  --border-strong: var(--edge-2);
+  --text: var(--enamel);
+  --muted: var(--dim);
+  --accent: var(--halt-lit);
+  --warn: var(--caution);
+  --ok: var(--egress-lit);
+  --blue: var(--info-lit);
+  --r-sm: var(--r-tap);
+  --r-md: var(--r-tap);
+  --r-lg: 16px;
 }
 
 * { box-sizing: border-box; }
@@ -89,8 +137,16 @@ button { cursor: pointer; }
   border-radius: var(--r-md);
 }
 .loc-bar:active { background: var(--card); }
-.loc-pin { font-size: 1.25rem; line-height: 1; }
-.loc-body { flex: 1; min-width: 0; }
+.loc-body {
+  /* 舊版是 inline span，標題與副標會擠在同一行
+     （「尚未選擇場域點此選擇你所在的場域」）。這是既有的排版錯誤。 */
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  text-align: left;
+}
 .loc-title {
   font-weight: 600;
   white-space: nowrap;
@@ -156,7 +212,9 @@ button { cursor: pointer; }
   transition: transform 0.06s ease, border-color 0.12s ease;
 }
 .type-btn:active { transform: scale(0.97); }
-.type-emoji { font-size: 2rem; line-height: 1; }
+.type-pict { color: currentColor; }
+/* 未選取時圖標壓暗，選取後回到全色——選取狀態不只靠邊框 */
+.type-btn:not(.type-selected) .type-pict { opacity: .72; }
 .type-hint { font-size: 0.72rem; font-weight: 400; color: var(--muted); }
 
 /* 選中：邊框變色 + 底色加深，不只靠顏色一個通道 */
@@ -197,6 +255,10 @@ button { cursor: pointer; }
 .btn-lg { min-height: var(--tap-lg); font-size: 1.15rem; }
 
 .chip {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  justify-content: center;
   min-height: 40px;
   padding: 6px 14px;
   font-size: 0.85rem;
@@ -454,88 +516,22 @@ button { cursor: pointer; }
 
 .station-group { margin-top: 18px; }
 
-.event-card {
-  padding: 14px;
-  background: var(--bg-elev);
-  border: 1px solid var(--border);
-  border-left-width: 4px;
-  border-radius: var(--r-md);
-}
 .event-card + .event-card { margin-top: 10px; }
-.event-active { border-left-color: var(--accent); }
-.event-candidate { border-left-color: var(--muted); border-style: dashed; }
 
-/* ---- 事件卡：一眼看懂「什麼事 + 多嚴重 + 往哪走」 ---- */
-
-.event-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
 .event-type { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.01em; }
-.event-where { margin-top: 2px; font-size: 0.78rem; color: var(--muted); }
 
-.threat {
-  flex-shrink: 0;
-  padding: 3px 12px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  border: 1px solid currentColor;
-  border-radius: 999px;
-}
-.threat-high { color: var(--accent); }
-.threat-medium { color: var(--warn); }
-.threat-low { color: var(--blue); }
-.threat-unverified { color: var(--muted); }
 
 /* 需要最先看到的旗標：移動中、有人需協助 */
-.flag {
-  margin-top: 10px;
-  padding: 8px 12px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  border-radius: var(--r-sm);
-}
-.flag-move { color: var(--accent); background: #2a1518; }
-.flag-assist { color: var(--warn); background: #2a2113; }
 
 /* ---- 疏散計畫：結構化，不是一整段字 ----
    出口編號放最前面且放大，因為站內指標系統就是用編號導引的——
    使用者抬頭就能把螢幕上的「3」對上牆上的「← 3 出口」。 */
 .plan { margin-top: 12px; }
 .plan-block + .plan-block { margin-top: 8px; }
-.plan-block {
-  padding: 10px 12px;
-  border-radius: var(--r-sm);
-}
-.plan-go { background: #12261a; border-left: 3px solid var(--ok); }
-.plan-avoid { background: #2a1518; border-left: 3px solid var(--accent); }
 
-.plan-head {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--muted);
-}
 .plan-go .plan-head { color: var(--ok); }
 .plan-avoid .plan-head { color: var(--accent); }
 
-.exit-row {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin-top: 6px;
-}
-.exit-code {
-  min-width: 46px;
-  font-size: 1.5rem;
-  font-weight: 800;
-  line-height: 1.1;
-}
-.plan-go .exit-code { color: var(--ok); }
-.plan-avoid .exit-code { color: var(--accent); text-decoration: line-through; }
-.exit-where { font-size: 0.9rem; color: var(--text); }
 
 .plan-note { margin: 8px 0 0; font-size: 0.75rem; color: var(--muted); }
 
@@ -561,23 +557,6 @@ button { cursor: pointer; }
 }
 
 /* ---- 場域標題：地下場域不只有捷運站 ---- */
-.venue-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 10px;
-  font-size: 1.05rem;
-}
-.venue-head-icon { font-size: 1.2rem; }
-.venue-head-name { font-weight: 700; }
-.venue-head-kind {
-  padding: 2px 8px;
-  font-size: 0.68rem;
-  font-weight: 400;
-  color: var(--muted);
-  border: 1px solid var(--border-strong);
-  border-radius: 999px;
-}
 
 .pending-btn {
   display: block;
@@ -610,20 +589,9 @@ button { cursor: pointer; }
 }
 
 /* 鄰近場域警示：事件不在你這裡，但離得夠近 */
-.nearby-alert {
-  display: flex;
-  gap: 10px;
-  padding: 12px 14px;
-  font-size: 0.88rem;
-  background: var(--bg-elev);
-  border: 1px solid var(--warn);
-  border-radius: var(--r-md);
-}
 .nearby-alert + .nearby-alert { margin-top: 8px; }
-.nearby-icon { flex-shrink: 0; font-size: 1.1rem; }
 .nearby-move { color: var(--accent); font-weight: 700; }
 
-.flag-train { color: var(--blue); background: #13202a; }
 
 /* 有人無法自行疏散：救援方最需要看到的一行 */
 .assist-flag {
@@ -691,30 +659,6 @@ button { cursor: pointer; }
    而他們讓不讓開車門動線，決定車廂裡的人出不出得來。
    =========================================================================== */
 
-.inbound-alert {
-  padding: 14px 16px;
-  margin-bottom: 12px;
-  background: linear-gradient(180deg, #2a1518, var(--card));
-  border: 1px solid var(--accent);
-  border-left-width: 5px;
-  border-radius: var(--r-md);
-}
-.inbound-head {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: baseline;
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--accent);
-}
-.inbound-eta {
-  padding: 2px 8px;
-  font-size: 0.85rem;
-  color: #0d1117;
-  background: var(--accent);
-  border-radius: 999px;
-}
 .inbound-where { margin-top: 6px; font-size: 0.95rem; }
 .inbound-what { margin-top: 2px; font-size: 0.9rem; color: var(--muted); }
 .inbound-action {
@@ -725,17 +669,6 @@ button { cursor: pointer; }
 }
 
 /* 車廂內看到的到站倒數：站名要大，因為那是他抬頭核對的東西 */
-.arrival {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 10px;
-  align-items: baseline;
-  padding: 10px 12px;
-  margin: 10px 0;
-  background: #10161d;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--r-sm);
-}
 .arrival-eta { font-size: 1.15rem; font-weight: 700; color: var(--warn); }
 .arrival-station { font-size: 1.15rem; font-weight: 700; }
 .arrival-towards { font-size: 0.85rem; color: var(--muted); }
@@ -748,7 +681,6 @@ button { cursor: pointer; }
    態勢卡上的事件地圖（唯讀，點開才載入）
    =========================================================================== */
 
-.map-toggle { width: 100%; min-height: 44px; margin-top: 10px; }
 
 .incident-map { margin-top: 10px; }
 .incident-map-canvas {
@@ -801,13 +733,6 @@ button { cursor: pointer; }
    與態勢卡的疏散區塊刻意用同一套呈現——站內指標系統就是用編號導引的。
    =========================================================================== */
 
-.sighting-cta {
-  display: block;
-  width: 100%;
-  margin-top: 10px;
-  text-align: center;
-  text-decoration: none;
-}
 
 .sighting-exits {
   display: flex;
@@ -853,19 +778,6 @@ button { cursor: pointer; }
 .muted-2 { font-size: 0.8rem; color: #6e7681; }
 
 /* 開門側：車廂內最可執行的一則指示，給它獨立的視覺重量 */
-.door-side {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  padding: 12px 14px;
-  margin: 10px 0;
-  font-size: 1rem;
-  line-height: 1.5;
-  background: #1a2430;
-  border: 1px solid var(--blue);
-  border-radius: var(--r-sm);
-}
-.door-side-icon { font-size: 1.3rem; }
 .door-side b { color: var(--blue); }
 
 /* ===========================================================================
@@ -875,23 +787,6 @@ button { cursor: pointer; }
    所以用低飽和的綠、細邊框、不置頂、不用色塊填滿。
    =========================================================================== */
 
-.resolved-item {
-  padding: 12px 14px;
-  margin-bottom: 10px;
-  background: #12181d;
-  border: 1px solid #2a3a30;
-  border-left: 3px solid var(--ok);
-  border-radius: var(--r-sm);
-}
-.resolved-head {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 10px;
-  align-items: baseline;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--ok);
-}
 .resolved-where { font-size: 0.85rem; font-weight: 400; color: var(--muted); }
 .resolved-notice { margin: 6px 0 0; font-size: 0.85rem; color: var(--muted); }
 
@@ -905,3 +800,318 @@ button { cursor: pointer; }
 }
 .venue-choice-q { margin: 0 0 8px; font-size: 0.9rem; }
 .venue-choice-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ===========================================================================
+   標示系統
+   ---------------------------------------------------------------------------
+   以下取代原本「深色卡片 + 1px 邊框」的寫法。差別不只是好看：
+   卡片會讓所有資訊看起來一樣重要，而指標系統剛好相反——
+   它靠色塊的大小與飽和度，把「往這裡走」推到眼睛最先落下的地方。
+   =========================================================================== */
+
+.pict { flex: none; display: block; }
+
+/* ---- 站名帶：抄自月台牆上的那一條 ---- */
+.venue-band {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 11px 14px 11px 12px;
+  margin: 0 0 10px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: .06em;   /* 站名帶的中文字距是拉開的 */
+  color: var(--enamel);
+  background: var(--tunnel-2);
+  /* 左緣的路線色帶。取不到路線就退回中性灰，不硬湊一個顏色 */
+  border-left: 6px solid var(--edge-2);
+  border-radius: 0 var(--r-sign) var(--r-sign) 0;
+}
+.venue-band[data-line="BL"] { border-left-color: var(--line-BL); }
+.venue-band[data-line="R"]  { border-left-color: var(--line-R); }
+.venue-band[data-line="G"]  { border-left-color: var(--line-G); }
+.venue-band[data-line="O"]  { border-left-color: var(--line-O); }
+.venue-band[data-line="BR"] { border-left-color: var(--line-BR); }
+.venue-band[data-line="Y"]  { border-left-color: var(--line-Y); }
+.venue-band-icon { color: var(--dim); }
+.venue-band-name { flex: 1; }
+.venue-band-kind {
+  font-size: .7rem;
+  font-weight: 500;
+  letter-spacing: .02em;
+  color: var(--dim);
+}
+
+/* ---- 事件抬頭 ---- */
+.event-top {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.event-pict { color: var(--enamel); }
+.event-type {
+  flex: 1;
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+
+/* meta 改成有欄位名的小格。
+   `A · B · C` 這種中間點串接讀起來像系統日誌，掃視時分不出哪個數字是什麼。 */
+.event-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 20px;
+  padding: 0 0 12px;
+  margin: 0 0 12px;
+  border-bottom: 1px solid var(--edge);
+}
+.event-meta dt {
+  font-size: .68rem;
+  font-weight: 500;
+  color: var(--dim);
+}
+.event-meta dd {
+  margin: 1px 0 0;
+  font-size: .92rem;
+  font-weight: 600;
+  color: var(--enamel);
+}
+
+/* ---- 疏散指示：實心標示牌，不是有邊框的卡片 ---- */
+.plan-block {
+  padding: 10px 12px 12px;
+  margin-bottom: 8px;
+  border-radius: var(--r-sign);
+}
+.plan-go { background: var(--egress); }
+.plan-avoid { background: var(--halt); }
+
+.plan-head {
+  margin-bottom: 8px;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: rgba(255, 255, 255, .82);
+}
+.plan-head-stop {
+  font-size: 1rem;
+  letter-spacing: .02em;
+  color: var(--halt-lit);
+}
+
+/* 指標列：編號色塊 → 箭頭 → 目的地。箭頭是資訊（方向），不是裝飾 */
+.exit-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 5px 0;
+}
+.exit-row + .exit-row { border-top: 1px solid rgba(255, 255, 255, .14); }
+.exit-code {
+  min-width: 2.4ch;
+  font-size: 2.1rem;
+  font-weight: 900;
+  line-height: 1;
+  color: #fff;
+  letter-spacing: -.02em;
+}
+.exit-code-avoid { text-decoration: line-through; text-decoration-thickness: 3px; }
+.exit-arrow {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, .7);
+}
+.exit-where {
+  flex: 1;
+  font-size: .88rem;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, .92);
+}
+
+/* ---- 警戒徽章：形狀與顏色同時編碼，色盲也分得出 ---- */
+.threat {
+  padding: 3px 9px;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  border-radius: var(--r-sign);
+}
+.threat-high      { color: #fff; background: var(--halt); }
+.threat-medium    { color: #1a1200; background: var(--caution); }
+.threat-low       { color: var(--enamel); background: var(--edge-2); }
+/* 未經確認用**虛線外框**而非填色：語氣的差別不能只靠顏色深淺 */
+.threat-unverified {
+  color: var(--caution);
+  background: transparent;
+  border: 1px dashed var(--caution);
+}
+
+/* ---- 旗標：單行、左側粗色條，像標示牌下緣的附註 ---- */
+.flag {
+  padding: 7px 11px;
+  margin-bottom: 7px;
+  font-size: .86rem;
+  font-weight: 600;
+  background: var(--tunnel-2);
+  border-left: 4px solid var(--edge-2);
+  border-radius: 0 var(--r-sign) var(--r-sign) 0;
+}
+.flag-move   { color: var(--caution); border-left-color: var(--caution); }
+.flag-assist { color: var(--info-lit); border-left-color: var(--info-lit); }
+.flag-train  { color: var(--enamel); border-left-color: var(--line-BL); }
+
+/* ---- 事故列車即將進站：時效最短，給最強的視覺重量（實心紅牌） ---- */
+.inbound-alert {
+  padding: 13px 15px;
+  margin-bottom: 12px;
+  color: #fff;
+  background: var(--halt);
+  border-radius: var(--r-sign);
+}
+.inbound-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: .03em;
+  color: #fff;
+}
+.inbound-eta {
+  padding: 2px 9px;
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--halt);
+  background: #fff;
+  border-radius: var(--r-sign);
+}
+.inbound-where { margin-top: 7px; font-size: .95rem; color: rgba(255,255,255,.95); }
+.inbound-what { margin-top: 2px; font-size: .85rem; color: rgba(255,255,255,.75); }
+.inbound-action {
+  margin: 10px 0 0;
+  font-size: .95rem;
+  font-weight: 700;
+  line-height: 1.5;
+  color: #fff;
+}
+
+/* ---- 車廂內的到站倒數 ---- */
+.arrival {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  align-items: baseline;
+  padding: 10px 12px;
+  margin: 10px 0;
+  background: var(--tunnel);
+  border-left: 4px solid var(--caution);
+  border-radius: 0 var(--r-sign) var(--r-sign) 0;
+}
+
+/* ---- 開門側：車廂內最可執行的一則指示 ---- */
+.door-side {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 11px 13px;
+  margin: 10px 0;
+  font-size: .98rem;
+  line-height: 1.5;
+  color: #fff;
+  background: var(--info);
+  border-radius: var(--r-sign);
+}
+.door-side b { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---- 鄰近場域警示：低一階的語氣，不與主警示搶眼 ---- */
+.nearby-alert {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  margin-bottom: 7px;
+  font-size: .88rem;
+  line-height: 1.5;
+  background: var(--tunnel-2);
+  border-left: 4px solid var(--caution);
+  border-radius: 0 var(--r-sign) var(--r-sign) 0;
+}
+.nearby-icon { margin-top: 1px; color: var(--dim); }
+
+/* ---- 已解除：讓人放鬆的訊息，不能長得像另一則警報 ---- */
+.resolved-item {
+  padding: 10px 13px;
+  margin-bottom: 8px;
+  background: var(--tunnel-2);
+  border-left: 4px solid var(--egress);
+  border-radius: 0 var(--r-sign) var(--r-sign) 0;
+}
+.resolved-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  align-items: baseline;
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--egress-lit);
+}
+
+/* ---- 事件區塊：不再外加一層框 ----
+   內層已經有紅綠實心標示牌了，外面再包一個彩色邊框卡片是雙重框——
+   兩層都在喊「這裡很重要」，結果是誰都不突出。
+   改用左側細線把同一場域的事件串起來，框留給真正要強調的標示牌。 */
+.event-card {
+  padding: 0 0 4px 12px;
+  border-left: 2px solid var(--edge);
+}
+.event-card + .event-card { margin-top: 18px; }
+.event-active { border-left-color: var(--halt); }
+.event-candidate { border-left-color: var(--edge-2); border-left-style: dashed; }
+
+/* ---- 底部動作：分出主次，不要三顆一樣的全寬藥丸 ----
+   「我看到他往哪走了」是這頁唯一能改變資料的動作，給它實體按鈕的份量；
+   地圖收合與語音是輔助，退為小型 chip。 */
+.sighting-cta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 12px;
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--enamel);
+  text-decoration: none;
+  background: var(--panel);
+  border: 1px solid var(--edge-2);
+  border-radius: var(--r-tap);
+}
+.map-toggle {
+  min-height: 38px;
+  margin-top: 10px;
+  font-size: .82rem;
+}
+.event-foot { margin-top: 10px; }
+
+/* 圖標對齊與語氣 */
+.loc-pin, .venue-kind { color: var(--dim); }
+.done-icon-ok {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto;
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--egress);
+  border-radius: 50%;
+}
+.foot-pict { display: inline-block; margin-left: 8px; vertical-align: -2px; color: var(--dim); }
+/* 空狀態不用大圖示——沒有事情發生時，一句話就夠了 */
+.empty-line { padding: 28px 0; font-size: .95rem; color: var(--dim); text-align: center; }

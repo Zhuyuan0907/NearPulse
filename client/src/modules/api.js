@@ -164,6 +164,21 @@ export async function fetchEventsContext(stationId, type) {
   return data.events ?? [];
 }
 
+/**
+ * 取單一事件。
+ *
+ * deep link（#/confirm?event=…）必須用這支，**不能**從過濾過的清單裡撈——
+ * 清單是依「你目前所在場域」過濾的，而你要協助確認的事件很可能在別站，
+ * 撈不到就會掉回清單頁、而清單頁被同一個過濾器清空，畫面顯示
+ * 「目前沒有待確認的事件」。這是實際回報過的 bug。
+ */
+export async function fetchEvent(eventId) {
+  const res = await fetch(`/api/events/${encodeURIComponent(eventId)}`);
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.event ?? null;
+}
+
 /** 事件清單（確認頁入口；可帶 station 過濾） */
 export async function fetchEvents(stationId) {
   const params = stationId ? `?station=${encodeURIComponent(stationId)}` : '';

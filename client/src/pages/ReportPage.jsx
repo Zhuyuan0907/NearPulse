@@ -28,6 +28,7 @@ import { compressPhoto, cropCell } from '../modules/photoCompressor.js';
 import VenuePicker from '../components/VenuePicker.jsx';
 import OfflineBar from '../components/OfflineBar.jsx';
 import PhotoRoiPicker from '../components/PhotoRoiPicker.jsx';
+import Pictogram from '../components/Pictogram.jsx';
 
 /**
  * 地圖動態載入：Leaflet 加圖磚樣式約 150KB，但只有展開「補充細節」的人才需要。
@@ -43,11 +44,11 @@ const VenueMap = lazy(() => import('../components/VenueMap.jsx'));
  * 原本只能歸到「其他」（門檻 3、嚴重度 low），那是嚴重的錯誤分類。
  */
 const TYPES = [
-  { id: 'fire',    label: '火警', emoji: '🔥', cls: 'type-high',   hint: '煙、火、燒焦味' },
-  { id: 'attack',  label: '攻擊', emoji: '🔪', cls: 'type-high',   hint: '持械、傷人、有人逃竄' },
-  { id: 'medical', label: '急救', emoji: '🚑', cls: 'type-high',   hint: '有人倒下、受傷' },
-  { id: 'crush',   label: '推擠', emoji: '👥', cls: 'type-medium', hint: '人潮擠壓、動線堵塞' },
-  { id: 'other',   label: '其他', emoji: '⚠️', cls: 'type-low',    hint: '積水、異味、可疑物' },
+  { id: 'fire',    label: '火警', cls: 'type-high',   hint: '煙、火、燒焦味' },
+  { id: 'attack',  label: '攻擊', cls: 'type-high',   hint: '持械、傷人、有人逃竄' },
+  { id: 'medical', label: '急救', cls: 'type-high',   hint: '有人倒下、受傷' },
+  { id: 'crush',   label: '推擠', cls: 'type-medium', hint: '人潮擠壓、動線堵塞' },
+  { id: 'other',   label: '其他', cls: 'type-low',    hint: '積水、異味、可疑物' },
 ];
 
 /** GPS 誤差小於這個值才值得拿來當事件位置（否則只用於收斂場域清單） */
@@ -348,7 +349,7 @@ export default function ReportPage() {
     return (
       <div className="page">
         <div className="done-box">
-          <div className="done-icon">✅</div>
+          <div className="done-icon done-icon-ok">✓</div>
           <h2>已通報</h2>
 
           {evacText ? (
@@ -372,7 +373,7 @@ export default function ReportPage() {
           )}
 
           <div className="done-actions">
-            <a className="primary-btn" href="#/situation">查看態勢卡</a>
+            <a className="primary-btn" href="#/situation">查看目前狀況</a>
             <button className="ghost-btn" onClick={() => { setDone(false); resetDraft(); }}>
               再回報一筆
             </button>
@@ -400,7 +401,7 @@ export default function ReportPage() {
         className={`loc-bar${claim ? '' : ' loc-unset'}`}
         onClick={() => setShowPicker(true)}
       >
-        <span className="loc-pin">📍</span>
+        <Pictogram name="pin" size={20} className="loc-pin" />
         <span className="loc-body">
           <span className="loc-title">{venueName ?? (claim ? claim.stationId : '尚未選擇場域')}</span>
           <span className="loc-sub">{locSub}</span>
@@ -418,7 +419,7 @@ export default function ReportPage() {
             className={`type-btn ${t.cls}${selectedType === t.id ? ' type-selected' : ''}`}
             onClick={() => handleType(t.id)}
           >
-            <span className="type-emoji">{t.emoji}</span>
+            <Pictogram name={t.id} size={30} className="type-pict" />
             {t.label}
             <span className="type-hint">{t.hint}</span>
           </button>
@@ -528,7 +529,8 @@ export default function ReportPage() {
                 sessionStorage.setItem('np_step_free', next ? '1' : '0');
               }}
             >
-              ♿ {stepFree ? '已選：需要無台階路線' : '我需要無台階路線'}
+              <Pictogram name="stepFree" size={18} />
+              {stepFree ? '已選：需要無台階路線' : '我需要無台階路線'}
             </button>
             <button
               className={`chip${needsAssistance ? ' chip-active' : ''}`}
@@ -541,7 +543,8 @@ export default function ReportPage() {
 
           <div className="supp-row">
             <button className="ghost-btn btn-lg" onClick={() => photoInputRef.current?.click()}>
-              📷 拍照定位
+              <Pictogram name="photo" size={18} />
+              拍照定位
             </button>
             <button className="ghost-btn btn-lg" disabled={gpsBusy} onClick={useGps}>
               {gpsBusy ? '定位中…' : '🛰️ GPS 定位'}
@@ -656,7 +659,7 @@ export default function ReportPage() {
                   onPointerUp={handleMicUp}
                   onPointerLeave={handleMicUp}
                 >
-                  {recording ? '🔴 放開送出' : '🎤 按住說話'}
+                  {recording ? <>放開送出</> : <><Pictogram name="mic" size={18} />按住說話</>}
                 </button>
               ) : (
                 <p className="muted">（此瀏覽器不支援錄音，可改用文字）</p>
@@ -678,7 +681,7 @@ export default function ReportPage() {
       {error && <p className="error-note" style={{ marginTop: 12 }}>{error}</p>}
 
       <footer className="page-footer">
-        <a href="#/situation">查看態勢卡 →</a>
+        <a href="#/situation">查看目前狀況</a>
         {venue?.attribution && <p className="attribution">{venue.attribution}</p>}
       </footer>
 

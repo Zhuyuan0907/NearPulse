@@ -26,8 +26,9 @@
 import { useEffect, useState } from 'react';
 import { fetchNearbyVenues, searchVenues } from '../modules/api.js';
 import { lastKnownFix, recentVenues } from '../modules/location.js';
+import Pictogram from './Pictogram.jsx';
 
-const KIND_ICON = { metro: '🚇', underground: '🏬', parking: '🅿️' };
+
 
 export default function VenuePicker({ fix, requestFix, onPicked, onCancel }) {
   // 'locating' 與 'nosignal' 必須分開：兩者都沒有清單，但對使用者的意義完全不同。
@@ -102,7 +103,7 @@ export default function VenuePicker({ fix, requestFix, onPicked, onCancel }) {
 
       <div className="sheet-body">
         {!searchMode && phase === 'locating' && (
-          <div className="notice">📡 正在取得概略位置，用來列出附近的場域…</div>
+          <div className="notice">正在取得概略位置，用來列出附近的場域…</div>
         )}
         {!searchMode && phase === 'ready' && (
           <p className="muted">附近的場域——點一下即可，不必打字</p>
@@ -129,7 +130,7 @@ export default function VenuePicker({ fix, requestFix, onPicked, onCancel }) {
         <div style={{ marginTop: 12 }}>
           {list.map((v) => (
             <button key={v.id} className="venue-btn" onClick={() => onPicked(v.id, v.name)}>
-              <span className="venue-kind">{KIND_ICON[v.kind] ?? '📍'}</span>
+              <Pictogram name={v.kind ?? 'pin'} size={22} className="venue-kind" />
               <span className="venue-body">
                 <span className="venue-name">{v.name}</span>
                 <span className="venue-meta">

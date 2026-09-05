@@ -29,6 +29,7 @@ import { startSituationPolling } from '../modules/api.js';
 import { isSpeechSupported, speak } from '../modules/speech.js';
 import OfflineBar from '../components/OfflineBar.jsx';
 import { etaOf } from '../modules/train.js';
+import Pictogram from '../components/Pictogram.jsx';
 
 /**
  * 地圖**動態載入**：leaflet 與圖磚加起來遠超過整張態勢卡的預算。
@@ -43,24 +44,45 @@ const THREAT_LABEL = {
   unverified: '未經確認',
 };
 
-const KIND_ICON = { metro: '🚇', underground: '🏬', parking: '🅿️', retail: '🏢' };
 const KIND_LABEL = {
   metro: '捷運站', underground: '地下街', parking: '地下停車場', retail: '百貨／商場',
 };
+
+/** 事件類型 → 標示圖標。與回報頁共用同一組形狀，使用者只需要學一次 */
+const TYPE_PICT = { 火警: 'fire', 攻擊: 'attack', 急救: 'medical', 推擠: 'crush' };
+const pictOf = (typeLabel) => TYPE_PICT[typeLabel] ?? 'other';
+
+/** 由場域 id 取路線代碼（TPE-BL13 → BL）。取不到就不上色，不硬湊。 */
+function lineOf(venueId) {
+  const m = /^[A-Z]{3}-([A-Z]{1,2})\d/.exec(venueId ?? '');
+  return m ? m[1] : null;
+}
 
 const time = (ts) =>
   new Date(ts).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
 
 /** 把結構化計畫組成一句話——只給語音，畫面上是排版好的區塊 */
 function planToSpeech(ev, plan) {
-  if (!plan) return ev.advice ?? '';
+  // 句尾標點交給這裡統一處理，避免把「…勿使用電梯。」接上「。往 M7」變成雙句號
+  const sentence = (t) => String(t ?? '').trim().replace(/[。．.]+$/, '');
+  const join = (...parts) => parts.filter(Boolean).map(sentence).join('。') + '。';
+
+  if (!plan) return join(ev.advice);
   const name = (e) => (e.landmark ? `${e.code} 出口，往${e.landmark}` : `${e.code} 出口`);
-  if (plan.kind === 'shelter') return `${ev.advice}。${plan.reason}。${plan.action}`;
+
+  if (plan.kind === 'shelter') return join(ev.advice, plan.reason, plan.action);
+  if (plan.kind === 'onTrain') return join(plan.action, ev.advice);
+
+  /**
+   * **可執行的先唸。**
+   * 濃煙中聽的人只會接收到前幾秒——「往 M7 出口」必須排在
+   * 「依站務人員指示疏散」這種一般性建議之前。
+   */
   const go = plan.go.map(name).join('、');
   const avoid = plan.avoid.length
-    ? `，避開 ${plan.avoid.map((e) => `${e.code} 出口`).join('、')}`
+    ? `避開 ${plan.avoid.map((e) => `${e.code} 出口`).join('、')}`
     : '';
-  return `${ev.advice}。往 ${go} 移動${avoid}`;
+  return join(`往 ${go} 移動`, avoid, ev.advice);
 }
 
 /** 車廂內的到站倒數：站名要大，那是他抬頭核對顯示器的東西 */
@@ -76,11 +98,18 @@ function ArrivalCountdown({ arrival }) {
   );
 }
 
-function ExitRow({ exit }) {
+/**
+ * 指標列：`[編號色塊] ↑ 目的地`。
+ *
+ * 這是站內出口指標的排版——編號是最大的元素，箭頭是資訊（方向）而不是裝飾，
+ * 地標跟在箭頭後面。使用者抬頭看到的牌子就長這樣，介面照抄可以省掉一次轉譯。
+ */
+function ExitRow({ exit, mode = 'go' }) {
   return (
     <div className="exit-row">
-      <span className="exit-code">{exit.code}</span>
-      <span className="exit-where">{exit.landmark ? `往 ${exit.landmark}` : '出口'}</span>
+      <span className={`exit-code exit-code-${mode}`}>{exit.code}</span>
+      <span className="exit-arrow" aria-hidden="true">{mode === 'go' ? '↑' : '⤫'}</span>
+      <span className="exit-where">{exit.landmark ?? '出口'}</span>
     </div>
   );
 }
@@ -92,7 +121,7 @@ function EvacPlan({ plan, arrival }) {
   if (plan.kind === 'onTrain') {
     return (
       <div className="plan plan-shelter">
-        <div className="plan-head plan-head-stop">🚃 你在車廂裡，沒有「出口」可去</div>
+        <div className="plan-head plan-head-stop">你在車廂裡，沒有「出口」可去</div>
         {/* 車廂內唯一有意義的「進度」：還要撐多久門才會開。
             秒數來自 TDX 官方站間行車時間，不是估的。 */}
         {arrival && <ArrivalCountdown arrival={arrival} />}
@@ -103,7 +132,7 @@ function EvacPlan({ plan, arrival }) {
             到站前先移動到會開門的那一側，門一開就出得去。 */}
         {arrival?.doorSide?.label && (
           <div className="door-side">
-            <span className="door-side-icon">🚪</span>
+            <Pictogram name="door" size={22} />
             <span>
               下一站是<b>{arrival.doorSide.label}開門</b>——
               現在就往{arrival.doorSide.label}車門移動
@@ -128,7 +157,7 @@ function EvacPlan({ plan, arrival }) {
   if (plan.kind === 'shelter') {
     return (
       <div className="plan plan-shelter">
-        <div className="plan-head plan-head-stop">🛑 不要前往出口</div>
+        <div className="plan-head plan-head-stop">不要前往出口</div>
         <p className="plan-reason">{plan.reason}</p>
         <p className="plan-action">{plan.action}</p>
       </div>
@@ -145,7 +174,7 @@ function EvacPlan({ plan, arrival }) {
       {plan.avoid.length > 0 && (
         <div className="plan-block plan-avoid">
           <div className="plan-head">不要走</div>
-          {plan.avoid.map((e) => <ExitRow key={e.code} exit={e} />)}
+          {plan.avoid.map((e) => <ExitRow key={e.code} exit={e} mode="avoid" />)}
         </div>
       )}
 
@@ -164,12 +193,12 @@ function InboundAlert({ alert }) {
   return (
     <div className="inbound-alert">
       <div className="inbound-head">
-        🚃 {eta.arrived ? '事故列車應已進站' : '事故列車即將進站'}
+        {eta.arrived ? '事故列車應已進站' : '事故列車即將進站'}
         <span className="inbound-eta">{eta.text}</span>
       </div>
       <div className="inbound-where">
         <b>{alert.venueName}</b>（{alert.lineNo} 線 · 往{alert.towards}）
-        <span className="muted"> · 由 {alert.fromVenue} 方向駛來</span>
+        <span className="muted">　由 {alert.fromVenue} 方向駛來</span>
       </div>
       <div className="inbound-what">車上有進行中的<b>{alert.typeLabel}</b>事件</div>
       <p className="inbound-action">{eta.action}</p>
@@ -218,7 +247,8 @@ function EventMapToggle({ plan, incidentPoint, defaultOpen = false }) {
   if (!open) {
     return (
       <button className="chip map-toggle" onClick={() => setOpen(true)}>
-        🗺️ 展開地圖看位置<span className="muted">（會用到額外流量）</span>
+        <Pictogram name="map" size={18} />
+        展開地圖看位置<span className="muted">（會用到額外流量）</span>
       </button>
     );
   }
@@ -268,7 +298,8 @@ export default function SituationPage() {
         style={{ marginTop: 10 }}
         onClick={toggleStepFree}
       >
-        ♿ {stepFree ? '無台階路線（已開啟）' : '我需要無台階路線'}
+        <Pictogram name="stepFree" size={18} />
+        {stepFree ? '無台階路線（已開啟）' : '我需要無台階路線'}
       </button>
 
       {/* 事故列車即將進站。
@@ -289,7 +320,7 @@ export default function SituationPage() {
           <h2 className="section-title">附近場域的警示</h2>
           {card.nearbyAlerts.map((a) => (
             <div key={a.venueId} className="nearby-alert">
-              <span className="nearby-icon">{KIND_ICON[a.kind] ?? '📍'}</span>
+              <Pictogram name={a.kind ?? 'pin'} size={20} className="nearby-icon" />
               <span>
                 <b>{a.venueName}</b> 約 {a.distanceM}m 外的
                 <b>{a.fromVenue}</b> 有進行中的<b>{a.typeLabel}</b>事件
@@ -307,10 +338,8 @@ export default function SituationPage() {
           {card.resolved.map((r) => (
             <div key={r.id} className="resolved-item">
               <div className="resolved-head">
-                {r.wasActive ? '✅ 警報解除' : '⚪ 查無此事件'}
-                <span className="resolved-where">
-                  {KIND_ICON[r.kind] ?? '📍'} {r.stationName} · {r.typeLabel}
-                </span>
+                {r.wasActive ? '警報解除' : '查無此事件'}
+                <span className="resolved-where">{r.stationName}　{r.typeLabel}</span>
               </div>
               <p className="resolved-notice">{r.notice}</p>
             </div>
@@ -321,17 +350,18 @@ export default function SituationPage() {
       {card.stations.length === 0 && card.nearbyAlerts?.length === 0
         && card.inboundAlerts?.length === 0 && card.resolved?.length === 0 && (
         <div className="empty-state">
-          <div className="empty-icon">🟢</div>
-          <p>目前沒有確認中的異常事件</p>
+          <p className="empty-line">目前沒有確認中的異常事件</p>
         </div>
       )}
 
       {card.stations.map((venue) => (
         <section key={venue.stationId} className="station-group">
-          <h2 className="venue-head">
-            <span className="venue-head-icon">{KIND_ICON[venue.kind] ?? '📍'}</span>
-            <span className="venue-head-name">{venue.stationName}</span>
-            {venue.kind && <span className="venue-head-kind">{KIND_LABEL[venue.kind]}</span>}
+          {/* 站名帶：抄自月台牆上的那條。左側色帶用**真實路線色**——
+              使用者本來就靠顏色認線，不需要再學一套。 */}
+          <h2 className="venue-band" data-line={lineOf(venue.stationId)}>
+            <Pictogram name={venue.kind ?? 'pin'} size={20} className="venue-band-icon" />
+            <span className="venue-band-name">{venue.stationName}</span>
+            {venue.kind && <span className="venue-band-kind">{KIND_LABEL[venue.kind]}</span>}
           </h2>
 
           {venue.events.map((ev) => {
@@ -343,15 +373,19 @@ export default function SituationPage() {
               >
                 {/* ---- 一行看懂：類型 + 警戒 ---- */}
                 <div className="event-top">
+                  <Pictogram name={pictOf(ev.typeLabel)} size={26} className="event-pict" />
                   <span className="event-type">{ev.typeLabel}</span>
                   <span className={`threat threat-${ev.threatLevel}`}>
                     {THREAT_LABEL[ev.threatLevel] ?? '未經確認'}
                   </span>
                 </div>
-                <div className="event-where">
-                  {ev.nearExitCode ? `近 ${ev.nearExitCode} 出口` : '位置未確認'}
-                  {` · ${ev.independentSignals} 個獨立訊號 · ${time(ev.updatedAt)}`}
-                </div>
+                {/* 中間點串接的 meta 字串（A · B · C）讀起來像系統日誌。
+                    拆成有欄位名的小格，掃視時眼睛知道每個數字是什麼。 */}
+                <dl className="event-meta">
+                  <div><dt>位置</dt><dd>{ev.nearExitCode ? `近 ${ev.nearExitCode} 出口` : '未確認'}</dd></div>
+                  <div><dt>獨立訊號</dt><dd>{ev.independentSignals}</dd></div>
+                  <div><dt>更新</dt><dd>{time(ev.updatedAt)}</dd></div>
+                </dl>
 
                 {/* ---- 需要最先看到的兩件事 ---- */}
                 {ev.motion?.moving && (
@@ -392,20 +426,22 @@ export default function SituationPage() {
                     低嚴重度事件不需要追蹤軌跡，多一顆按鈕只是雜訊。 */}
                 {ev.status === 'active' && ev.threatLevel === 'high' && (
                   <a className="chip sighting-cta" href={`#/confirm?event=${ev.id}`}>
-                    🧭 我看到他往哪走了
+                    <Pictogram name="sighting" size={18} />
+                    我看到他往哪走了
                   </a>
                 )}
 
                 <div className="event-foot">
                   {isSpeechSupported() && (
                     <button className="chip" onClick={() => speak(planToSpeech(ev, plan))}>
-                      🔊 唸出來
+                      <Pictogram name="speak" size={18} />
+                      唸出來
                     </button>
                   )}
                   <span className="muted">
                     {ev.reportCount} 筆回報
-                    {ev.hasPhoto && ' · 📷'}
-                    {ev.hasAudio && ' · 🎤'}
+                    {ev.hasPhoto && <Pictogram name="photo" size={15} className="foot-pict" />}
+                    {ev.hasAudio && <Pictogram name="mic" size={15} className="foot-pict" />}
                   </span>
                 </div>
               </article>
@@ -429,14 +465,14 @@ export default function SituationPage() {
                   {p.stationName} · {p.typeLabel}
                 </span>
               </div>
-              <div className="muted">{p.message} →</div>
+              <div className="muted">{p.message}</div>
             </button>
           ))}
         </section>
       )}
 
       <footer className="page-footer">
-        <a href="#/">← 我要回報事件</a>
+        <a href="#/">回報事件</a>
       </footer>
     </div>
   );
