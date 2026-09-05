@@ -31,6 +31,27 @@ import { analyzePhoto, isVisionEnabled, visionMode } from '../pipeline/advisors/
 import { resolveAnchors } from '../services/venueService.js';
 import { createRateLimiter, clientKey } from './rateLimit.js';
 
+/**
+ * 建立照片檢視路由。
+ *
+ * 態勢卡上的現場照片由此提供。**不做任何存取控制**——照片本來就是
+ * 通報者主動要給其他人看的現場資訊，而且 10 分鐘後就失效。
+ * 但也因為如此，回報頁必須把「這張照片會被其他人看到」講清楚。
+ */
+export function createPhotoRouter(store) {
+  const router = Router();
+  router.get('/:ref', (req, res) => {
+    const photo = store.getPhoto(req.params.ref);
+    if (!photo?.base64) return res.status(404).json({ ok: false, error: '照片已失效' });
+    const buf = Buffer.from(photo.base64, 'base64');
+    res.set('Content-Type', photo.mimeType ?? 'image/webp');
+    // 與暫存 TTL 一致；照片內容不會變，可以放心快取
+    res.set('Cache-Control', 'private, max-age=600');
+    res.send(buf);
+  });
+  return router;
+}
+
 export function createVisionRouter(store) {
   const router = Router();
   const rateLimit = createRateLimiter({

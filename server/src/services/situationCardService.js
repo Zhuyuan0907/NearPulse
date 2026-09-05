@@ -64,13 +64,28 @@ export function buildSituationCard(events, now = Date.now()) {
      */
     const key = ev.stationId ?? `place:${ev.id}`;
     if (!byStation.has(key)) {
+      const venue = ev.stationId ? findVenue(ev.stationId) : null;
+      /**
+       * 座標。總覽地圖要靠它把事件標在圖上——一個剛進來的人需要先看到
+       * 「哪邊有事」，才知道要不要往下讀。
+       * 優先序：事件座標（最精確）→ 場域中心 → 通報時的粗略座標。
+       * 三者皆無就不放，地圖上少一個點好過標錯位置。
+       */
+      const point =
+        ev.incidentPoint ??
+        (venue ? { lat: venue.lat, lon: venue.lon } : null) ??
+        ev.claimPoint ??
+        null;
+
       byStation.set(key, {
         stationId: ev.stationId,
         stationName: ev.stationName,
         // 場域類型：地下場域不只有捷運站，還有地下街與地下停車場
-        kind: ev.stationId ? findVenue(ev.stationId)?.kind ?? null : null,
+        kind: venue?.kind ?? null,
         /** 圖資裡查不到這個地方——UI 據此改用誠實的降級說法 */
         offMap: !ev.stationId,
+        lat: point?.lat ?? null,
+        lon: point?.lon ?? null,
         events: [],
       });
     }
@@ -103,6 +118,15 @@ export function buildSituationCard(events, now = Date.now()) {
        * 查不到（沒指認下一站、或兩站不相鄰）就是 null，UI 直接不顯示。
        */
       arrival: arrivalOf(ev, now),
+      /**
+       * 現場照片與通報者的文字。
+       *
+       * 這在**位置未確認**時最關鍵：只顯示「位置待確認」等於沒有資訊，
+       * 而通報者其實給了東西。讓其他人自己看那張照片，往往比任何
+       * 系統產生的描述都準——他們可能一眼就認出是哪裡。
+       */
+      photoUrl: ev.displayPhotoRef ? `/api/photos/${ev.displayPhotoRef}` : null,
+      note: ev.note ?? null,
     });
   }
 
@@ -264,6 +288,18 @@ export function buildSituationCard(events, now = Date.now()) {
       notice: ev.closingNotice,
       closedAt: ev.closedAt,
     }));
+
+  /**
+   * 每一組的最高警戒等級——總覽地圖用它決定標記的顏色與大小。
+   * 一個地方有五件小事，不該看起來比另一個地方的一件火警嚴重。
+   */
+  const RANK = { high: 3, medium: 2, low: 1, unverified: 0 };
+  for (const group of byStation.values()) {
+    group.threatLevel = group.events.reduce(
+      (worst, e) => (RANK[e.threatLevel] > RANK[worst] ? e.threatLevel : worst),
+      'unverified'
+    );
+  }
 
   const card = {
     generatedAt: now,

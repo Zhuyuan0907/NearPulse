@@ -764,8 +764,32 @@ export default function ReportPage() {
                   onPickPoint={(p) => { setIncidentPoint(p); setNearExitCode(null); }}
                 />
               </Suspense>
-              <p className="muted" style={{ marginTop: 6 }}>
-                點出口圖釘，或直接點地圖上事件發生的位置。
+              {/* 【不要逼人瞎點】
+                  知道自己在善導寺、但不知道在站體哪一邊，是很正常的事——
+                  地下空間本來就難定向。舊版只寫「點出口圖釘」，等於暗示
+                  一定要點；而隨手點一個出口會讓系統把它當成事件位置，
+                  進而把**其他出口標成「不要走」**，可能把人推向錯的方向。
+                  server 端已經改成沒有錨點就不產生「不要走」清單，
+                  這裡把選擇權明確交還給使用者。 */}
+              <div className="anchor-row">
+                <button
+                  className={`chip${!nearExitCode && !incidentPoint ? ' chip-active' : ''}`}
+                  onClick={() => { setNearExitCode(null); setIncidentPoint(null); }}
+                >
+                  不確定在站內哪裡
+                </button>
+                {(nearExitCode || incidentPoint) && (
+                  <span className="anchor-current">
+                    已標記：{nearExitCode ? `${nearExitCode} 出口附近` : '地圖上的選點'}
+                  </span>
+                )}
+              </div>
+              <p className="muted">
+                知道大概位置的話，點出口圖釘或地圖上的位置。
+                <br />
+                <span className="muted-2">
+                  不確定就別點——猜錯會讓別人避開錯的出口。只寫「在善導寺」也很有用。
+                </span>
               </p>
             </div>
           )}

@@ -138,6 +138,10 @@ export function toEventSummary(event) {
     placeText: event.placeText ?? null,
     /** 照片讀到多個站名、無從消歧時的候選（不是結論，UI 要照這個語氣呈現） */
     photoVenueGuesses: event.photoVenueGuesses ?? null,
+    /** 可顯示的現場照片（10 分鐘後失效）——讓其他人自己看，比任何描述都準 */
+    displayPhotoRef: event.displayPhotoRef ?? null,
+    /** 通報者的補充文字 */
+    note: event.note ?? null,
     status: event.status,
     severity: config.eventTypes[event.type]?.severity ?? 'low',
     nearExitCode: event.nearExitCode ?? null, // 場域錨點（疏散建議用）

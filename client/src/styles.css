@@ -1203,3 +1203,110 @@ button { cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   .dictate-on { animation: none; }
 }
+
+/* ===========================================================================
+   範圍篩選與總覽地圖
+   =========================================================================== */
+
+.filter-bar {
+  padding: 10px 12px;
+  margin: 12px 0;
+  background: var(--tunnel-2);
+  border: 1px solid var(--edge);
+  border-radius: var(--r-tap);
+}
+.filter-ranges { display: flex; flex-wrap: wrap; gap: 8px; }
+.filter-ranges .chip:disabled { opacity: .4; }
+.filter-search { min-height: 42px; margin-top: 8px; font-size: .9rem; }
+.filter-bar .muted-2 { margin: 8px 0 0; }
+
+.overview-map { margin-bottom: 4px; }
+.overview-map-canvas {
+  height: 260px;
+  overflow: hidden;
+  background: var(--tunnel-2);
+  border: 1px solid var(--edge);
+  border-radius: var(--r-sign);
+}
+.overview-map-note { margin: 6px 0 0; font-size: .78rem; color: var(--dim); }
+
+/* 標記：**大小也編碼嚴重度**，不只靠顏色。
+   一個地方有五件小事，不該看起來比另一個地方的一件火警嚴重。 */
+.ov-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: .8rem;
+  font-weight: 800;
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgb(0 0 0 / .55);
+}
+.ov-high   { background: var(--halt); }
+.ov-medium { background: var(--caution); color: #1a1200; }
+.ov-low    { background: var(--edge-2); }
+/* 未經確認用虛線圈：語氣的差別不能只靠顏色深淺 */
+.ov-unverified {
+  color: var(--caution);
+  background: var(--tunnel);
+  border-style: dashed;
+  border-color: var(--caution);
+}
+.ov-user { fill: var(--info-lit); fill-opacity: 1; stroke: #fff; stroke-width: 2; }
+
+/* ===========================================================================
+   通報者提供的證據（照片與文字）
+   ---------------------------------------------------------------------------
+   位置未確認時，這是**唯一有用的資訊**——只寫「位置待確認」等於什麼都沒說。
+   所以在圖資外的事件上，它會被抬高一階（evidence-key）。
+   =========================================================================== */
+
+.evidence {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  padding: 10px;
+  margin: 10px 0;
+  background: var(--tunnel-2);
+  border: 1px solid var(--edge);
+  border-radius: var(--r-sign);
+}
+/* 圖資外：這不是補充，這是主要線索 */
+.evidence-key { border-color: var(--caution); border-left-width: 4px; }
+
+.evidence-photo {
+  display: block;
+  flex: none;
+  width: 92px;
+  height: 92px;
+  overflow: hidden;
+  background: var(--tunnel);
+  border-radius: var(--r-sign);
+}
+.evidence-photo img { width: 100%; height: 100%; object-fit: cover; }
+.evidence-body { flex: 1; min-width: 0; }
+.evidence-note {
+  margin: 0;
+  font-size: .92rem;
+  line-height: 1.5;
+  color: var(--enamel);
+}
+.evidence-hint {
+  margin: 6px 0 0;
+  font-size: .78rem;
+  line-height: 1.5;
+  color: var(--dim);
+}
+
+/* 站內錨點：把「不確定」做成明確的選項，而不是留白 */
+.anchor-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+.anchor-current { font-size: .8rem; color: var(--egress-lit); }

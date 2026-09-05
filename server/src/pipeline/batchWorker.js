@@ -108,6 +108,21 @@ export function startBatchWorker(store, { log = console.log } = {}) {
       event.updatedAt = now; // 有新訊號進來，重置凍結計時
       store.upsertEvent(event);
 
+      /**
+       * 保留一張可顯示的照片。
+       *
+       * 「位置待確認」單獨出現時，看的人完全無從判斷事情在哪——但通報者
+       * 其實給了照片。把它存成可重複讀取的 ref 掛在事件上，態勢卡就能
+       * 把「我拍到的東西」直接給其他人看，那往往比任何文字都有用。
+       *
+       * 只留第一張：後續回報的照片不覆蓋，避免態勢卡變成相簿。
+       */
+      if (!event.displayPhotoRef && report.photo?.base64) {
+        event.displayPhotoRef = store.putPhoto(report.photo);
+      }
+      // 通報者的補充文字同樣是位置線索，尤其在沒有場域時
+      if (!event.note && report.note) event.note = report.note;
+
       // ---- 步驟 3：觸發 advisor（不 await——不在關鍵路徑上） ----
       runAdvisors(store, event, report);
 

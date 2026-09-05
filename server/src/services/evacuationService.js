@@ -51,10 +51,11 @@ export function suggestExits(venueId, nearExitCode, point = null, motion = null,
   if (!venue?.exits?.length) return null;
 
   // 事件原點的優先序：地圖選點（最精確）→ 辨識到的出口 → 場域中心
-  const origin =
+  const anchored =
     (Number.isFinite(point?.lat) && Number.isFinite(point?.lon) ? point : null) ??
     findExit(venue.id, nearExitCode) ??
-    { lat: venue.lat, lon: venue.lon };
+    null;
+  const origin = anchored ?? { lat: venue.lat, lon: venue.lon };
 
   const usable = venue.exits.filter((e) => e.code !== nearExitCode); // 事件所在的出口不列為去處
 
@@ -69,8 +70,21 @@ export function suggestExits(venueId, nearExitCode, point = null, motion = null,
   const safe = scored.filter((s) => s.dist >= PREFER_MIN_DIST_M);
   const away = safe.length > 0 ? safe : [scored[scored.length - 1]];
 
-  const nearby = scored.filter((s) => s.dist <= AVOID_RADIUS_M);
+  /**
+   * ⚠️ **沒有錨點就不產生「不要走」清單。**
+   *
+   * 沒有出口代碼、也沒有地圖選點時，原點退回場域中心——那個中心只是幾何
+   * 平均，不是事件位置。拿它算出來的「最近的出口」其實是「最靠近場域中心的
+   * 出口」，與事件毫無關係。把它標成「不要走」，等於在我們不知道事發位置時，
+   * 叫人避開三個可能完全安全的出口——而那三個可能正是他最近的出路。
+   *
+   * 「往這裡走」仍然給：那只是「這個場域有哪些出口」，本來就有用。
+   * 但「不要走」是一個**指認**，沒有依據就不該說。
+   */
+  const nearby = anchored ? scored.filter((s) => s.dist <= AVOID_RADIUS_M) : [];
   return {
+    /** 事件位置是否有錨點——UI 據此調整語氣（見上面的說明） */
+    anchored: Boolean(anchored),
     /** 事件原點——態勢卡的地圖用它擺 ✕ 圖釘與避開範圍圓心 */
     origin: { lat: origin.lat, lon: origin.lon },
     away: away.slice(0, 3),
@@ -199,8 +213,10 @@ export function evacuationPlan({
    * 我們一樣都沒有。UI 的說明文字必須照這個意思寫。
    */
   const geo = {
-    avoidRadiusM: AVOID_RADIUS_M,
+    // 沒有錨點時連圓圈都不該畫——那個圓心是場域中心，不是事件位置
+    avoidRadiusM: base.anchored ? AVOID_RADIUS_M : null,
     origin: base.origin ?? null,
+    anchored: Boolean(base.anchored),
   };
   const s = applyMotion(venue, base, motion, nearExitCode);
   const stepFree = mobility === 'stepFree';

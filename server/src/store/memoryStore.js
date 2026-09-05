@@ -95,6 +95,19 @@ export function createMemoryStore() {
       return ref;
     },
 
+    /**
+     * 取用但**不移除**一張暫存照片。
+     *
+     * 態勢卡要把照片顯示給其他人看——「位置待確認」單獨出現等於沒有資訊，
+     * 而通報者明明給了照片。顯示是多次讀取，不能用會消耗掉的 takePhoto。
+     * TTL 不變（10 分鐘），所以這仍然是自我限縮的暫存，不是持久化。
+     */
+    getPhoto(ref) {
+      const entry = photoRefs.get(ref);
+      if (!entry) return null;
+      return entry.expiresAt > Date.now() ? entry.photo : null;
+    },
+
     /** 取出並移除一張暫存照片；ref 無效/過期回 null（呼叫端須容忍） */
     takePhoto(ref) {
       const entry = photoRefs.get(ref);

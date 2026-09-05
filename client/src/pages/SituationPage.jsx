@@ -29,6 +29,7 @@ import { startSituationPolling } from '../modules/api.js';
 import { isSpeechSupported, speak } from '../modules/speech.js';
 import OfflineBar from '../components/OfflineBar.jsx';
 import { etaOf } from '../modules/train.js';
+import { coarseFix, lastKnownFix } from '../modules/location.js';
 import Pictogram from '../components/Pictogram.jsx';
 
 /**
@@ -36,6 +37,8 @@ import Pictogram from '../components/Pictogram.jsx';
  * 這頁必須在最差的網路下開得起來，所以地圖是點開才付費的補充資訊。
  */
 const IncidentMap = lazy(() => import('../components/IncidentMap.jsx'));
+/** 總覽地圖同樣動態載入，與事件地圖共用同一個 leaflet chunk */
+const OverviewMap = lazy(() => import('../components/OverviewMap.jsx'));
 
 const THREAT_LABEL = {
   high: '高警戒',
@@ -51,6 +54,28 @@ const KIND_LABEL = {
 /** 事件類型 → 標示圖標。與回報頁共用同一組形狀，使用者只需要學一次 */
 const TYPE_PICT = { 火警: 'fire', 攻擊: 'attack', 急救: 'medical', 推擠: 'crush' };
 const pictOf = (typeLabel) => TYPE_PICT[typeLabel] ?? 'other';
+
+/**
+ * 距離範圍選項。
+ *
+ * 「全部」放最後而不是預設：一個剛進來的人要看的是**跟他有關**的事，
+ * 而不是全台灣（含關西）所有通報排成一列。但如果拿不到位置，
+ * 就只能是全部——那時候「附近」是個答不出來的問題。
+ */
+const RANGES = [
+  { id: 1000, label: '1 公里內' },
+  { id: 5000, label: '5 公里內' },
+  { id: 0, label: '全部' },
+];
+
+/** 等距圓柱近似——這裡只用來排序與篩選，不顯示數字 */
+function roughDistM(a, b) {
+  const k = 111_320;
+  return Math.hypot(
+    (a.lat - b.lat) * k,
+    (a.lon - b.lon) * k * Math.cos((a.lat * Math.PI) / 180)
+  );
+}
 
 /** 由場域 id 取路線代碼（TPE-BL13 → BL）。取不到就不上色，不硬湊。 */
 function lineOf(venueId) {
@@ -187,7 +212,11 @@ function EvacPlan({ plan, arrival, offMap }) {
       )}
 
       <p className="plan-note">
-        {plan.note}
+        {/* 沒有錨點時「往這裡走」只是「這個場域有哪些出口」——
+            仍然有用，但不能講得像我們知道事發位置。 */}
+        {plan.anchored === false
+          ? '尚未確認事件在站內的位置，以下是這個場域的出口，請依現場狀況選擇。'
+          : plan.note}
         {plan.unknownExits > 0 && `（另有 ${plan.unknownExits} 個出口無無障礙資訊）`}
       </p>
     </div>
@@ -276,11 +305,43 @@ export default function SituationPage() {
   // 無障礙偏好與回報端共用同一個 sessionStorage 鍵——
   // 需要的人在回報頁勾過，來看狀況時不必再勾一次
   const [stepFree, setStepFree] = useState(() => sessionStorage.getItem('np_step_free') === '1');
+  const [query, setQuery] = useState('');
+  const [fix, setFix] = useState(() => lastKnownFix());
+  // 沒有位置就沒有「附近」可言，預設只能是全部
+  const [range, setRange] = useState(() => (lastKnownFix() ? 5000 : 0));
+  // 地圖預設展開——「哪邊有事」是進來第一個要回答的問題。
+  // 收合狀態記在 sessionStorage，使用者的選擇在這個 session 內有效。
+  const [mapOpen, setMapOpen] = useState(
+    () => sessionStorage.getItem('np_overview_map') !== '0'
+  );
 
   useEffect(() => {
     const poller = startSituationPolling(setCard, { intervalMs: 12_000 });
     return () => poller.stop();
   }, []);
+
+  // 靜默試一次定位：拿得到就能篩「附近」，拿不到就維持全部（地下的常態）
+  useEffect(() => {
+    let alive = true;
+    coarseFix().then((f) => {
+      if (!alive || !f) return;
+      setFix(f);
+      setRange((r) => (r === 0 ? 5000 : r));
+    });
+    return () => { alive = false; };
+  }, []);
+
+  function toggleMap() {
+    const next = !mapOpen;
+    setMapOpen(next);
+    sessionStorage.setItem('np_overview_map', next ? '1' : '0');
+  }
+
+  /** 捲到某個場域區塊——地圖是索引，文字才是主體 */
+  function scrollToGroup(group) {
+    const el = document.getElementById(`grp-${group.stationId ?? group.stationName}`);
+    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
   function toggleStepFree() {
     const next = !stepFree;
@@ -291,6 +352,26 @@ export default function SituationPage() {
   if (!card) {
     return <div className="page"><p className="muted">載入中…</p></div>;
   }
+
+  /**
+   * 套用搜尋與距離篩選。
+   *
+   * 距離篩選只在**拿得到位置**且事件**有座標**時生效——
+   * 沒有座標的事件（使用者自己描述的地點）永遠留著，
+   * 因為我們無從判斷它遠不遠，而把它藏起來等於讓它消失。
+   */
+  const q = query.trim().toLowerCase();
+  const groups = card.stations.filter((g) => {
+    if (q && !g.stationName.toLowerCase().includes(q)) return false;
+    if (!range || !fix) return true;
+    if (!Number.isFinite(g.lat)) return true;
+    return roughDistM(fix, g) <= range;
+  });
+  const hiddenCount = card.stations.length - groups.length;
+  // 徵詢中的清單套用同一組篩選——只篩事件卻不篩徵詢，會出現
+  // 「上面說範圍內沒事、下面卻列著五則徵詢」的矛盾畫面
+  const visibleIds = new Set(groups.flatMap((g) => g.events.map((e) => e.id)));
+  const pending = card.pending.filter((p) => visibleIds.has(p.eventId));
 
   return (
     <div className="page">
@@ -309,6 +390,60 @@ export default function SituationPage() {
         <Pictogram name="stepFree" size={18} />
         {stepFree ? '無台階路線（已開啟）' : '我需要無台階路線'}
       </button>
+
+      {/* ---- 範圍與搜尋 ----
+          條列全部事件在事件一多就讀不動了。先讓人限定到「跟我有關」的範圍，
+          再往下讀。拿不到位置時距離選項會停用——那時候「附近」是個
+          答不出來的問題，與其給一個假的答案不如說清楚。 */}
+      {card.stations.length > 1 && (
+        <div className="filter-bar">
+          <div className="filter-ranges">
+            {RANGES.map((r) => (
+              <button
+                key={r.id}
+                className={`chip${range === r.id ? ' chip-active' : ''}`}
+                disabled={r.id !== 0 && !fix}
+                onClick={() => setRange(r.id)}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
+          <input
+            className="note-input filter-search"
+            type="search"
+            placeholder="搜尋場域名稱"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          {!fix && (
+            <p className="muted-2">收不到定位，無法依距離篩選——可用搜尋。</p>
+          )}
+          {hiddenCount > 0 && (
+            <p className="muted-2">另有 {hiddenCount} 件在範圍外，改選「全部」可看。</p>
+          )}
+        </div>
+      )}
+
+      {/* ---- 總覽地圖：先回答「哪邊有事」 ----
+          條列清單看得出有幾件事，看不出它們是集中在一站還是散在半個城市——
+          而那個差別決定了要不要跑。點標記會捲到對應區塊，
+          地圖是索引，文字仍然是主體。 */}
+      {groups.some((g) => Number.isFinite(g.lat)) && (
+        mapOpen ? (
+          <>
+            <Suspense fallback={<div className="incident-map-loading">地圖載入中…</div>}>
+              <OverviewMap groups={groups} userFix={fix} onPick={scrollToGroup} />
+            </Suspense>
+            <button className="chip map-toggle" onClick={toggleMap}>收合地圖</button>
+          </>
+        ) : (
+          <button className="chip map-toggle" onClick={toggleMap}>
+            <Pictogram name="map" size={18} />
+            展開總覽地圖（{groups.length} 個地點）
+          </button>
+        )
+      )}
 
       {/* 事故列車即將進站。
           放在所有區塊之前，是因為這則警示的**時效最短**——月台上的人
@@ -355,15 +490,19 @@ export default function SituationPage() {
         </section>
       )}
 
-      {card.stations.length === 0 && card.nearbyAlerts?.length === 0
+      {groups.length === 0 && card.nearbyAlerts?.length === 0
         && card.inboundAlerts?.length === 0 && card.resolved?.length === 0 && (
         <div className="empty-state">
           <p className="empty-line">目前沒有確認中的異常事件</p>
         </div>
       )}
 
-      {card.stations.map((venue) => (
-        <section key={venue.stationId} className="station-group">
+      {groups.map((venue) => (
+        <section
+          key={venue.stationId ?? venue.stationName}
+          id={`grp-${venue.stationId ?? venue.stationName}`}
+          className="station-group"
+        >
           {/* 站名帶：抄自月台牆上的那條。左側色帶用**真實路線色**——
               使用者本來就靠顏色認線，不需要再學一套。 */}
           <h2 className="venue-band" data-line={lineOf(venue.stationId)}>
@@ -416,6 +555,34 @@ export default function SituationPage() {
 
                 {ev.onTrain && <div className="flag flag-train">事件在列車上</div>}
 
+                {/* 通報者給的東西：照片與文字。
+                    **位置未確認時這是唯一有用的資訊**——只寫「位置待確認」
+                    等於什麼都沒說，而看的人可能一眼就認出照片裡是哪裡。 */}
+                {(ev.photoUrl || ev.note) && (
+                  <div className={`evidence${venue.offMap ? ' evidence-key' : ''}`}>
+                    {ev.photoUrl && (
+                      <a className="evidence-photo" href={ev.photoUrl} target="_blank" rel="noreferrer">
+                        <img src={ev.photoUrl} alt="通報者拍攝的現場照片" loading="lazy" />
+                      </a>
+                    )}
+                    <div className="evidence-body">
+                      {ev.note && <p className="evidence-note">「{ev.note}」</p>}
+                      {venue.offMap && (
+                        <p className="evidence-hint">
+                          {ev.photoUrl
+                            ? '系統認不出這是哪裡——如果你認得照片裡的地方，請協助確認。'
+                            : '系統認不出這是哪裡，以上是通報者提供的描述。'}
+                        </p>
+                      )}
+                      {ev.photoVenueGuesses?.length > 0 && (
+                        <p className="evidence-hint">
+                          照片裡出現多個站名，可能在：{ev.photoVenueGuesses.join('、')}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {/* ---- 疏散：結構化，不是一整段字 ---- */}
                 <EvacPlan plan={plan} arrival={ev.arrival} offMap={venue.offMap} />
 
@@ -463,10 +630,10 @@ export default function SituationPage() {
       ))}
 
       {/* ===== 徵詢區：未經確認的回報（語氣刻意克制） ===== */}
-      {card.pending.length > 0 && (
+      {pending.length > 0 && (
         <section className="station-group">
           <h2 className="section-title">徵詢中 — 需要現場的人協助確認</h2>
-          {card.pending.map((p) => (
+          {pending.map((p) => (
             <button
               key={p.eventId}
               className="pending-btn"
