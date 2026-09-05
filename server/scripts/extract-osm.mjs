@@ -115,6 +115,45 @@ function scan(file, handler) {
   });
 }
 
+/**
+ * 具名地標 —— 出口指示牌上真正會寫的東西。
+ *
+ * 【為什麼需要這一層】
+ * 出口的方向描述目前有 69%（940/1356）來自「最近的有名街道」，結果是
+ * 東區地下街的 11 個出口全部寫著「忠孝東路四段」——完全無法區分。
+ * 而 OSM 真正記錄指示牌內容的 `exit_to` 標籤，全台只有 5 筆。
+ *
+ * 但站內指示牌寫的從來不是街名，是**地標**：「往 新光三越」「往 台鐵車站」
+ * 「往 國父紀念館」。那些地標 OSM 有，只是我們沒有去抓。
+ *
+ * 收錄範圍刻意限縮在「路人叫得出名字、而且會出現在指示牌上」的類別——
+ * 便利商店、小吃店這種太密集又沒有指認價值的一律排除。
+ */
+const LANDMARK_RULES = [
+  ['shop', new Set(['department_store', 'mall', 'supermarket'])],
+  ['amenity', new Set([
+    'hospital', 'university', 'college', 'school', 'theatre', 'cinema',
+    'townhall', 'courthouse', 'library', 'marketplace', 'bus_station', 'police',
+  ])],
+  ['tourism', new Set(['museum', 'attraction', 'gallery', 'zoo'])],
+  ['leisure', new Set(['park', 'stadium', 'sports_centre'])],
+  ['historic', new Set(['memorial', 'monument', 'temple'])],
+  ['building', new Set(['train_station', 'stadium', 'hospital'])],
+  ['office', new Set(['government'])],
+  ['railway', new Set(['station'])],
+  ['aeroway', new Set(['terminal'])],
+];
+
+function landmarkKind(tags = {}) {
+  if (!tags.name) return null;
+  for (const [key, values] of LANDMARK_RULES) {
+    if (values.has(tags[key])) return `${key}=${tags[key]}`;
+  }
+  // 廟宇是台灣街區最好認的地標之一
+  if (tags.amenity === 'place_of_worship' && tags.name.length <= 12) return 'place_of_worship';
+  return null;
+}
+
 /** way / relation 的代表座標（用已知節點的平均，Overpass 的 center 等價物） */
 function centerOf(refs, nodeCoords) {
   let sx = 0; let sy = 0; let n = 0;
@@ -166,14 +205,25 @@ async function main() {
   console.log('[extract] 第二趟：抓取關注區域的節點座標與街道 …');
   const nodeCoords = new Map();
   const streetWays = [];
+  const landmarkNodes = [];
+  const landmarkWays = [];
 
   await scan(INPUT, (item) => {
     if (item.type === 'node') {
       if (wayRefsNeeded.has(item.id) || inArea(item.lat, item.lon)) {
         nodeCoords.set(item.id, packCoord(item.lat, item.lon));
       }
+      // 具名地標（點）——只收關注區域內的
+      const kind = landmarkKind(item.tags);
+      if (kind && inArea(item.lat, item.lon)) {
+        landmarkNodes.push({ name: item.tags.name, kind, lat: item.lat, lon: item.lon });
+      }
     } else if (item.type === 'way') {
       const t = item.tags ?? {};
+      const kind = landmarkKind(t);
+      if (kind && item.refs.some((r) => nodeCoords.has(r))) {
+        landmarkWays.push({ name: t.name, kind, refs: item.refs });
+      }
       if (!t.name || !ROAD_CLASSES.has(t.highway)) return;
       // 只保留至少有一個節點落在關注區域的街道
       if (!item.refs.some((r) => nodeCoords.has(r))) return;
@@ -199,15 +249,24 @@ async function main() {
     if (geometry.length >= 2) streets.push({ type: 'way', id: w.id, tags: w.tags, geometry });
   }
 
+  // 面狀地標（百貨、醫院、公園多半是 way）取中心點
+  const landmarks = [...landmarkNodes];
+  for (const w of landmarkWays) {
+    const c = centerOf(w.refs, nodeCoords);
+    if (c) landmarks.push({ name: w.name, kind: w.kind, lat: c.lat, lon: c.lon });
+  }
+
   const out = {
     source: INPUT,
     generatedAt: new Date().toISOString(),
     elements,   // 與 Overpass `out tags center` 同形
     streets,    // 與 Overpass `out tags geom` 同形
+    landmarks,  // 具名地標——出口指示牌上會寫的東西
   };
   writeFileSync(OUTPUT, JSON.stringify(out));
 
-  console.log(`[extract] 完成：${elements.length} 個 POI、${streets.length} 條街道 → ${OUTPUT}`);
+  console.log(`[extract] 完成：${elements.length} 個 POI、${streets.length} 條街道、`
+    + `${landmarks.length} 個具名地標 → ${OUTPUT}`);
   console.log(`  耗時 ${((Date.now() - t0) / 1000).toFixed(0)}s`);
 
   if (SURVEY) {

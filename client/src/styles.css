@@ -1326,3 +1326,6 @@ button { cursor: pointer; }
 
 /* 徵詢已整合進事件卡；未確認事件的行動鈕語氣不同於已確認的 */
 .cta-verify { border-color: var(--caution); color: var(--caution); }
+/* 指認清單：方位是主要區分依據（地標常常全部相同） */
+.sighting-where { display: flex; flex-wrap: wrap; gap: 2px 6px; align-items: baseline; }
+.sighting-side { font-size: .92rem; color: var(--enamel); }

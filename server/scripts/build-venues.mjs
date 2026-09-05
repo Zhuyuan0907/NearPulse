@@ -438,6 +438,121 @@ function cleanStreetName(name) {
  * （「M7 出口 忠孝西路」），所以推導出的方向資訊跟現場指標是同一件事。
  * 全程在本機算，不需要任何網路查詢。
  */
+/**
+ * 用**具名地標**補出口的方向描述。
+ *
+ * 【為什麼這比最近街道好得多】
+ * 舊版用「最近的有名街道」，結果是東區地下街的 11 個出口全部寫著
+ * 「忠孝東路四段」——完全無法區分，使用者的原話是「真沒有一些準確的資料嗎」。
+ *
+ * 而站內出口指示牌寫的從來不是街名，是**地標**：「往 新光三越」
+ * 「往 台鐵車站」「往 國父紀念館」。那些地標 OSM 有，只是先前沒去抓。
+ * OSM 真正記錄指示牌內容的 `exit_to` 標籤全台只有 5 筆，所以推導是唯一的路。
+ *
+ * 距離門檻比街道嚴格（120m vs 70m 但改用直線距離到地標中心）：
+ * 太遠的地標會誤導——「往 台北 101」在一公里外沒有意義。
+ */
+const MAX_LANDMARK_DIST_M = 120;
+
+/**
+ * 這串描述是不是「純門牌號碼」。
+ * 「忠孝東路4段175號」「敦化南路1段209號」「中央路4段約100號旁」→ 是
+ * 「台鐵台北車站北一門旁」「近青島國宅」→ 不是（那是真地標）
+ */
+function isBareAddress(text) {
+  const t = String(text ?? '').trim();
+  if (!t) return false;
+  return /^[\u4e00-\u9fa5]{2,8}(路|街|大道)[0-9一二三四五六七八九十]{0,3}段?約?\d+號(對面|旁|附近)?$/.test(t);
+}
+
+/** 地標類別的可辨識度排序（數字小者優先出現在指示牌上） */
+const LANDMARK_RANK = {
+  'railway=station': 0,
+  'building=train_station': 0,
+  'shop=department_store': 1,
+  'shop=mall': 1,
+  'aeroway=terminal': 1,
+  'amenity=hospital': 2,
+  'amenity=university': 2,
+  'leisure=park': 3,
+  'tourism=museum': 3,
+  'tourism=attraction': 3,
+  'amenity=school': 4,
+  'amenity=college': 4,
+  'leisure=stadium': 4,
+  'amenity=theatre': 5,
+  'amenity=cinema': 5,
+  'historic=memorial': 5,
+  'historic=monument': 5,
+  'amenity=marketplace': 6,
+  'amenity=townhall': 6,
+  'amenity=library': 6,
+  'shop=supermarket': 7,
+  place_of_worship: 7,
+};
+
+function enrichWithLandmarks(venues, landmarks, stats) {
+  if (!landmarks?.length) return;
+  const CELL = 0.002; // 約 220m
+  const key = (lat, lon) => `${Math.floor(lat / CELL)}:${Math.floor(lon / CELL)}`;
+  const index = new Map();
+  for (const lm of landmarks) {
+    if (!lm?.name || !Number.isFinite(lm.lat)) continue;
+    const k = key(lm.lat, lm.lon);
+    if (!index.has(k)) index.set(k, []);
+    index.get(k).push(lm);
+  }
+
+  for (const v of venues) {
+    for (const exit of v.exits) {
+      /**
+       * TDX 的官方描述通常優先——那是北捷自己寫的。
+       *
+       * **但純門牌號碼例外。**「忠孝東路4段175號」在地下室沒有任何用處：
+       * 它回答的是「我出去之後會在哪」，而不是「我在站內該往哪走」。
+       * 使用者的原話是「我在地下室怎麼會知道幾號」。
+       * TDX 若給的是真地標（「台鐵台北車站北一門旁」）就保留，
+       * 只有純門牌才讓具名地標蓋過去。
+       */
+      if (exit.landmark && exit.landmarkSource === 'osm_tag') continue;
+      if (exit.landmark && exit.landmarkSource === 'tdx' && !isBareAddress(exit.landmark)) continue;
+
+      /**
+       * ⚠️ **場域自己不能當成自己的地標。**
+       * 車站節點也在地標索引裡（`railway=station`），所以衛武營站的六個出口
+       * 一度全部寫著「往衛武營」——那是同義反覆，讀的人得不到任何資訊。
+       * 名稱互相包含就視為同一個地方（「衛武營」vs「衛武營站」）。
+       */
+      const own = normalizeName(v.name);
+      const isSelf = (name) => {
+        const n = normalizeName(name);
+        return n === own || n.includes(own) || own.includes(n);
+      };
+
+      let best = null;
+      for (const dLat of [-CELL, 0, CELL]) {
+        for (const dLon of [-CELL, 0, CELL]) {
+          for (const lm of index.get(key(exit.lat + dLat, exit.lon + dLon)) ?? []) {
+            if (isSelf(lm.name)) continue;
+            const d = distanceM(exit, lm);
+            if (d > MAX_LANDMARK_DIST_M) continue;
+            const rank = LANDMARK_RANK[lm.kind] ?? 9;
+            // 先比可辨識度，再比距離——近的便利商店贏不過稍遠的百貨
+            if (!best || rank < best.rank || (rank === best.rank && d < best.dist)) {
+              best = { name: lm.name, rank, dist: Math.round(d) };
+            }
+          }
+        }
+      }
+      if (best) {
+        exit.landmark = best.name;
+        exit.landmarkSource = 'osm_poi';
+        stats.landmarkFromPoi = (stats.landmarkFromPoi ?? 0) + 1;
+      }
+    }
+  }
+}
+
 function enrichLandmarks(venues, streets, stats) {
   // 街道依網格建索引，避免每個出口都掃過全部街道
   const CELL = 0.005;
@@ -770,11 +885,14 @@ function main() {
   const t0 = Date.now();
   const elements = [];
   const streets = [];
+  const landmarks = [];
   for (const f of INPUTS) {
     const d = JSON.parse(readFileSync(f, 'utf8'));
     elements.push(...(d.elements ?? []));
     streets.push(...(d.streets ?? []));
-    console.log(`[build-venues] 讀入 ${f}：${d.elements?.length ?? 0} POI、${d.streets?.length ?? 0} 街道`);
+    landmarks.push(...(d.landmarks ?? []));
+    console.log(`[build-venues] 讀入 ${f}：${d.elements?.length ?? 0} POI、`
+      + `${d.streets?.length ?? 0} 街道、${d.landmarks?.length ?? 0} 具名地標`);
   }
 
   const stations = elements.filter((e) => e.tags?.railway === 'station' && e.tags?.station === 'subway');
@@ -817,6 +935,9 @@ function main() {
       + '（可執行 node scripts/fetch-tdx.mjs 產生）');
   }
 
+  // 順序很重要：先用具名地標（指示牌會寫的東西），
+  // 剩下沒有地標可用的才退回最近街道
+  enrichWithLandmarks(venues, landmarks, stats);
   enrichLandmarks(venues, streets, stats);
 
   venues = venues.map((v) => {

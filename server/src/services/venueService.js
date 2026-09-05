@@ -519,6 +519,30 @@ export function resolveAnchors({ texts = [], venueId = null, near = null } = {})
  * 同時保留建表時算好的正規化 x/y（主軸對齊後 0~1）。那組座標不帶語意，
  * 只是給無圖磚環境的示意繪圖後備用——事件位置一律以出口代碼或經緯度表示。
  */
+/**
+ * 出口在站體的哪一側（「東」「西北」）。
+ *
+ * 【為什麼需要】TDX 只公佈一個描述欄位，而非捷運場域（地下街、百貨）
+ * 連那個都沒有，只能用 OSM 的「最近街道」推導——結果是**東區地下街的
+ * 11 個出口全部寫著「忠孝東路四段」**，完全無法區分。使用者的原話是
+ * 「真沒有一些提供的準確資料嗎」。答案是：沒有更準的官方資料，
+ * 但方位是我們自己算得出來的，而且對長條形地下街特別有效
+ *（沿著一條街的場域，出口自然分成東段與西段）。
+ *
+ * 站體跨度太小或出口太靠近中心時回 null——那時候講「北側」只是雜訊。
+ */
+const SIDE_NAMES = ['北', '東北', '東', '東南', '南', '西南', '西', '西北'];
+
+export function exitSide(venue, exit) {
+  const span = Math.max(venue?.spanM?.along ?? 0, venue?.spanM?.across ?? 0);
+  if (span < 60 || !Number.isFinite(exit?.lat) || !Number.isFinite(venue?.lat)) return null;
+  const dy = (exit.lat - venue.lat) * 111_320;
+  const dx = (exit.lon - venue.lon) * 111_320 * Math.cos((venue.lat * Math.PI) / 180);
+  if (Math.hypot(dx, dy) < 25) return null;
+  const deg = (Math.atan2(dx, dy) * 180) / Math.PI;
+  return SIDE_NAMES[Math.round(((deg + 360) % 360) / 45) % 8];
+}
+
 export function venueGeometry(venueId) {
   const v = findVenue(venueId);
   if (!v) return null;
@@ -534,6 +558,8 @@ export function venueGeometry(venueId) {
       code: e.code,
       name: e.name,
       landmark: e.landmark,
+      /** 站體方位——地標全部相同時（地下街常見）唯一能區分出口的資訊 */
+      side: exitSide(v, e),
       lat: e.lat,
       lon: e.lon,
       x: e.x,

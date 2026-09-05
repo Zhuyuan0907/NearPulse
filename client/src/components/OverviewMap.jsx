@@ -41,10 +41,12 @@ const TILE = {
  * 說明文字必須照這個意思寫，不能寫成「影響範圍 300 公尺」。
  */
 const LEVEL = {
-  high:       { radius: 260, color: '#c8102e', fill: 0.20, weight: 2 },
-  medium:     { radius: 190, color: '#f2a900', fill: 0.18, weight: 2 },
-  low:        { radius: 140, color: '#8a9298', fill: 0.14, weight: 1.5 },
-  unverified: { radius: 140, color: '#f2a900', fill: 0.07, weight: 1.5 },
+  // 透明度刻意偏高：初版 0.07~0.20 疊在圖磚上幾乎看不見。
+  // 半透明是為了不遮住街廓，不是為了含蓄——看不清楚就失去意義了。
+  high:       { radius: 240, color: '#ff2d4a', fill: 0.42, weight: 3 },
+  medium:     { radius: 180, color: '#ffb320', fill: 0.38, weight: 3 },
+  low:        { radius: 140, color: '#aab3b9', fill: 0.30, weight: 2.5 },
+  unverified: { radius: 140, color: '#ffb320', fill: 0.20, weight: 2.5 },
 };
 
 /** 事件數標籤。**不畫圖釘**，只放一個小標籤，讓圓本身是主角 */

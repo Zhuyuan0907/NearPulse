@@ -139,8 +139,10 @@ cd android && ./gradlew test assembleDebug
 
 ```bash
 curl -O https://download.geofabrik.de/asia/taiwan-latest.osm.pbf
-node server/scripts/extract-osm.mjs taiwan-latest.osm.pbf /tmp/tw.json --survey
-node server/scripts/build-venues.mjs /tmp/tw.json
+curl -O https://download.geofabrik.de/asia/japan/kansai-latest.osm.pbf   # 選配
+node server/scripts/extract-osm.mjs taiwan-latest.osm.pbf /tmp/tw.json
+node server/scripts/extract-osm.mjs kansai-latest.osm.pbf /tmp/kix.json
+node server/scripts/build-venues.mjs /tmp/tw.json /tmp/kix.json
 
 node server/scripts/fetch-tdx.mjs                      # 北捷官方資料
 node server/scripts/fetch-trtc-open.mjs                # 開門側、輪椅席

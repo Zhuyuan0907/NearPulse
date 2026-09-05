@@ -30,6 +30,7 @@ import { isSpeechSupported, speak } from '../modules/speech.js';
 import OfflineBar from '../components/OfflineBar.jsx';
 import { etaOf } from '../modules/train.js';
 import { coarseFix, lastKnownFix } from '../modules/location.js';
+import { wordingFor } from '../modules/incidentWording.js';
 import Pictogram from '../components/Pictogram.jsx';
 
 /**
@@ -573,7 +574,7 @@ export default function SituationPage() {
                   <div className="flag flag-move">
                     {ev.motion.reason === 'erratic'
                       ? '多處回報位置不一致 — 可能不只一處'
-                      : `威脅移動中${ev.motion.compass ? ` · 往${ev.motion.compass}方` : ''}`}
+                      : `${wordingFor(ev.typeLabel).moving}${ev.motion.compass ? ` · 往${ev.motion.compass}方` : ''}`}
                     {ev.motion.confidence === 'low' && ' · 方向待確認'}
                   </div>
                 )}
@@ -652,7 +653,9 @@ export default function SituationPage() {
                 ) : ev.threatLevel === 'high' ? (
                   <a className="chip sighting-cta" href={`#/confirm?event=${ev.id}`}>
                     <Pictogram name="sighting" size={18} />
-                    我看到他往哪走了
+                    {/* 「往哪走」只適用於會走路的加害者。
+                        火警要問的是煙在哪，推擠要問的是哪裡最擠。 */}
+                    {wordingFor(ev.typeLabel).cta}
                   </a>
                 ) : null}
 

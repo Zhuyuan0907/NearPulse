@@ -28,7 +28,7 @@
  *   - 資訊不足時說「依現場人員指示」，不硬給方向
  */
 
-import { findVenue, findExit, distanceM } from './venueService.js';
+import { findVenue, findExit, distanceM, exitSide } from './venueService.js';
 import { isAheadOfThreat, motionLine } from './threatMotion.js';
 
 /**
@@ -240,22 +240,11 @@ export function evacuationPlan({
    *
    * 站體跨度太小時不給（<60m 的站，講「北側」沒有意義，只是雜訊）。
    */
-  const SIDE = ['北', '東北', '東', '東南', '南', '西南', '西', '西北'];
-  const spanM = Math.max(venue?.spanM?.along ?? 0, venue?.spanM?.across ?? 0);
-  const sideOf = (exit) => {
-    if (spanM < 60 || !Number.isFinite(exit.lat)) return null;
-    const dy = (exit.lat - venue.lat) * 111_320;
-    const dx = (exit.lon - venue.lon) * 111_320 * Math.cos((venue.lat * Math.PI) / 180);
-    if (Math.hypot(dx, dy) < 25) return null; // 太靠近中心，方位不穩定
-    const deg = (Math.atan2(dx, dy) * 180) / Math.PI;
-    return SIDE[Math.round(((deg + 360) % 360) / 45) % 8];
-  };
-
   const brief = (x) => ({
     code: x.exit.code,
     landmark: x.exit.landmark ?? null,
     /** 站體方位（「東」「西北」）——地下唯一用得上的空間線索 */
-    side: sideOf(x.exit),
+    side: exitSide(venue, x.exit),
     lat: x.exit.lat ?? null,
     lon: x.exit.lon ?? null,
   });

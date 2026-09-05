@@ -31,6 +31,7 @@ import { useEffect, useState } from 'react';
 import { fetchEvents, fetchEvent, confirmEvent, fetchVenue } from '../modules/api.js';
 import VenuePicker from '../components/VenuePicker.jsx';
 import { coarseFix } from '../modules/location.js';
+import { wordingFor } from '../modules/incidentWording.js';
 import { resolveLocation } from '../modules/location.js';
 import Pictogram from '../components/Pictogram.jsx';
 
@@ -106,6 +107,18 @@ export default function ConfirmPage({ eventId }) {
       setEvents(list);
     })();
   }, [eventId]);
+
+  /**
+   * 所有出口共用同一個地標時，那個地標沒有區分作用。
+   * 非捷運場域（地下街、百貨）的地標是 OSM 推導的「最近街道」，
+   * 一條長條形地下街的每個出口都會拿到同一個街名。
+   */
+  // 用詞依事件類型調整：火警不會「往哪走」，推擠問的是「哪裡最擠」
+  const wording = wordingFor(target?.typeLabel);
+
+  const landmarks = new Set((venue?.exits ?? []).map((e) => e.landmark).filter(Boolean));
+  const sharedLandmark =
+    landmarks.size === 1 && (venue?.exits?.length ?? 0) >= 3 ? [...landmarks][0] : null;
 
   /** 指認位置：看照片的人說出這是哪裡。**不要求在場**——遠方的人也認得出來 */
   async function identifyVenue(venueId, venueName) {
@@ -242,14 +255,24 @@ export default function ConfirmPage({ eventId }) {
           {step === 'sighting' && (
             <>
               <Pictogram name="pin" size={40} className="done-icon" />
-              <h2>他現在在哪？</h2>
+              <h2>{wording.question}</h2>
               <p className="muted">
-                點最接近的出口就好。這會決定其他人的疏散方向要避開哪一邊。
+                {wording.hint}
                 <br />
-                <span className="muted-2">出口依「離他上次出現的位置」由近而遠排列。</span>
+                <span className="muted-2">出口依「離上次回報的位置」由近而遠排列。</span>
               </p>
               {/* 出口編號放最前面、字大——站內指標系統就是用編號導引的，
                   使用者抬頭就能接上。與態勢卡的疏散區塊刻意用同一套呈現。 */}
+              {/* 地標全部相同時只講一次。
+                  東區地下街的 11 個出口全部寫著「忠孝東路四段」——那是 OSM
+                  推導的最近街道，TDX 不涵蓋地下街，沒有更準的官方資料。
+                  逐條重複同一個街名是純雜訊，改成在標題講一次，
+                  清單只留能區分的資訊（編號與站體方位）。 */}
+              {sharedLandmark && (
+                <p className="muted-2" style={{ marginTop: 8 }}>
+                  這個場域的出口都在{sharedLandmark}沿線，以站體方位區分。
+                </p>
+              )}
               <div className="sighting-exits">
                 {exitsNearestFirst(venue, target).map((e) => (
                   <button
@@ -260,7 +283,11 @@ export default function ConfirmPage({ eventId }) {
                   >
                     <span className="sighting-code">{e.code}</span>
                     <span className="sighting-where">
-                      {e.landmark ? `往 ${e.landmark}` : '出口'}
+                      {e.side && <b className="sighting-side">站體{e.side}側</b>}
+                      {!sharedLandmark && e.landmark && (
+                        <span>{e.side ? '　' : ''}往 {e.landmark}</span>
+                      )}
+                      {!e.side && !e.landmark && '出口'}
                     </span>
                   </button>
                 ))}
@@ -268,9 +295,7 @@ export default function ConfirmPage({ eventId }) {
 
               {sightingMsg && <p className="sighting-msg">{sightingMsg}</p>}
 
-              <p className="muted" style={{ marginTop: 14 }}>
-                他移動了就再點一次——可以回報多次。
-              </p>
+              <p className="muted" style={{ marginTop: 14 }}>{wording.repeat}</p>
               <div className="confirm-actions" style={{ flexDirection: 'column', marginTop: 10 }}>
                 <button className="ghost-btn btn-block" onClick={() => setStep('done')}>
                   說不出是哪個出口 / 完成
