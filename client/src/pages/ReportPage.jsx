@@ -36,9 +36,15 @@ import PhotoRoiPicker from '../components/PhotoRoiPicker.jsx';
  */
 const VenueMap = lazy(() => import('../components/VenueMap.jsx'));
 
-/** 四種事件類型（與 server config 對應；高嚴重度排前面） */
+/**
+ * 事件類型（與 server config 對應；高嚴重度排前面）。
+ *
+ * 「攻擊」是依真實案例補上的——台北捷運 11 年來發生 5 起持械攻擊，
+ * 原本只能歸到「其他」（門檻 3、嚴重度 low），那是嚴重的錯誤分類。
+ */
 const TYPES = [
   { id: 'fire',    label: '火警', emoji: '🔥', cls: 'type-high',   hint: '煙、火、燒焦味' },
+  { id: 'attack',  label: '攻擊', emoji: '🔪', cls: 'type-high',   hint: '持械、傷人、有人逃竄' },
   { id: 'medical', label: '急救', emoji: '🚑', cls: 'type-high',   hint: '有人倒下、受傷' },
   { id: 'crush',   label: '推擠', emoji: '👥', cls: 'type-medium', hint: '人潮擠壓、動線堵塞' },
   { id: 'other',   label: '其他', emoji: '⚠️', cls: 'type-low',    hint: '積水、異味、可疑物' },
@@ -71,6 +77,8 @@ export default function ReportPage() {
   // 無障礙偏好記在 sessionStorage：需要的人不必每次重選，但關頁即滅（不留個資）
   const [stepFree, setStepFree] = useState(() => sessionStorage.getItem('np_step_free') === '1');
   const [needsAssistance, setNeedsAssistance] = useState(false);
+  // 在列車上：疏散建議完全不同——車廂裡沒有「出口」可去
+  const [onTrain, setOnTrain] = useState(false);
   const [audioClip, setAudioClip] = useState(null);
   const [recording, setRecording] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
@@ -246,6 +254,7 @@ export default function ReportPage() {
         incidentPoint,
         photoRoi: roiCell,
         needsAssistance,
+        onTrain,
         note: note.trim() || null,
         audio: audioClip,
         photo,
@@ -260,6 +269,7 @@ export default function ReportPage() {
         point: incidentPoint,
         type: selectedType,
         mobility: stepFree ? 'stepFree' : null,
+        onTrain,
       }).then(setEvac);
     } catch {
       setError('送出失敗，請再試一次');
@@ -270,7 +280,7 @@ export default function ReportPage() {
 
   function resetDraft() {
     setSelectedType(null); setMatchEvent(null); setAttachChoice(null);
-    setNote(''); setAudioClip(null); setShowDetails(false);
+    setNote(''); setAudioClip(null); setShowDetails(false); setOnTrain(false); setNeedsAssistance(false);
     setPhoto(null); setPhotoRef(null); setRoiCell(null); setSuggestedCell(null);
     setReadTexts([]); setCandidates([]); setNearExitCode(null); setIncidentPoint(null);
     if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -431,6 +441,16 @@ export default function ReportPage() {
       {readyToSubmit && (
         <>
           <h2 className="section-title">事件在哪裡？（愈精確，疏散建議愈有用）</h2>
+
+          {/* 在列車上時，「哪個出口」是無意義的問題——2014 年鄭捷案就發生在
+              行進中的車廂裡，乘客 4 分鐘無處可逃。勾了之後建議會整個換掉。 */}
+          <button
+            className={`chip${onTrain ? ' chip-active' : ''}`}
+            style={{ width: '100%', minHeight: 48, marginBottom: 10 }}
+            onClick={() => setOnTrain(!onTrain)}
+          >
+            🚃 {onTrain ? '已標記：事件在列車上' : '事件發生在列車上'}
+          </button>
 
           {/* 無障礙路線：一鍵切換，不需帳號、不留紀錄（關頁即滅）。
               勾選後疏散建議會改成「無台階可通行」的版本——

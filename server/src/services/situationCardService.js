@@ -15,7 +15,7 @@ import { config } from '../config.js';
 import { countIndependentPositives } from '../pipeline/cluster.js';
 import { getAdvice } from '../pipeline/advisors/llm.js';
 import { toEventSummary } from './eventService.js';
-import { findVenue } from './venueService.js';
+import { findVenue, nearbyVenues } from './venueService.js';
 import { evacuationPlan } from './evacuationService.js';
 
 /** 威脅等級映射：active 依類型嚴重度、candidate 一律 unverified */
@@ -60,18 +60,57 @@ export function buildSituationCard(events, now = Date.now()) {
       plan: evacuationPlan({
         venueId: ev.stationId, nearExitCode: ev.nearExitCode,
         point: ev.incidentPoint, motion: ev.motion, incidentType: ev.type,
+        onTrain: ev.onTrain,
       }),
       // 無障礙版一起預算進卡片：讀取端切換時不必再發請求，離線也能用
       planStepFree: evacuationPlan({
         venueId: ev.stationId, nearExitCode: ev.nearExitCode,
         point: ev.incidentPoint, motion: ev.motion, incidentType: ev.type,
-        mobility: 'stepFree',
+        onTrain: ev.onTrain, mobility: 'stepFree',
       }),
     });
   }
 
+  /**
+   * 鄰近場域警示。
+   *
+   * 事件是以場域為單位聚合的，所以攻擊者移動到下一個場域時會成為
+   * 「另一起事件」——但下一個場域的人**現在**就該知道。
+   * 2025 年那起攻擊從台北車站移動到中山站（約 800m）再到誠品生活南西店。
+   *
+   * 這裡**不合併事件**（誤併兩起獨立事件的代價太高），只是把警示擴散出去：
+   * 「附近 800 公尺的台北車站有進行中的攻擊事件」。
+   * 只對高嚴重度且已確認的事件這麼做——candidate 還沒驗證過，
+   * 擴散未經確認的警示會製造恐慌。
+   */
+  const nearbyAlerts = [];
+  const alerted = new Set();
+  for (const ev of visible) {
+    if (ev.status !== 'active') continue;
+    if ((config.eventTypes[ev.type]?.severity ?? 'low') !== 'high') continue;
+    const origin = findVenue(ev.stationId);
+    if (!origin) continue;
+    for (const near of nearbyVenues(origin.lat, origin.lon, {
+      radiusM: config.nearbyAlertRadiusM, limit: 6,
+    })) {
+      if (near.id === origin.id || byStation.has(near.id) || alerted.has(near.id)) continue;
+      alerted.add(near.id);
+      nearbyAlerts.push({
+        venueId: near.id,
+        venueName: near.name,
+        kind: near.kind,
+        distanceM: near.distanceM,
+        fromVenue: origin.name,
+        typeLabel: config.eventTypes[ev.type]?.label ?? ev.type,
+        moving: Boolean(ev.motion?.moving),
+      });
+    }
+  }
+
   const card = {
     generatedAt: now,
+    /** 鄰近場域警示：事件不在你這裡，但離得夠近，你該知道 */
+    nearbyAlerts,
     /** 經確認的事件（警示區塊） */
     stations: [...byStation.values()],
     /** 徵詢中的未確認回報（低調語氣區塊——未來由 Web Push 承接） */

@@ -23,6 +23,7 @@ import { config } from '../config.js';
  *   photoRoi?: 'A1'~'C3'|null,  // 照片九宮格中「有地點標示」的那一格（僅供追溯）
  *   incidentPoint?: {lat, lon}, // 使用者在地圖上點的事件位置（比出口更精確時）
  *   needsAssistance?: boolean,  // 現場有人無法自行疏散（行動不便／受困）
+ *   onTrain?: boolean,          // 事件發生在列車上（不在站內）
  *   note?: string,              // 文字補充（選配，≤140 字）
  *   attachToEventId?: string, // 使用者點了「同一件」時帶入
  *   audio?: { base64, mimeType },  // 選配：hold-to-talk 語音
@@ -67,6 +68,9 @@ export function validateReport(body) {
   // 需要協助：布林值以外一律當成 false（寧可漏報也不要誤報成有人受困）
   body.needsAssistance = body.needsAssistance === true;
 
+  // 在列車上：疏散建議完全不同（車廂內沒有「出口」可去）
+  body.onTrain = body.onTrain === true;
+
   // 文字補充：超長截斷（不擋）
   if (typeof body.note === 'string' && body.note.length > 140) body.note = body.note.slice(0, 140);
   if (body.note != null && typeof body.note !== 'string') body.note = null;
@@ -96,6 +100,7 @@ export function normalizeReport(body) {
     photoRoi: body.photoRoi ?? null,         // 照片九宮格（僅供追溯）
     incidentPoint: body.incidentPoint ?? null, // 地圖選點（最精確的事件位置）
     needsAssistance: body.needsAssistance === true, // 有人無法自行疏散
+    onTrain: body.onTrain === true,                 // 事件在列車上
     note: body.note ?? null,                 // 文字補充（選配）
     attachToEventId: body.attachToEventId ?? null,
     audio: body.audio ?? null,

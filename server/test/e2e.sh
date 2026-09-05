@@ -190,7 +190,40 @@ check "事件記錄「有人需要協助」" \
 check "態勢卡帶出無障礙版疏散計畫" \
   test "$(curl -s "$BASE/api/situation" | json "any(e.get('planStepFree') for s in d['stations'] for e in s['events'])")" = "True"
 
-echo "== 11. 否證否決：在場「沒看到」>=3 → cancelled =="
+echo "== 11. 攻擊事件（依台北捷運真實案例補上的類型） =="
+# 原本持械攻擊只能歸「其他」：門檻 3、嚴重度 low——嚴重的錯誤分類
+ATK=$(curl -s "$BASE/api/venues/TPE-BL13/evacuation?exit=3&type=attack")
+check "攻擊的建議與火警不同（不是往出口疏散）" \
+  test "$(echo "$ATK" | json "'圍觀' in d['advice'] and '掩蔽' in d['advice']")" = "True"
+# 2014 鄭捷案發生在行進中的車廂裡，乘客 4 分鐘無處可逃——「哪個出口」是無意義的問題
+TRAIN=$(curl -s "$BASE/api/venues/TPE-BL13/evacuation?exit=3&type=attack&onTrain=1")
+check "在列車上 → 疏散計畫是不同性質的答案" \
+  test "$(echo "$TRAIN" | json "d['plan']['kind']")" = "onTrain"
+check "列車上的建議提到緊急對講機與其他車廂" \
+  test "$(echo "$TRAIN" | json "'對講機' in d['plan']['action'] and '車廂' in d['plan']['action']")" = "True"
+# 2025 年那起攻擊從台北車站移動到中山站再到誠品南西——下一個場域現在就該知道
+curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/json' -d '{
+  "uuid":"e2e-atk-1","sessionId":"sess-K1","type":"attack","nearExitCode":"M3",
+  "locationClaim":{"source":"manual","stationId":"TPE-A1","confidence":1.0,"timestamp":1}}' > /dev/null
+curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/json' -d '{
+  "uuid":"e2e-atk-2","sessionId":"sess-K2","type":"attack","nearExitCode":"M5",
+  "locationClaim":{"source":"manual","stationId":"TPE-A1","confidence":1.0,"timestamp":1}}' > /dev/null
+wait_batch
+check "攻擊門檻為 2（與火警同級，不能等湊 3 個人）" \
+  test "$(curl -s "$BASE/api/reports/context?station=TPE-A1&type=attack" | json "d['events'][0]['status']")" = "active"
+check "高嚴重度事件會警示鄰近場域" \
+  test "$(curl -s "$BASE/api/situation" | json "len(d['nearbyAlerts']) > 0")" = "True"
+check "鄰近警示指出來源場域與距離" \
+  test "$(curl -s "$BASE/api/situation" | json "all(a.get('fromVenue') and a.get('distanceM') is not None for a in d['nearbyAlerts'])")" = "True"
+
+echo "== 12. 百貨／商場（有地下樓層的公眾零售場所） =="
+RT=$(curl -s "$BASE/api/venues/search?q=%E6%96%B0%E5%85%89%E4%B8%89%E8%B6%8A")
+check "搜尋得到百貨場域" \
+  test "$(echo "$RT" | json "any(v['kind']=='retail' for v in d['venues'])")" = "True"
+check "百貨誠實標記無出口圖資（不假裝有疏散路線）" \
+  test "$(echo "$RT" | json "all(not v['exitsAvailable'] for v in d['venues'] if v['kind']=='retail')")" = "True"
+
+echo "== 13. 否證否決：在場「沒看到」>=3 → cancelled =="
 curl -s -X POST "$BASE/api/reports" -H 'Content-Type: application/json' -d '{
   "uuid":"e2e-uuid-002","sessionId":"sess-D","type":"other",
   "locationClaim":{"source":"manual","stationId":"TPE-G13","confidence":1.0,"timestamp":1}}' > /dev/null

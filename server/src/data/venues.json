@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-05T01:35:37.121Z",
+ "generatedAt": "2026-09-05T01:57:49.384Z",
  "source": "OpenStreetMap（Geofabrik 區域抽取檔，本機解析）",
  "attribution": "© OpenStreetMap contributors (ODbL)",
  "inputs": [
@@ -1409,8 +1409,8 @@
    "name": "高雄流行音樂中心汽車地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 22.617466,
-   "lon": 120.287263,
+   "lat": 22.617468,
+   "lon": 120.287262,
    "aliases": [
     "高雄流行音樂中心汽車地下停車場"
    ],
@@ -1431,7 +1431,7 @@
    "name": "屏東榮總地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 22.6624,
+   "lat": 22.662398,
    "lon": 120.47574,
    "aliases": [
     "屏東榮總地下停車場"
@@ -1454,7 +1454,7 @@
    "nameEn": null,
    "kind": "parking",
    "lat": 22.73139,
-   "lon": 120.315599,
+   "lon": 120.3156,
    "aliases": [
     "高雄都會公園汽車地下停車場"
    ],
@@ -1476,7 +1476,7 @@
    "nameEn": "The Lees Hotel Garage",
    "kind": "parking",
    "lat": 22.626926,
-   "lon": 120.313653,
+   "lon": 120.313654,
    "aliases": [
     "麗尊酒店停車場",
     "The Lees Hotel Garage",
@@ -1499,8 +1499,8 @@
    "name": "幸福公園停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 22.67833,
-   "lon": 120.49132,
+   "lat": 22.678332,
+   "lon": 120.491321,
    "aliases": [
     "幸福公園停車場"
    ],
@@ -1522,7 +1522,7 @@
    "nameEn": null,
    "kind": "parking",
    "lat": 22.639714,
-   "lon": 120.334309,
+   "lon": 120.334308,
    "aliases": [
     "光武國小地下停車場"
    ],
@@ -11985,6 +11985,669 @@
    }
   },
   {
+   "id": "KIX-rt06e499",
+   "name": "アクト武庫之荘",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 34.750412,
+   "lon": 135.392267,
+   "aliases": [
+    "アクト武庫之荘"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rt2b65f1",
+   "name": "mina Kyoto",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 35.007913,
+   "lon": 135.768646,
+   "aliases": [
+    "mina Kyoto",
+    "minakyoto",
+    "ミーナ京都"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rt2c4417",
+   "name": "モンテメール",
+   "nameEn": "Mont et Mer",
+   "kind": "retail",
+   "lat": 34.734645,
+   "lon": 135.307532,
+   "aliases": [
+    "モンテメール",
+    "Mont et Mer",
+    "montetmer"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rt334e82",
+   "name": "あまがさきキューズモール",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 34.733474,
+   "lon": 135.430806,
+   "aliases": [
+    "あまがさきキューズモール"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rt3ea585",
+   "name": "ハートランド江坂",
+   "nameEn": "Heartland Esaka",
+   "kind": "retail",
+   "lat": 34.759004,
+   "lon": 135.496282,
+   "aliases": [
+    "ハートランド江坂",
+    "Heartland Esaka",
+    "heartlandesaka"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rt56983a",
+   "name": "あべのハルカス",
+   "nameEn": "Abeno HARUKAS",
+   "kind": "retail",
+   "lat": 34.64583,
+   "lon": 135.514173,
+   "aliases": [
+    "あべのハルカス",
+    "Abeno HARUKAS",
+    "abenoharukas"
+   ],
+   "undergroundLevels": 5,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rt57987e",
+   "name": "D.D. HOUSE",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 34.706997,
+   "lon": 135.497405,
+   "aliases": [
+    "D.D. HOUSE",
+    "d.d.house"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rt5bc6b8",
+   "name": "カサ・マドンナビル",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 34.74739,
+   "lon": 135.355512,
+   "aliases": [
+    "カサ・マドンナビル"
+   ],
+   "undergroundLevels": 4,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rt686127",
+   "name": "梅田ナナイロ",
+   "nameEn": "nanairo",
+   "kind": "retail",
+   "lat": 34.703244,
+   "lon": 135.501092,
+   "aliases": [
+    "梅田ナナイロ",
+    "nanairo"
+   ],
+   "undergroundLevels": 2,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rt6b5854",
+   "name": "イオン",
+   "nameEn": "AEON",
+   "kind": "retail",
+   "lat": 34.755971,
+   "lon": 135.362205,
+   "aliases": [
+    "イオン",
+    "AEON",
+    "aeon"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rt774a84",
+   "name": "ラポルテ東館",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 34.735365,
+   "lon": 135.307506,
+   "aliases": [
+    "ラポルテ東館"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rt802b60",
+   "name": "ノバティながの",
+   "nameEn": "Novaty Nagano North",
+   "kind": "retail",
+   "lat": 34.451445,
+   "lon": 135.572431,
+   "aliases": [
+    "ノバティながの",
+    "Novaty Nagano North",
+    "novatynaganonorth"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rt88812f",
+   "name": "髙島屋",
+   "nameEn": "Takashimaya",
+   "kind": "retail",
+   "lat": 35.003083,
+   "lon": 135.768337,
+   "aliases": [
+    "髙島屋",
+    "Takashimaya",
+    "takashimaya"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rt8af028",
+   "name": "ダイエー 宝塚中山店",
+   "nameEn": "Daiei",
+   "kind": "retail",
+   "lat": 34.817115,
+   "lon": 135.367427,
+   "aliases": [
+    "ダイエー 宝塚中山店",
+    "ダイエー宝塚中山店",
+    "Daiei",
+    "daiei"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rt8b6fdf",
+   "name": "枚方駅前 吉泉ビル",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 34.816542,
+   "lon": 135.647539,
+   "aliases": [
+    "枚方駅前 吉泉ビル",
+    "枚方駅前吉泉ビル"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rt8ffe95",
+   "name": "Fukujuen",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 35.003518,
+   "lon": 135.764814,
+   "aliases": [
+    "Fukujuen",
+    "fukujuen",
+    "福寿園"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rt903322",
+   "name": "MEGAドン・キホーテ交野店",
+   "nameEn": "Don Quixote MEGA Don Quijote Katano Store",
+   "kind": "retail",
+   "lat": 34.785961,
+   "lon": 135.674614,
+   "aliases": [
+    "MEGAドン・キホーテ交野店",
+    "megaドン・キホーテ交野店",
+    "Don Quixote MEGA Don Quijote Katano Store",
+    "donquixotemegadonquijotekatanostore"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rt997a80",
+   "name": "２wa",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 35.013982,
+   "lon": 135.776248,
+   "aliases": [
+    "２wa"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rt9eaf75",
+   "name": "VIE.ORNER",
+   "nameEn": "VIE.ORNER",
+   "kind": "retail",
+   "lat": 34.815789,
+   "lon": 135.646577,
+   "aliases": [
+    "VIE.ORNER",
+    "vie.orner",
+    "ビオルネ"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rta2d701",
+   "name": "OSビル",
+   "nameEn": "OS Building",
+   "kind": "retail",
+   "lat": 34.702776,
+   "lon": 135.500404,
+   "aliases": [
+    "OSビル",
+    "osビル",
+    "OS Building",
+    "osbuilding"
+   ],
+   "undergroundLevels": 2,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rta549fe",
+   "name": "2番館",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 34.751799,
+   "lon": 135.416248,
+   "aliases": [
+    "2番館"
+   ],
+   "undergroundLevels": 2,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rtae15fb",
+   "name": "枚方T-SITE",
+   "nameEn": "HIRAKATA T-SITE",
+   "kind": "retail",
+   "lat": 34.815967,
+   "lon": 135.649742,
+   "aliases": [
+    "枚方T-SITE",
+    "枚方t-site",
+    "HIRAKATA T-SITE",
+    "hirakatat-site"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rtb02319",
+   "name": "パルティK2南棟",
+   "nameEn": "Palty K-2 Building",
+   "kind": "retail",
+   "lat": 34.828456,
+   "lon": 135.413218,
+   "aliases": [
+    "パルティK2南棟",
+    "パルティk2南棟",
+    "Palty K-2 Building",
+    "paltyk-2building"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rtb1afd6",
+   "name": "アンディ",
+   "nameEn": "Andy",
+   "kind": "retail",
+   "lat": 34.521941,
+   "lon": 135.492832,
+   "aliases": [
+    "アンディ",
+    "Andy",
+    "andy"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rtc51f3c",
+   "name": "カリーノ江坂",
+   "nameEn": "Carino Esaka",
+   "kind": "retail",
+   "lat": 34.758608,
+   "lon": 135.496573,
+   "aliases": [
+    "カリーノ江坂",
+    "Carino Esaka",
+    "carinoesaka"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rte42b94",
+   "name": "リノアス",
+   "nameEn": "LINOAS",
+   "kind": "retail",
+   "lat": 34.629758,
+   "lon": 135.605352,
+   "aliases": [
+    "リノアス",
+    "LINOAS",
+    "linoas"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "KIX-rtf22e5b",
+   "name": "野村ビル",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 34.74815,
+   "lon": 135.355959,
+   "aliases": [
+    "野村ビル"
+   ],
+   "undergroundLevels": 3,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
    "id": "KIX-S01",
    "name": "谷上",
    "nameEn": "Tanigami",
@@ -18667,7 +19330,7 @@
    "nameEn": null,
    "kind": "parking",
    "lat": 22.986247,
-   "lon": 120.194056,
+   "lon": 120.194054,
    "aliases": [
     "水萍塭公園地下停車場"
    ],
@@ -18688,7 +19351,7 @@
    "name": "光復地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 22.996936,
+   "lat": 22.996934,
    "lon": 120.216197,
    "aliases": [
     "光復地下停車場"
@@ -18710,8 +19373,8 @@
    "name": "平實公園地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 22.99318,
-   "lon": 120.23634,
+   "lat": 22.993182,
+   "lon": 120.236338,
    "aliases": [
     "平實公園地下停車場"
    ],
@@ -18732,8 +19395,8 @@
    "name": "海安路地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 22.994283,
-   "lon": 120.196425,
+   "lat": 22.994284,
+   "lon": 120.196426,
    "aliases": [
     "海安路地下停車場"
    ],
@@ -18754,8 +19417,8 @@
    "name": "正生公園地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 22.990935,
-   "lon": 120.187854,
+   "lat": 22.990936,
+   "lon": 120.187853,
    "aliases": [
     "正生公園地下停車場"
    ],
@@ -18777,7 +19440,7 @@
    "nameEn": null,
    "kind": "parking",
    "lat": 23.078244,
-   "lon": 120.295856,
+   "lon": 120.295854,
    "aliases": [
     "新市國小地下停車場"
    ],
@@ -21943,7 +22606,7 @@
     {
      "code": "1",
      "name": "出口 1",
-     "landmark": "經貿二路",
+     "landmark": "南港路一段",
      "landmarkSource": "nearest_street",
      "lat": 25.055748,
      "lon": 121.61723,
@@ -31610,8 +32273,8 @@
    "name": "文化公園地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.980157,
-   "lon": 121.249129,
+   "lat": 24.98016,
+   "lon": 121.249128,
    "aliases": [
     "文化公園地下停車場"
    ],
@@ -31633,7 +32296,7 @@
    "nameEn": null,
    "kind": "parking",
    "lat": 25.016392,
-   "lon": 121.306318,
+   "lon": 121.30632,
    "aliases": [
     "敏盛醫院地下停車場"
    ],
@@ -31654,8 +32317,8 @@
    "name": "礁溪國小地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.821451,
-   "lon": 121.768957,
+   "lat": 24.821452,
+   "lon": 121.768958,
    "aliases": [
     "礁溪國小地下停車場"
    ],
@@ -31699,7 +32362,7 @@
    "nameEn": null,
    "kind": "parking",
    "lat": 24.956628,
-   "lon": 121.226501,
+   "lon": 121.226502,
    "aliases": [
     "中央地下停車場"
    ],
@@ -31721,7 +32384,7 @@
    "nameEn": null,
    "kind": "parking",
    "lat": 25.003977,
-   "lon": 121.461904,
+   "lon": 121.461905,
    "aliases": [
     "忠孝國中地下停車場"
    ],
@@ -31742,8 +32405,8 @@
    "name": "興隆公園地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.000312,
-   "lon": 121.551351,
+   "lat": 25.000314,
+   "lon": 121.55135,
    "aliases": [
     "興隆公園地下停車場"
    ],
@@ -31764,8 +32427,8 @@
    "name": "臺北市災害應變中心地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.029083,
-   "lon": 121.566079,
+   "lat": 25.029082,
+   "lon": 121.56608,
    "aliases": [
     "臺北市災害應變中心地下停車場",
     "台北市災害應變中心地下停車場"
@@ -31787,8 +32450,8 @@
    "name": "南門市場地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.991964,
-   "lon": 121.306403,
+   "lat": 24.991967,
+   "lon": 121.306402,
    "aliases": [
     "南門市場地下停車場"
    ],
@@ -31809,7 +32472,7 @@
    "name": "臺北大學運動場地下停車場",
    "nameEn": "NTPU Underground Parking",
    "kind": "parking",
-   "lat": 24.93954,
+   "lat": 24.939539,
    "lon": 121.363561,
    "aliases": [
     "臺北大學運動場地下停車場",
@@ -31834,8 +32497,8 @@
    "name": "中壢國民運動中心停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.964055,
-   "lon": 121.215756,
+   "lat": 24.964054,
+   "lon": 121.215757,
    "aliases": [
     "中壢國民運動中心停車場"
    ],
@@ -31856,7 +32519,7 @@
    "name": "新民國小地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.961013,
+   "lat": 24.961011,
    "lon": 121.216474,
    "aliases": [
     "新民國小地下停車場"
@@ -31878,8 +32541,8 @@
    "name": "國雲停車世貿財星停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.958521,
-   "lon": 121.220143,
+   "lat": 24.95852,
+   "lon": 121.220142,
    "aliases": [
     "國雲停車世貿財星停車場"
    ],
@@ -31900,7 +32563,7 @@
    "name": "愛馬屋桃園中山場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.989169,
+   "lat": 24.989168,
    "lon": 121.288088,
    "aliases": [
     "愛馬屋桃園中山場"
@@ -31922,8 +32585,8 @@
    "name": "五福地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.055823,
-   "lon": 121.294807,
+   "lat": 25.055826,
+   "lon": 121.294808,
    "aliases": [
     "五福地下停車場"
    ],
@@ -31944,7 +32607,7 @@
    "name": "A19環球地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.002231,
+   "lat": 25.00223,
    "lon": 121.20266,
    "aliases": [
     "A19環球地下停車場",
@@ -31967,7 +32630,7 @@
    "name": "西門公有地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.993714,
+   "lat": 24.993715,
    "lon": 121.304537,
    "aliases": [
     "西門公有地下停車場"
@@ -31990,7 +32653,7 @@
    "nameEn": "Liuhu Park Underground Parking Lot",
    "kind": "parking",
    "lat": 24.979304,
-   "lon": 121.546927,
+   "lon": 121.546926,
    "aliases": [
     "綠湖公園地下停車場",
     "Liuhu Park Underground Parking Lot",
@@ -32013,8 +32676,8 @@
    "name": "捷運木柵站轉乘停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.998219,
-   "lon": 121.573462,
+   "lat": 24.998216,
+   "lon": 121.573464,
    "aliases": [
     "捷運木柵站轉乘停車場"
    ],
@@ -32035,7 +32698,7 @@
    "name": "樹林長壽公園地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.992149,
+   "lat": 24.992148,
    "lon": 121.421873,
    "aliases": [
     "樹林長壽公園地下停車場"
@@ -32057,7 +32720,7 @@
    "name": "府前地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.992565,
+   "lat": 24.992566,
    "lon": 121.301153,
    "aliases": [
     "府前地下停車場"
@@ -32079,8 +32742,8 @@
    "name": "二重公園停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.066626,
-   "lon": 121.474762,
+   "lat": 25.066627,
+   "lon": 121.474763,
    "aliases": [
     "二重公園停車場"
    ],
@@ -32101,8 +32764,8 @@
    "name": "中路二號社會住宅地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.999331,
-   "lon": 121.297195,
+   "lat": 24.999334,
+   "lon": 121.297194,
    "aliases": [
     "中路二號社會住宅地下停車場"
    ],
@@ -32123,8 +32786,8 @@
    "name": "中路三號社會住宅地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.007367,
-   "lon": 121.285288,
+   "lat": 25.007366,
+   "lon": 121.28529,
    "aliases": [
     "中路三號社會住宅地下停車場"
    ],
@@ -32145,8 +32808,8 @@
    "name": "興穀國小操場地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.049729,
-   "lon": 121.474809,
+   "lat": 25.049727,
+   "lon": 121.47481,
    "aliases": [
     "興穀國小操場地下停車場"
    ],
@@ -32167,7 +32830,7 @@
    "name": "桃園市立圖書館新總館地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.017888,
+   "lat": 25.01789,
    "lon": 121.29998,
    "aliases": [
     "桃園市立圖書館新總館地下停車場"
@@ -32189,8 +32852,8 @@
    "name": "富士捷桃園延平停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.986688,
-   "lon": 121.313944,
+   "lat": 24.98669,
+   "lon": 121.313946,
    "aliases": [
     "富士捷桃園延平停車場"
    ],
@@ -32211,8 +32874,8 @@
    "name": "K區地下街停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.046877,
-   "lon": 121.517002,
+   "lat": 25.046876,
+   "lon": 121.517004,
    "aliases": [
     "K區地下街停車場",
     "k區地下街停車場"
@@ -32234,8 +32897,8 @@
    "name": "臺北車站東地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.047446,
-   "lon": 121.518657,
+   "lat": 25.047447,
+   "lon": 121.518658,
    "aliases": [
     "臺北車站東地下停車場",
     "台北車站東地下停車場"
@@ -32257,7 +32920,7 @@
    "name": "公正地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.678615,
+   "lat": 24.678614,
    "lon": 121.766514,
    "aliases": [
     "公正地下停車場"
@@ -32280,7 +32943,7 @@
    "nameEn": null,
    "kind": "parking",
    "lat": 25.030997,
-   "lon": 121.566749,
+   "lon": 121.56675,
    "aliases": [
     "三張里地下停車場"
    ],
@@ -32301,8 +32964,8 @@
    "name": "捷運新店站轉乘停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.957656,
-   "lon": 121.537583,
+   "lat": 24.957655,
+   "lon": 121.537582,
    "aliases": [
     "捷運新店站轉乘停車場"
    ],
@@ -32323,8 +32986,8 @@
    "name": "長安國小地下停車場",
    "nameEn": "Changan School Car Park",
    "kind": "parking",
-   "lat": 25.050084,
-   "lon": 121.531715,
+   "lat": 25.050085,
+   "lon": 121.531716,
    "aliases": [
     "長安國小地下停車場",
     "Changan School Car Park",
@@ -32347,8 +33010,8 @@
    "name": "振興公園地下停車場",
    "nameEn": "Zhanxing Car Park",
    "kind": "parking",
-   "lat": 25.118369,
-   "lon": 121.523259,
+   "lat": 25.118368,
+   "lon": 121.523258,
    "aliases": [
     "振興公園地下停車場",
     "Zhanxing Car Park",
@@ -32394,7 +33057,7 @@
    "nameEn": null,
    "kind": "parking",
    "lat": 24.98868,
-   "lon": 121.540281,
+   "lon": 121.540282,
    "aliases": [
     "景美國小地下停車場"
    ],
@@ -32415,8 +33078,8 @@
    "name": "長揚停車場松江2站",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.050683,
-   "lon": 121.533433,
+   "lat": 25.050686,
+   "lon": 121.533434,
    "aliases": [
     "長揚停車場松江2站"
    ],
@@ -32437,8 +33100,8 @@
    "name": "中壢國民小學地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.953938,
-   "lon": 121.221282,
+   "lat": 24.953939,
+   "lon": 121.221281,
    "aliases": [
     "中壢國民小學地下停車場"
    ],
@@ -32459,8 +33122,8 @@
    "name": "嘉興公園地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.021435,
-   "lon": 121.552085,
+   "lat": 25.021436,
+   "lon": 121.552084,
    "aliases": [
     "嘉興公園地下停車場"
    ],
@@ -32481,7 +33144,7 @@
    "name": "綠二停車場(藝文園區北區停車場)",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.015981,
+   "lat": 25.01598,
    "lon": 121.300306,
    "aliases": [
     "綠二停車場(藝文園區北區停車場)"
@@ -32504,7 +33167,7 @@
    "nameEn": null,
    "kind": "parking",
    "lat": 25.0777,
-   "lon": 121.482689,
+   "lon": 121.482688,
    "aliases": [
     "力行地下停車場"
    ],
@@ -32525,8 +33188,8 @@
    "name": "景華公園停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.99566,
-   "lon": 121.543595,
+   "lat": 24.995662,
+   "lon": 121.543592,
    "aliases": [
     "景華公園停車場"
    ],
@@ -32548,7 +33211,7 @@
    "nameEn": null,
    "kind": "parking",
    "lat": 25.013638,
-   "lon": 121.547347,
+   "lon": 121.547348,
    "aliases": [
     "永齡生醫工程館地下停車場 (汽車)",
     "永齡生醫工程館地下停車場(汽車)"
@@ -32570,8 +33233,8 @@
    "name": "台大辛亥地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.020532,
-   "lon": 121.542266,
+   "lat": 25.020534,
+   "lon": 121.542264,
    "aliases": [
     "台大辛亥地下停車場"
    ],
@@ -32593,7 +33256,7 @@
    "nameEn": null,
    "kind": "parking",
    "lat": 25.08599,
-   "lon": 121.520122,
+   "lon": 121.52012,
    "aliases": [
     "前港公園地下停車場"
    ],
@@ -32615,7 +33278,7 @@
    "nameEn": null,
    "kind": "parking",
    "lat": 25.047244,
-   "lon": 121.56146,
+   "lon": 121.561462,
    "aliases": [
     "臺北偶戲館地下停車場",
     "台北偶戲館地下停車場"
@@ -32659,8 +33322,8 @@
    "name": "古亭國中地下停車場",
    "nameEn": "Kuting Junior High School Undergroud Parking",
    "kind": "parking",
-   "lat": 25.02407,
-   "lon": 121.510343,
+   "lat": 25.024068,
+   "lon": 121.510346,
    "aliases": [
     "古亭國中地下停車場",
     "Kuting Junior High School Undergroud Parking",
@@ -32683,8 +33346,8 @@
    "name": "大稻埕公園地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.058703,
-   "lon": 121.510374,
+   "lat": 25.058704,
+   "lon": 121.510376,
    "aliases": [
     "大稻埕公園地下停車場"
    ],
@@ -32705,8 +33368,8 @@
    "name": "西湖公園地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.083575,
-   "lon": 121.570307,
+   "lat": 25.083574,
+   "lon": 121.570306,
    "aliases": [
     "西湖公園地下停車場"
    ],
@@ -32728,7 +33391,7 @@
    "nameEn": null,
    "kind": "parking",
    "lat": 25.063574,
-   "lon": 121.538409,
+   "lon": 121.538408,
    "aliases": [
     "榮星花園公園地下停車場"
    ],
@@ -32771,8 +33434,8 @@
    "name": "新店高中地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.974367,
-   "lon": 121.533592,
+   "lat": 24.974368,
+   "lon": 121.53359,
    "aliases": [
     "新店高中地下停車場"
    ],
@@ -32816,7 +33479,7 @@
    "nameEn": null,
    "kind": "parking",
    "lat": 25.05311,
-   "lon": 121.526625,
+   "lon": 121.526626,
    "aliases": [
     "嘟嘟房林森公園場"
    ],
@@ -32837,8 +33500,8 @@
    "name": "興雅國中地下停車場",
    "nameEn": "Xingya Junior High School Underground Parking Garage",
    "kind": "parking",
-   "lat": 25.035194,
-   "lon": 121.572245,
+   "lat": 25.035196,
+   "lon": 121.572244,
    "aliases": [
     "興雅國中地下停車場",
     "Xingya Junior High School Underground Parking Garage",
@@ -32861,7 +33524,7 @@
    "name": "景美集應廟文化願景館地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.991531,
+   "lat": 24.991532,
    "lon": 121.54235,
    "aliases": [
     "景美集應廟文化願景館地下停車場"
@@ -32883,8 +33546,8 @@
    "name": "新北市市民廣場地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.013237,
-   "lon": 121.465005,
+   "lat": 25.013239,
+   "lon": 121.465006,
    "aliases": [
     "新北市市民廣場地下停車場"
    ],
@@ -32905,7 +33568,7 @@
    "name": "中崙高中地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.049873,
+   "lat": 25.049874,
    "lon": 121.562,
    "aliases": [
     "中崙高中地下停車場"
@@ -32927,8 +33590,8 @@
    "name": "辛亥國小地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.006104,
-   "lon": 121.558887,
+   "lat": 25.006105,
+   "lon": 121.558888,
    "aliases": [
     "辛亥國小地下停車場"
    ],
@@ -32950,7 +33613,7 @@
    "nameEn": null,
    "kind": "parking",
    "lat": 25.039073,
-   "lon": 121.522544,
+   "lon": 121.522545,
    "aliases": [
     "臺北市政府青年局地下停車場",
     "台北市政府青年局地下停車場"
@@ -32972,7 +33635,7 @@
    "name": "大安高工地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.032111,
+   "lat": 25.032112,
    "lon": 121.541218,
    "aliases": [
     "大安高工地下停車場"
@@ -32994,7 +33657,7 @@
    "name": "大安國宅地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.030233,
+   "lat": 25.030234,
    "lon": 121.538794,
    "aliases": [
     "大安國宅地下停車場"
@@ -33016,8 +33679,8 @@
    "name": "龍門國中地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.023937,
-   "lon": 121.538403,
+   "lat": 25.023936,
+   "lon": 121.538402,
    "aliases": [
     "龍門國中地下停車場"
    ],
@@ -33038,8 +33701,8 @@
    "name": "塔城公園地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.05087,
-   "lon": 121.510869,
+   "lat": 25.050872,
+   "lon": 121.510866,
    "aliases": [
     "塔城公園地下停車場"
    ],
@@ -33082,7 +33745,7 @@
    "name": "文昌公園地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.992777,
+   "lat": 24.992778,
    "lon": 121.309876,
    "aliases": [
     "文昌公園地下停車場"
@@ -33104,8 +33767,8 @@
    "name": "新光摩天大樓停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.045911,
-   "lon": 121.515277,
+   "lat": 25.04591,
+   "lon": 121.515276,
    "aliases": [
     "新光摩天大樓停車場"
    ],
@@ -33126,8 +33789,8 @@
    "name": "永盛公園地下停車場",
    "nameEn": "Yongsheng Cark Park",
    "kind": "parking",
-   "lat": 25.059072,
-   "lon": 121.524855,
+   "lat": 25.059069,
+   "lon": 121.524856,
    "aliases": [
     "永盛公園地下停車場",
     "Yongsheng Cark Park",
@@ -33150,8 +33813,8 @@
    "name": "日月亭希望園區場",
    "nameEn": "youparking",
    "kind": "parking",
-   "lat": 25.044635,
-   "lon": 121.532275,
+   "lat": 25.044638,
+   "lon": 121.532276,
    "aliases": [
     "日月亭希望園區場",
     "youparking"
@@ -33173,8 +33836,8 @@
    "name": "進安公園地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 25.045941,
-   "lon": 121.537469,
+   "lat": 25.045944,
+   "lon": 121.53747,
    "aliases": [
     "進安公園地下停車場"
    ],
@@ -33195,8 +33858,8 @@
    "name": "重慶公園地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.999917,
-   "lon": 121.464199,
+   "lat": 24.999916,
+   "lon": 121.4642,
    "aliases": [
     "重慶公園地下停車場"
    ],
@@ -33218,7 +33881,7 @@
    "nameEn": null,
    "kind": "parking",
    "lat": 24.960283,
-   "lon": 121.293812,
+   "lon": 121.293813,
    "aliases": [
     "八德國民運動中心地下停車場"
    ],
@@ -34820,12 +35483,456 @@
    }
   },
   {
+   "id": "TPE-rt03bf03",
+   "name": "遠百信義A13",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 25.036873,
+   "lon": 121.567934,
+   "aliases": [
+    "遠百信義A13",
+    "遠百信義a13"
+   ],
+   "undergroundLevels": 5,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TPE-rt1224c0",
+   "name": "家樂福",
+   "nameEn": "Carrefour",
+   "kind": "retail",
+   "lat": 24.997435,
+   "lon": 121.421388,
+   "aliases": [
+    "家樂福",
+    "Carrefour",
+    "carrefour",
+    "カルフール"
+   ],
+   "undergroundLevels": 2,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TPE-rt2271d4",
+   "name": "中山地下街",
+   "nameEn": "Zhongshan Metro Mall",
+   "kind": "retail",
+   "lat": 25.052237,
+   "lon": 121.520135,
+   "aliases": [
+    "中山地下街",
+    "Zhongshan Metro Mall",
+    "zhongshanmetromall"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TPE-rt259991",
+   "name": "NET",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 24.992473,
+   "lon": 121.31208,
+   "aliases": [
+    "NET",
+    "net"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TPE-rt26e96b",
+   "name": "台北地下街",
+   "nameEn": "Taipei City Mall",
+   "kind": "retail",
+   "lat": 25.049285,
+   "lon": 121.514518,
+   "aliases": [
+    "台北地下街",
+    "Taipei City Mall",
+    "taipeicitymall"
+   ],
+   "undergroundLevels": 2,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TPE-rt4082c6",
+   "name": "秀泰生活樹林店",
+   "nameEn": "Showtime Plaza Shulin",
+   "kind": "retail",
+   "lat": 24.995422,
+   "lon": 121.42852,
+   "aliases": [
+    "秀泰生活樹林店",
+    "Showtime Plaza Shulin",
+    "showtimeplazashulin"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TPE-rt4679df",
+   "name": "Yes!Life裕隆城",
+   "nameEn": "Yes!Life Yulon City",
+   "kind": "retail",
+   "lat": 24.978088,
+   "lon": 121.546769,
+   "aliases": [
+    "Yes!Life裕隆城",
+    "yes!life裕隆城",
+    "Yes!Life Yulon City",
+    "yes!lifeyuloncity"
+   ],
+   "undergroundLevels": 3,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TPE-rt642d4c",
+   "name": "宏匯廣場",
+   "nameEn": "Honhui Plaza",
+   "kind": "retail",
+   "lat": 25.059407,
+   "lon": 121.449289,
+   "aliases": [
+    "宏匯廣場",
+    "Honhui Plaza",
+    "honhuiplaza"
+   ],
+   "undergroundLevels": 7,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TPE-rt7738c8",
+   "name": "遠東 Garden City 本館 (商場棟)",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 25.042424,
+   "lon": 121.558543,
+   "aliases": [
+    "遠東 Garden City 本館 (商場棟)",
+    "遠東gardencity本館(商場棟)"
+   ],
+   "undergroundLevels": 2,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TPE-rt7dc742",
+   "name": "遠東SOGO百貨",
+   "nameEn": "SOGO Department Stores",
+   "kind": "retail",
+   "lat": 24.962656,
+   "lon": 121.22352,
+   "aliases": [
+    "遠東SOGO百貨",
+    "遠東sogo百貨",
+    "SOGO Department Stores",
+    "sogodepartmentstores"
+   ],
+   "undergroundLevels": 4,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TPE-rt85cad9",
+   "name": "Mitsui Shopping Park LaLaport 南港",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 25.05947,
+   "lon": 121.61772,
+   "aliases": [
+    "Mitsui Shopping Park LaLaport 南港",
+    "mitsuishoppingparklalaport南港"
+   ],
+   "undergroundLevels": 5,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TPE-rt92984d",
+   "name": "Apple 信義A13",
+   "nameEn": "Apple Xinyi A13",
+   "kind": "retail",
+   "lat": 25.036063,
+   "lon": 121.56793,
+   "aliases": [
+    "Apple 信義A13",
+    "apple信義a13",
+    "Apple Xinyi A13",
+    "applexinyia13"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TPE-rt939911",
+   "name": "大遠百",
+   "nameEn": "MegaCity",
+   "kind": "retail",
+   "lat": 25.013822,
+   "lon": 121.466784,
+   "aliases": [
+    "大遠百",
+    "MegaCity",
+    "megacity"
+   ],
+   "undergroundLevels": 4,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TPE-rt967bba",
+   "name": "EAST COAST by BREEZE",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 25.130309,
+   "lon": 121.743429,
+   "aliases": [
+    "EAST COAST by BREEZE",
+    "eastcoastbybreeze"
+   ],
+   "undergroundLevels": 4,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TPE-rt9afee2",
+   "name": "徐匯廣場",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 25.080474,
+   "lon": 121.480567,
+   "aliases": [
+    "徐匯廣場"
+   ],
+   "undergroundLevels": 6,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TPE-rt9df11d",
+   "name": "iFG遠雄廣場",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 25.062158,
+   "lon": 121.648024,
+   "aliases": [
+    "iFG遠雄廣場",
+    "ifg遠雄廣場"
+   ],
+   "undergroundLevels": 7,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TPE-rta87edc",
+   "name": "京站時尚廣場",
+   "nameEn": "QSquare",
+   "kind": "retail",
+   "lat": 25.049345,
+   "lon": 121.517454,
+   "aliases": [
+    "京站時尚廣場",
+    "QSquare",
+    "qsquare"
+   ],
+   "undergroundLevels": 6,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TPE-rtd636d2",
+   "name": "遠東百貨",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 25.010925,
+   "lon": 121.464562,
+   "aliases": [
+    "遠東百貨"
+   ],
+   "undergroundLevels": 5,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
    "id": "TPE-sfb3017",
    "name": "TPE-sfb3017",
    "nameEn": null,
    "kind": "metro",
    "lat": 24.959668,
-   "lon": 121.419431,
+   "lon": 121.41943,
    "aliases": [],
    "exits": [],
    "exitsAvailable": false,
@@ -34844,8 +35951,8 @@
    "name": "西門地下街",
    "nameEn": null,
    "kind": "underground",
-   "lat": 25.044211,
-   "lon": 121.509277,
+   "lat": 25.044212,
+   "lon": 121.509278,
    "aliases": [
     "西門地下街"
    ],
@@ -34974,7 +36081,7 @@
    "nameEn": "Zhongshan Metro Mall",
    "kind": "underground",
    "lat": 25.055068,
-   "lon": 121.520513,
+   "lon": 121.520514,
    "aliases": [
     "中山地下街",
     "Zhongshan Metro Mall",
@@ -34997,8 +36104,8 @@
    "name": "臺北地下街",
    "nameEn": null,
    "kind": "underground",
-   "lat": 25.048946,
-   "lon": 121.515329,
+   "lat": 25.048945,
+   "lon": 121.51533,
    "aliases": [
     "臺北地下街",
     "台北地下街"
@@ -35021,7 +36128,7 @@
    "nameEn": null,
    "kind": "underground",
    "lat": 25.041587,
-   "lon": 121.547741,
+   "lon": 121.547743,
    "aliases": [
     "東區地下街"
    ],
@@ -35266,8 +36373,8 @@
    "name": "K區地下街",
    "nameEn": "K Underground Mall Parking Lot",
    "kind": "underground",
-   "lat": 25.046877,
-   "lon": 121.517002,
+   "lat": 25.046876,
+   "lon": 121.517004,
    "aliases": [
     "K區地下街",
     "k區地下街",
@@ -35292,7 +36399,7 @@
    "nameEn": null,
    "kind": "underground",
    "lat": 25.047075,
-   "lon": 121.515569,
+   "lon": 121.515568,
    "aliases": [
     "東森廣場K區地下街",
     "東森廣場k區地下街"
@@ -35314,8 +36421,8 @@
    "name": "臺北車站K區地下街",
    "nameEn": "Taipei Station K Underground Mall Parking",
    "kind": "underground",
-   "lat": 25.046946,
-   "lon": 121.517756,
+   "lat": 25.046945,
+   "lon": 121.517757,
    "aliases": [
     "臺北車站K區地下街",
     "台北車站k區地下街",
@@ -35362,8 +36469,8 @@
    "name": "凱薩飯店美食地下街",
    "nameEn": null,
    "kind": "underground",
-   "lat": 25.046186,
-   "lon": 121.516391,
+   "lat": 25.046187,
+   "lon": 121.516393,
    "aliases": [
     "凱薩飯店美食地下街"
    ],
@@ -37025,7 +38132,7 @@
    "name": "國立興大附中地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.108536,
+   "lat": 24.108537,
    "lon": 120.683772,
    "aliases": [
     "國立興大附中地下停車場"
@@ -37048,7 +38155,7 @@
    "nameEn": null,
    "kind": "parking",
    "lat": 24.10792,
-   "lon": 120.687494,
+   "lon": 120.687496,
    "aliases": [
     "益民國小地下停車場"
    ],
@@ -37069,8 +38176,8 @@
    "name": "城市車旅忠明公園站",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.154231,
-   "lon": 120.659934,
+   "lat": 24.15423,
+   "lon": 120.659932,
    "aliases": [
     "城市車旅忠明公園站"
    ],
@@ -37092,7 +38199,7 @@
    "nameEn": null,
    "kind": "parking",
    "lat": 24.093823,
-   "lon": 120.698503,
+   "lon": 120.698504,
    "aliases": [
     "成功國中汽車停車場"
    ],
@@ -37114,7 +38221,7 @@
    "nameEn": null,
    "kind": "parking",
    "lat": 24.187798,
-   "lon": 120.667135,
+   "lon": 120.667134,
    "aliases": [
     "敦化公園地下停車場"
    ],
@@ -37136,7 +38243,7 @@
    "nameEn": null,
    "kind": "parking",
    "lat": 24.137316,
-   "lon": 120.638485,
+   "lon": 120.638484,
    "aliases": [
     "南屯國小地下停車場"
    ],
@@ -37157,8 +38264,8 @@
    "name": "地下停車場入口",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.180776,
-   "lon": 120.646582,
+   "lat": 24.180775,
+   "lon": 120.646583,
    "aliases": [
     "地下停車場入口"
    ],
@@ -37179,8 +38286,8 @@
    "name": "大墩國中地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.145513,
-   "lon": 120.639189,
+   "lat": 24.145512,
+   "lon": 120.63919,
    "aliases": [
     "大墩國中地下停車場"
    ],
@@ -37225,8 +38332,8 @@
    "name": "立德地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.133822,
-   "lon": 120.687548,
+   "lat": 24.133824,
+   "lon": 120.68755,
    "aliases": [
     "立德地下停車場"
    ],
@@ -37247,12 +38354,307 @@
    "name": "臺中公園地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.144964,
-   "lon": 120.682717,
+   "lat": 24.144963,
+   "lon": 120.682718,
    "aliases": [
     "臺中公園地下停車場",
     "台中公園地下停車場"
    ],
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TXG-rt042842",
+   "name": "太平洋百貨豐原店",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 24.251091,
+   "lon": 120.720628,
+   "aliases": [
+    "太平洋百貨豐原店"
+   ],
+   "undergroundLevels": 3,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TXG-rt08ce88",
+   "name": "大買家",
+   "nameEn": "Save & Safe",
+   "kind": "retail",
+   "lat": 24.176277,
+   "lon": 120.700099,
+   "aliases": [
+    "大買家",
+    "Save & Safe",
+    "save&safe"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TXG-rt1120ac",
+   "name": "新光三越",
+   "nameEn": "Shin Kong Mitsukoshi Department Store(suspended)",
+   "kind": "retail",
+   "lat": 24.165137,
+   "lon": 120.64361,
+   "aliases": [
+    "新光三越",
+    "Shin Kong Mitsukoshi Department Store(suspended)",
+    "shinkongmitsukoshidepartmentstore(suspended)"
+   ],
+   "undergroundLevels": 6,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TXG-rt157a32",
+   "name": "萬家福量販",
+   "nameEn": "Prosperity Plaza",
+   "kind": "retail",
+   "lat": 24.154146,
+   "lon": 120.645846,
+   "aliases": [
+    "萬家福量販",
+    "Prosperity Plaza",
+    "prosperityplaza"
+   ],
+   "undergroundLevels": 3,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TXG-rt1b3f11",
+   "name": "勤美誠品綠園道",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 24.151244,
+   "lon": 120.66377,
+   "aliases": [
+    "勤美誠品綠園道"
+   ],
+   "undergroundLevels": 6,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TXG-rt213b11",
+   "name": "南館",
+   "nameEn": "South Building",
+   "kind": "retail",
+   "lat": 24.134201,
+   "lon": 120.692342,
+   "aliases": [
+    "南館",
+    "South Building",
+    "southbuilding"
+   ],
+   "undergroundLevels": 1,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TXG-rt434f0c",
+   "name": "秀泰廣場S2館",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 24.140302,
+   "lon": 120.691521,
+   "aliases": [
+    "秀泰廣場S2館",
+    "秀泰廣場s2館"
+   ],
+   "undergroundLevels": 2,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TXG-rt693857",
+   "name": "秀泰廣場S1館",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 24.1405,
+   "lon": 120.689673,
+   "aliases": [
+    "秀泰廣場S1館",
+    "秀泰廣場s1館"
+   ],
+   "undergroundLevels": 2,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TXG-rt819ccb",
+   "name": "漢神洲際購物廣場",
+   "nameEn": "Hanshin Intercontinental Shopping Plaza",
+   "kind": "retail",
+   "lat": 24.199233,
+   "lon": 120.685771,
+   "aliases": [
+    "漢神洲際購物廣場",
+    "Hanshin Intercontinental Shopping Plaza",
+    "hanshinintercontinentalshoppingplaza"
+   ],
+   "undergroundLevels": 4,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TXG-rt9e9cb2",
+   "name": "老虎城購物中心",
+   "nameEn": "TIGER CITY",
+   "kind": "retail",
+   "lat": 24.164439,
+   "lon": 120.637911,
+   "aliases": [
+    "老虎城購物中心",
+    "TIGER CITY",
+    "tigercity"
+   ],
+   "undergroundLevels": 3,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TXG-rtaa1624",
+   "name": "Top City台中大遠百",
+   "nameEn": null,
+   "kind": "retail",
+   "lat": 24.164044,
+   "lon": 120.644451,
+   "aliases": [
+    "Top City台中大遠百",
+    "topcity台中大遠百"
+   ],
+   "undergroundLevels": 6,
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "TXG-rtfd1f1a",
+   "name": "廣三SOGO百貨",
+   "nameEn": "Kuang San SOGO Department Store",
+   "kind": "retail",
+   "lat": 24.155365,
+   "lon": 120.661669,
+   "aliases": [
+    "廣三SOGO百貨",
+    "廣三sogo百貨",
+    "Kuang San SOGO Department Store",
+    "kuangsansogodepartmentstore",
+    "廣三そごう"
+   ],
+   "undergroundLevels": 4,
    "exits": [],
    "exitsAvailable": false,
    "accessibility": {
@@ -37337,8 +38739,8 @@
    "name": "民族國小地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 23.474911,
-   "lon": 120.455195,
+   "lat": 23.474912,
+   "lon": 120.455196,
    "aliases": [
     "民族國小地下停車場"
    ],
@@ -37359,7 +38761,7 @@
    "name": "中正公園停車場",
    "nameEn": "City Parking",
    "kind": "parking",
-   "lat": 23.481353,
+   "lat": 23.481354,
    "lon": 120.447668,
    "aliases": [
     "中正公園停車場",
@@ -37383,8 +38785,8 @@
    "name": "南瀛綠都心地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 23.309909,
-   "lon": 120.314743,
+   "lat": 23.309912,
+   "lon": 120.314742,
    "aliases": [
     "南瀛綠都心地下停車場"
    ],
@@ -37938,7 +39340,7 @@
    "name": "竹光國民運動中心地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.80791,
+   "lat": 24.807908,
    "lon": 120.95404,
    "aliases": [
     "竹光國民運動中心地下停車場"
@@ -37961,7 +39363,7 @@
    "nameEn": null,
    "kind": "parking",
    "lat": 24.778274,
-   "lon": 120.99002,
+   "lon": 120.990021,
    "aliases": [
     "興業二路地下停車場"
    ],
@@ -38004,8 +39406,8 @@
    "name": "長青公園地下停車場",
    "nameEn": null,
    "kind": "parking",
-   "lat": 24.686064,
-   "lon": 120.87788,
+   "lat": 24.686063,
+   "lon": 120.877877,
    "aliases": [
     "長青公園地下停車場"
    ],
@@ -38031,6 +39433,31 @@
    "aliases": [
     "介壽地下停車場"
    ],
+   "exits": [],
+   "exitsAvailable": false,
+   "accessibility": {
+    "known": 0,
+    "stepFree": 0,
+    "total": 0
+   },
+   "spanM": {
+    "along": 0,
+    "across": 0
+   }
+  },
+  {
+   "id": "X35136-rt661cdb",
+   "name": "平和堂アルプラザ彦根",
+   "nameEn": "Heiwado AL Plaza",
+   "kind": "retail",
+   "lat": 35.27234,
+   "lon": 136.261957,
+   "aliases": [
+    "平和堂アルプラザ彦根",
+    "Heiwado AL Plaza",
+    "heiwadoalplaza"
+   ],
+   "undergroundLevels": 1,
    "exits": [],
    "exitsAvailable": false,
    "accessibility": {

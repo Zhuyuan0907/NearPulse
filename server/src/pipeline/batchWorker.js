@@ -82,6 +82,7 @@ export function startBatchWorker(store, { log = console.log } = {}) {
         if (report.needsAssistance) {
           event.assistanceReports = (event.assistanceReports ?? 0) + 1;
         }
+        if (report.onTrain) event.onTrain = true;
       }
 
       // ……但**軌跡只追加不覆寫**：威脅會移動，只留最新位置會讓系統

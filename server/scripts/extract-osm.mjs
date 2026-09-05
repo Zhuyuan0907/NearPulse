@@ -69,6 +69,26 @@ const ROAD_CLASSES = new Set([
 /** 地下商場的命名樣式：台灣「地下街」、日本「地下街 / 地下センター」 */
 const UNDERGROUND_RE = /地下街|地下センター|地下商店街/;
 
+/**
+ * 有地下樓層的公眾零售場所（百貨、購物中心）。
+ *
+ * 這是使用者指出的缺口：百貨的 B1/B2 美食街是典型的地下人潮空間，
+ * 而且 2025 年台北無差別攻擊的最後一站就是誠品生活南西店。
+ *
+ * OSM 的 `building:levels:underground` 直接告訴我們有幾層地下——全台實測
+ * 1724 個元素帶這個標籤，其中公眾零售場所 35 個（新光三越 B6、京站 B6、
+ * 遠東SOGO B4…）。數量不多，但正好是最關鍵的那些。
+ *
+ * ⚠️ 只有 7.6% 的地下建物標了出入口節點，所以這一類只能做到**場域層級**，
+ * 沒有出口級定位與疏散路線。誠實標記，不假裝有。
+ */
+const RETAIL_KINDS = new Set(['department_store', 'mall', 'supermarket']);
+const undergroundLevels = (t = {}) => Number(t['building:levels:underground'] ?? 0);
+const isUndergroundRetail = (t = {}) =>
+  Boolean(t.name) &&
+  undergroundLevels(t) >= 1 &&
+  (RETAIL_KINDS.has(t.shop) || t.building === 'retail' || t.amenity === 'marketplace');
+
 // ---------------------------------------------------------------------------
 
 function isPoi(tags = {}) {
@@ -77,6 +97,7 @@ function isPoi(tags = {}) {
   if (tags.railway === 'train_station_entrance') return true;
   if (UNDERGROUND_RE.test(tags.name ?? '')) return true;
   if (tags.amenity === 'parking' && (tags.parking === 'underground' || tags.location === 'underground')) return true;
+  if (isUndergroundRetail(tags)) return true;
   return false;
 }
 

@@ -170,8 +170,22 @@ function label(exit) {
  */
 export function evacuationPlan({
   venueId, nearExitCode = null, point = null, motion = null,
-  incidentType = null, mobility = null,
+  incidentType = null, mobility = null, onTrain = false,
 } = {}) {
+  // ---- 在列車上：沒有「出口」可去，這是完全不同的答案 ----
+  // 2014 年鄭捷案就發生在行進中的車廂裡，龍山寺→江子翠這段距離較長，
+  // 乘客在密閉空間中 4 分鐘無處可逃。對他們講「往 3 號出口」毫無意義。
+  if (onTrain) {
+    return {
+      kind: 'onTrain', stepFree: mobility === 'stepFree', from: null, go: [], avoid: [],
+      unknownExits: 0,
+      reason: '事件發生在列車上',
+      action: incidentType === 'attack'
+        ? '往其他車廂移動並遠離加害者，按下車廂內的緊急對講機通報司機員。列車進站前不要嘗試開門；到站後立刻下車並遠離月台。'
+        : '往其他車廂移動，按下車廂內的緊急對講機通報司機員。行進中不要嘗試開門或跳車，到站後立刻下車。',
+    };
+  }
+
   const base = suggestExits(venueId, nearExitCode, point, motion);
   if (!base) return null;
   const venue = findVenue(venueId);

@@ -51,6 +51,14 @@ const ROAD_RANK = {
 
 const UNDERGROUND_RE = /(.*?(?:地下街|地下センター|地下商店街))/;
 
+/** 有地下樓層的公眾零售場所（百貨、購物中心）——見 extract-osm.mjs 的說明 */
+const RETAIL_KINDS = new Set(['department_store', 'mall', 'supermarket']);
+const undergroundLevels = (t = {}) => Number(t['building:levels:underground'] ?? 0);
+const isUndergroundRetail = (t = {}) =>
+  Boolean(t.name) &&
+  undergroundLevels(t) >= 1 &&
+  (RETAIL_KINDS.has(t.shop) || t.building === 'retail' || t.amenity === 'marketplace');
+
 /**
  * 路網命名空間。
  *
@@ -326,6 +334,39 @@ function buildUnderground(elements, stats) {
 }
 
 /**
+ * 百貨／購物中心：OSM 有 `building:levels:underground`（幾層地下）但
+ * 極少標出入口節點（全台僅 7.6% 的地下建物有）。所以只建到場域層級，
+ * 誠實標記 exitsAvailable=false——**不假裝有出口級的疏散路線**。
+ *
+ * `undergroundLevels` 仍然有價值：它界定了場域的垂直範圍，
+ * 也是 Android 版氣壓計樓層偵測的對照基準（「B2，此場域共 6 層地下」）。
+ */
+function buildRetail(elements) {
+  const venues = [];
+  const seen = new Set();
+  for (const el of elements) {
+    const t = el.tags ?? {};
+    if (!isUndergroundRetail(t)) continue;
+    const c = coordOf(el);
+    if (!c) continue;
+    const key = normalizeName(t.name);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    venues.push({
+      id: `${regionOf(c.lat, c.lon)}-rt${fnv1a(key)}`,
+      name: t.name,
+      nameEn: t['name:en'] ?? null,
+      kind: 'retail',
+      lat: c.lat, lon: c.lon,
+      aliases: aliasesOf(t.name, t['name:en'], t['name:ja']),
+      undergroundLevels: undergroundLevels(t),
+      exits: [],
+    });
+  }
+  return venues;
+}
+
+/**
  * 地下停車場：OSM 只有一個帶名字的點，無出入口節點、無樓層標籤。
  * 只建到場域層級——誠實標記 exitsAvailable=false 讓 UI 降級，
  * 而不是產生一份看起來完整、實際上空的出口清單。
@@ -474,6 +515,7 @@ function main() {
   const entrances = elements.filter((e) => e.tags?.railway === 'subway_entrance');
   const ugRaw = elements.filter((e) => UNDERGROUND_RE.test(e.tags?.name ?? ''));
   const pkRaw = elements.filter((e) => e.tags?.amenity === 'parking');
+  const rtRaw = elements.filter((e) => isUndergroundRetail(e.tags));
 
   const stats = {
     orphanEntrances: 0, droppedUnnumbered: 0, ugVenueAnchors: 0,
@@ -488,6 +530,7 @@ function main() {
     ...buildMetro(stations, metroEntrances, stats),
     ...buildUnderground(ugRaw, stats),
     ...buildParking(pkRaw),
+    ...buildRetail(rtRaw),
   ];
 
   venues = venues.map((v) => {

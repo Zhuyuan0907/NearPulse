@@ -62,6 +62,7 @@ export function createVenuesRouter() {
     const type = typeof req.query.type === 'string' ? req.query.type : 'other';
 
     const mobility = req.query.mobility === 'stepFree' ? 'stepFree' : null;
+    const onTrain = req.query.onTrain === '1';
     res.json({
       ok: true,
       venueName: venue.name,
@@ -70,9 +71,9 @@ export function createVenuesRouter() {
       evacuationStepFree: evacuationLine({
         venueId: venue.id, nearExitCode: exit, point, incidentType: type, mobility: 'stepFree',
       }),
-      plan: evacuationPlan({ venueId: venue.id, nearExitCode: exit, point, incidentType: type }),
+      plan: evacuationPlan({ venueId: venue.id, nearExitCode: exit, point, incidentType: type, onTrain }),
       planStepFree: evacuationPlan({
-        venueId: venue.id, nearExitCode: exit, point, incidentType: type, mobility: 'stepFree',
+        venueId: venue.id, nearExitCode: exit, point, incidentType: type, onTrain, mobility: 'stepFree',
       }),
       mobility,
       accessibility: venue.accessibility ?? null,

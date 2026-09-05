@@ -34,7 +34,8 @@ const VISION_DEGRADED = { pending: true, roiCell: null, texts: [], anomalies: []
 export async function postReport({
   uuid, type, locationClaim, attachToEventId = null,
   nearExitCode = null, incidentPoint = null, photoRoi = null,
-  needsAssistance = false, note = null, audio = null, photo = null, photoRef = null,
+  needsAssistance = false, onTrain = false,
+  note = null, audio = null, photo = null, photoRef = null,
 }) {
   const res = await fetch('/api/reports', {
     method: 'POST',
@@ -49,6 +50,7 @@ export async function postReport({
       incidentPoint,              // 地圖選點 { lat, lon }（最精確的事件位置）
       photoRoi,                   // 照片九宮格（影像座標，僅供追溯）
       needsAssistance,            // 現場有人無法自行疏散（救援優先資訊）
+      onTrain,                    // 事件在列車上（疏散建議完全不同）
       note,                       // 文字補充（≤140 字，選配）
       audio,                      // { base64, mimeType } | null
       // 有 ref 就不重傳圖；沒有才帶 base64
@@ -137,13 +139,14 @@ export async function fetchVenue(venueId) {
  * 即時疏散建議——送出回報後立刻要用，不等 10 秒的批次 tick。
  * 內容與態勢卡一致（server 端同一個 evacuationService）。
  */
-export async function fetchEvacuation({ venueId, exitCode, point, type, mobility }) {
+export async function fetchEvacuation({ venueId, exitCode, point, type, mobility, onTrain }) {
   try {
     const p = new URLSearchParams();
     if (exitCode) p.set('exit', exitCode);
     if (point) { p.set('lat', point.lat); p.set('lon', point.lon); }
     if (type) p.set('type', type);
     if (mobility) p.set('mobility', mobility);
+    if (onTrain) p.set('onTrain', '1');
     const res = await fetch(`/api/venues/${encodeURIComponent(venueId)}/evacuation?${p}`);
     if (!res.ok) return null;
     return await res.json();

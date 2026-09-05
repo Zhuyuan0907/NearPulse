@@ -35,8 +35,10 @@ const THREAT_LABEL = {
   unverified: '未經確認',
 };
 
-const KIND_ICON = { metro: '🚇', underground: '🏬', parking: '🅿️' };
-const KIND_LABEL = { metro: '捷運站', underground: '地下街', parking: '地下停車場' };
+const KIND_ICON = { metro: '🚇', underground: '🏬', parking: '🅿️', retail: '🏢' };
+const KIND_LABEL = {
+  metro: '捷運站', underground: '地下街', parking: '地下停車場', retail: '百貨／商場',
+};
 
 const time = (ts) =>
   new Date(ts).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
@@ -65,6 +67,15 @@ function ExitRow({ exit }) {
 /** 疏散計畫：拆成可掃視的區塊，而不是一整段字 */
 function EvacPlan({ plan }) {
   if (!plan) return <p className="muted">依現場人員指示，使用最近可用出口。</p>;
+
+  if (plan.kind === 'onTrain') {
+    return (
+      <div className="plan plan-shelter">
+        <div className="plan-head plan-head-stop">🚃 你在車廂裡，沒有「出口」可去</div>
+        <p className="plan-action">{plan.action}</p>
+      </div>
+    );
+  }
 
   if (plan.kind === 'shelter') {
     return (
@@ -136,7 +147,25 @@ export default function SituationPage() {
         ♿ {stepFree ? '無台階路線（已開啟）' : '我需要無台階路線'}
       </button>
 
-      {card.stations.length === 0 && (
+      {/* 鄰近場域警示：事件不在這裡，但離得夠近。
+          2025 年那起攻擊跨越了兩個站與一間百貨——下一個場域的人現在就該知道。 */}
+      {card.nearbyAlerts?.length > 0 && (
+        <section className="station-group">
+          <h2 className="section-title">附近場域的警示</h2>
+          {card.nearbyAlerts.map((a) => (
+            <div key={a.venueId} className="nearby-alert">
+              <span className="nearby-icon">{KIND_ICON[a.kind] ?? '📍'}</span>
+              <span>
+                <b>{a.venueName}</b> 約 {a.distanceM}m 外的
+                <b>{a.fromVenue}</b> 有進行中的<b>{a.typeLabel}</b>事件
+                {a.moving && <span className="nearby-move"> · 且正在移動</span>}
+              </span>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {card.stations.length === 0 && card.nearbyAlerts?.length === 0 && (
         <div className="empty-state">
           <div className="empty-icon">🟢</div>
           <p>目前沒有確認中的異常事件</p>
@@ -184,6 +213,8 @@ export default function SituationPage() {
                     有人無法自行疏散 · {ev.assistanceReports} 筆回報
                   </div>
                 )}
+
+                {ev.onTrain && <div className="flag flag-train">事件在列車上</div>}
 
                 {/* ---- 疏散：結構化，不是一整段字 ---- */}
                 <EvacPlan plan={plan} />

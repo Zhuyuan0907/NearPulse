@@ -42,6 +42,12 @@ export function createCandidateEvent(report, stationName) {
      * 知道哪裡有人需要協助，比知道事件本身更能決定資源怎麼派。
      */
     assistanceReports: report.needsAssistance ? 1 : 0,
+    /**
+     * 事件在列車上。這改變的不只是位置，是**建議的性質**——
+     * 2014 年鄭捷案發生在龍山寺→江子翠的列車上，密閉車廂 4 分鐘無處可逃。
+     * 對車廂裡的人講「往 3 號出口」毫無意義。
+     */
+    onTrain: report.onTrain === true,
     /** 併入此事件的原始回報（含附件與補充） */
     reports: [report],
     /** 兩段式確認的回覆 */
@@ -101,6 +107,7 @@ export function toEventSummary(event) {
     motion: event.motion ?? null,             // 移動威脅判定（threatMotion）
     incidentPoint: event.incidentPoint ?? null, // 事件座標（地圖顯示用）
     assistanceReports: event.assistanceReports ?? 0, // 回報「有人需要協助」的筆數
+    onTrain: event.onTrain === true,
     reportCount: event.reports.length,
     confirmationCount: event.confirmations.filter((c) => c.atStation).length,
     createdAt: event.createdAt,
