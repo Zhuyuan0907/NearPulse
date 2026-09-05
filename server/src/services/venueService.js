@@ -88,7 +88,23 @@ const byAlias = new Map();
  */
 const ALIAS_LIST = [...byAlias.entries()]
   .filter(([k]) => k.length >= 2)
-  .sort((a, b) => b[0].length - a[0].length);
+  .sort((a, b) => b[0].length - a[0].length)
+  .map(([key, venue]) => ({
+    key,
+    venue,
+    /**
+     * 路線代碼（R3、BL16）**不能用純子字串比對**。
+     *
+     * 實測：「車廂3 Car 3」正規化成 `車廂3car3`，其中的 `ar3` 讓高雄 `R3`
+     * （小港站）命中——一張忠孝敦化的月台照被判到高雄。短代碼藏在普通
+     * 英文字裡的機率太高了。
+     *
+     * 所以代碼一律用單詞邊界比對（`\bR3\b`），CJK 站名才用子字串。
+     */
+    boundary: /^[a-z]{1,3}\d{1,3}$/.test(key)
+      ? new RegExp(`(?:^|[^a-z0-9])${key}(?:[^a-z0-9]|$)`, 'i')
+      : null,
+  }));
 
 /** venueId → (出口代碼 → 出口) */
 const exitIndex = new Map(
@@ -341,9 +357,10 @@ export function resolveAnchors({ texts = [], venueId = null, near = null } = {})
      */
     const norm = normalizeName(raw);
     if (norm.length < 2) continue;
-    for (const [key, venue] of ALIAS_LIST) {
-      if (!norm.includes(key)) continue;
-      const strength = STATION_CODE_RE.test(key) ? 2 : 1;
+    for (const { key, venue, boundary } of ALIAS_LIST) {
+      const matched = boundary ? boundary.test(norm) : norm.includes(key);
+      if (!matched) continue;
+      const strength = boundary ? 2 : 1;
       hits.set(venue.id, Math.max(hits.get(venue.id) ?? 0, strength));
       break;
     }
@@ -390,8 +407,41 @@ export function resolveAnchors({ texts = [], venueId = null, near = null } = {})
   // 但**只有在照片明確指向單一車站時**才這麼做（見上面的消歧）。
   if (venueFromText) venue = venueFromText;
 
-  // ---- 出口線索：抽出所有像出口代碼的字串 ----
-  const codes = [...new Set(values.map(parseExitCode).filter(Boolean))];
+  /**
+   * ---- 出口線索 ----
+   *
+   * ⚠️ **裸數字只有在被標成出口時才算出口代碼。**
+   *
+   * 月台上到處都是數字：車門上的「車廂3 / Car 3」、看板的「2月台」、
+   * 月台門的三位數編號。使用者實測拍忠孝敦化月台，車廂編號 3 被讀成
+   * 「3 號出口」——而那會把人指到站內完全不同的位置。
+   *
+   * 帶字母前綴的代碼（M3、Y13）沒有這個問題，它們本來就只出現在出口牌上。
+   * 有疑慮的只有裸數字，所以規則是：**它要嘛出現在含「出口/Exit」的字串裡，
+   * 要嘛被模型標成出口類別**，否則寧可放棄——漏掉一個出口代碼的代價是
+   * 使用者多點一次地圖；認錯的代價是別人跑錯方向。
+   */
+  const EXITISH_LABEL = /出口|出入口|exit/i;
+  const NOT_EXIT_LABEL = /車廂|車門|月台|月臺|car\b|platform/i;
+
+  const codes = [...new Set(
+    texts
+      .map((t) => {
+        const raw = typeof t === 'string' ? t : t?.value;
+        const label = typeof t === 'string' ? '' : String(t?.label ?? '');
+        if (typeof raw !== 'string' || !raw.trim()) return null;
+        if (NOT_EXIT_LABEL.test(label)) return null;
+
+        const code = parseExitCode(raw);
+        if (!code) return null;
+
+        // 純數字（無字母前綴）→ 需要出口的佐證
+        const bare = /^\d{1,3}$/.test(code);
+        if (bare && !EXITISH_LABEL.test(label) && !EXITISH_LABEL.test(raw)) return null;
+        return code;
+      })
+      .filter(Boolean)
+  )];
 
   const candidates = [];
   const push = (v, exit, confidence, reason) => {

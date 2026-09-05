@@ -256,23 +256,33 @@ export default function ReportPage() {
     // 照片會隨回報送出，辨識在批次端非同步跑，位置稍後自動補上。
     if (res.mode === 'deferred') { setVisionBusy(false); return; }
 
-    // 互動模式：AI 已經指出是哪一格，不該再要使用者點一下確認——直接接著讀字。
-    if (res.result.roiCell) await runRead(res.result.roiCell, file);
-    else setVisionBusy(false);
+    /**
+     * 互動模式：AI 已經指出是哪一格，不該再要使用者點一下確認——直接接著讀字。
+     *
+     * **答不出是哪一格時就讀整張圖。**
+     * 舊版在這裡直接停手（`else setVisionBusy(false)`），等於整張照片
+     * 從來沒有被讀過——使用者拍了一張清楚的站名照，系統卻什麼都沒做。
+     * 讀整張圖比較慢、小字也比較容易漏（實測整圖 5.2s vs 裁切 1.8s），
+     * 但那是「有機會認出來」與「保證認不出來」的差別。
+     * 使用者仍然可以事後點某一格重讀，那會用原圖的高解析度裁切。
+     */
+    await runRead(res.result.roiCell ?? null, file, compressed);
   }
 
   /**
    * 從**原圖**裁出指定格送去讀字。
    * 整張圖降到 512px 後出口牌的字只有 20~40px 高；裁切後可達 120px 以上。
    */
-  async function runRead(cell, file) {
+  async function runRead(cell, file, wholeImage = null) {
     setRoiCell(cell);
     setVisionBusy(true);
-    const crop = await cropCell(file, cell);
-    if (!crop) { setVisionBusy(false); return; }
+
+    // cell 為 null＝讀整張圖（AI 指不出格位時的後備，見 handlePhoto 的說明）
+    const payload = cell ? await cropCell(file, cell) : wholeImage;
+    if (!payload) { setVisionBusy(false); return; }
 
     const res = await analyzePhoto({
-      ...crop,
+      ...payload,
       stage: 'read',
       venueId: claim?.stationId ?? null,
       lat: fix?.lat,

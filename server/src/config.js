@@ -104,7 +104,15 @@ export const config = {
      */
     mode: process.env.VISION_MODE ?? null, // null = 依供應商自動決定
     /** 互動模式的逾時：這是「絕不卡住使用者」的保險絲 */
-    timeoutMs: Number(process.env.VISION_TIMEOUT_MS ?? 6_000),
+    /**
+     * 互動式逾時。
+     *
+     * 6 秒是照「裁切後的一格」抓的（實測 1.8 秒，餘裕很大）。但「AI 指不出
+     * 是哪一格 → 讀整張圖」現在是正式的後備路徑，而整圖實測要 5.2 秒——
+     * 6 秒只剩 0.8 秒餘裕，行動網路稍微抖一下就會逾時，而逾時的結果
+     * 是使用者看到「認不出來」。放寬到 10 秒。
+     */
+    timeoutMs: Number(process.env.VISION_TIMEOUT_MS ?? 10_000),
     /** 延後模式的逾時：沒有人在等，可以放寬 */
     deferredTimeoutMs: Number(process.env.VISION_DEFERRED_TIMEOUT_MS ?? 90_000),
     /** low detail：成本與延遲最低，對柱號/招牌/燈箱文字已足夠 */

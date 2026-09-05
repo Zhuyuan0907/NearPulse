@@ -65,6 +65,11 @@ V2=$(curl -s -X POST "$BASE/api/vision" -H 'Content-Type: application/json' \
   -d '{"base64":"AAAABBBB","mimeType":"image/webp","stage":"read","venueId":"TPE-A1"}')
 check "read 階段同樣降級（無金鑰仍可跑完整流程）" \
   test "$(echo "$V2" | json "d['result']['pending'] and d['candidates'] == []")" = "True"
+# 整張圖也要能直接讀：使用者不點九宮格、或 AI 指不出格位時，
+# 舊版會什麼都不做——那是「有機會認出來」與「保證認不出來」的差別。
+check "read 階段接受整張圖（不強制先裁切）" \
+  test "$(curl -s -X POST "$BASE/api/vision" -H 'Content-Type: application/json' \
+    -d '{"base64":"AAAABBBB","mimeType":"image/webp","stage":"read"}' | json "d['ok']")" = "True"
 PHOTO_REF=$(echo "$V1" | json "d['photoRef']")
 check "vision 回 photoRef（回報可免重傳整張圖）" test -n "$PHOTO_REF"
 
