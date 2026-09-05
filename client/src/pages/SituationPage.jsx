@@ -316,6 +316,8 @@ export default function SituationPage() {
   const [mapOpen, setMapOpen] = useState(false);
   /** 你在哪——決定了「附近」是什麼意思 */
   const [here, setHere] = useState(null);
+  /** 警示/雜項區塊的收合——平時只佔一行摘要 */
+  const [alertsOpen, setAlertsOpen] = useState(false);
 
   useEffect(() => {
     const poller = startSituationPolling(setCard, { intervalMs: 12_000 });
@@ -344,10 +346,13 @@ export default function SituationPage() {
     setMapOpen(!mapOpen);
   }
 
-  /** 捲到某個場域區塊——地圖是索引，文字才是主體 */
+  /** 捲到某個事件卡——總覽地圖的錨點。分頁式之後地圖點擊直接跳到那一頁 */
   function scrollToGroup(group) {
-    const el = document.getElementById(`grp-${group.stationId ?? group.stationName}`);
-    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const idx = flatEvents.findIndex(
+      (it) => it.venue.stationId === group.stationId
+        || it.venue.stationName === group.stationName
+    );
+    if (idx >= 0) setEventIndex(idx);
   }
 
   function toggleStepFree() {
@@ -397,6 +402,20 @@ export default function SituationPage() {
     (a) => visibleIds.size === 0 || groups.some((g) => g.stationId === a.venueId)
       || card.stations.some((g) => g.stationName === a.fromVenue && groups.includes(g))
   );
+
+  /**
+   * 所有事件**展平成一列**：一次只顯示一張卡，左右切換。
+   *
+   * 舊版把每個場域的事件全部縱向堆疊——2~3 個事件就得上下拖半天，
+   * 恐慌中「拖動網頁找重點」是最危險的操作。分頁把「掃全部」變成
+   * 「按一下下一則」，每張卡獨占視線，沒有相鄰事件的雜訊。
+   */
+  const flatEvents = groups.flatMap((venue) =>
+    venue.events.map((ev) => ({ venue, ev }))
+  );
+  const [eventIndex, setEventIndex] = useState(0);
+  const current = flatEvents[Math.min(eventIndex, flatEvents.length - 1)];
+  const alertCount = inboundAlerts.length + nearbyAlerts.length + resolved.length;
 
   return (
     <div className="page">
@@ -517,39 +536,32 @@ export default function SituationPage() {
         )
       )}
 
-      {/* 事故列車即將進站。
-          放在所有區塊之前，是因為這則警示的**時效最短**——月台上的人
-          只有幾十秒可以反應，而他們讓不讓開，決定車廂裡的人出不出得來。 */}
-      {inboundAlerts.length > 0 && (
-        <section className="station-group">
+      {/* ---- 警示與雜項：收合成一行，要的人才展開 ----
+          進站警示、鄰近警示、已解除原本各佔一個 section 縱向堆疊，
+          3 個事件時頁面長度是事件卡的三倍。恐慌中的人要的是
+          「目前有幾件事、我在看哪一件」，次要訊息收合不消失。 */}
+      {alertCount > 0 && (
+        <button className="alerts-summary" onClick={() => setAlertsOpen(!alertsOpen)}>
+          <Pictogram name="sighting" size={16} />
+          {alertCount} 則周邊訊息
+          <span className="alerts-arrow">{alertsOpen ? '收合' : '展開'}</span>
+        </button>
+      )}
+      {alertCount > 0 && alertsOpen && (
+        <div className="alerts-detail">
           {inboundAlerts.map((a) => (
             <InboundAlert key={`${a.venueId}-${a.fromVenue}`} alert={a} />
           ))}
-        </section>
-      )}
-
-      {/* 鄰近場域警示：事件不在這裡，但離得夠近。
-          2025 年那起攻擊跨越了兩個站與一間百貨——下一個場域的人現在就該知道。 */}
-      {nearbyAlerts.length > 0 && (
-        <section className="station-group">
-          <h2 className="section-title">附近場域的警示</h2>
           {nearbyAlerts.map((a) => (
             <div key={a.venueId} className="nearby-alert">
               <Pictogram name={a.kind ?? 'pin'} size={20} className="nearby-icon" />
               <span>
                 <b>{a.venueName}</b> 約 {a.distanceM}m 外的
-                <b>{a.fromVenue}</b> 有進行中的<b>{a.typeLabel}</b>事件
-                {a.moving && <span className="nearby-move"> · 且正在移動</span>}
+                <b>{a.fromVenue}</b> 有<b>{a.typeLabel}</b>事件
+                {a.moving && <span className="nearby-move"> · 移動中</span>}
               </span>
             </div>
           ))}
-        </section>
-      )}
-
-      {/* 已解除：語氣與警示明確區隔——這是讓人放鬆的訊息，
-          不能長得像另一則警報，所以用低飽和的綠、不用紅框、不置頂。 */}
-      {resolved.length > 0 && (
-        <section className="station-group">
           {resolved.map((r) => (
             <div key={r.id} className="resolved-item">
               <div className="resolved-head">
@@ -559,160 +571,163 @@ export default function SituationPage() {
               <p className="resolved-notice">{r.notice}</p>
             </div>
           ))}
-        </section>
-      )}
-
-      {groups.length === 0 && nearbyAlerts.length === 0
-        && inboundAlerts.length === 0 && resolved.length === 0 && (
-        <div className="empty-state">
-          <p className="empty-line">目前沒有確認中的異常事件</p>
         </div>
       )}
 
-      {groups.map((venue) => (
-        <section
-          key={venue.stationId ?? venue.stationName}
-          id={`grp-${venue.stationId ?? venue.stationName}`}
-          className="station-group"
-        >
-          {/* 站名帶：抄自月台牆上的那條。左側色帶用**真實路線色**——
-              使用者本來就靠顏色認線，不需要再學一套。 */}
-          <h2 className="venue-band" data-line={lineOf(venue.stationId)}>
-            <Pictogram name={venue.kind ?? 'pin'} size={20} className="venue-band-icon" />
-            <span className="venue-band-name">{venue.stationName}</span>
-            {/* 圖資查不到的地方要標明白：這個名稱是通報者自己打的，
-                不是查證過的場域。看的人有權知道這個差別。 */}
-            <span className="venue-band-kind">
-              {venue.offMap ? '通報者描述的位置' : KIND_LABEL[venue.kind] ?? ''}
-            </span>
-          </h2>
+      {flatEvents.length === 0 && alertCount === 0 && (
+        <div className="empty-state">
+          <p className="empty-line">目前沒有進行中的事件</p>
+        </div>
+      )}
 
-          {venue.events.map((ev) => {
-            const plan = stepFree ? ev.planStepFree : ev.plan;
-            return (
-              <article
-                key={ev.id}
-                className={`event-card ${ev.status === 'active' ? 'event-active' : 'event-candidate'}`}
+      {/* ---- 事件分頁：一屏一卡，左右切換 ---- */}
+      {current && (
+        <>
+          {/* 頁籤列：第幾件／共幾件 + 事件間快速切換 */}
+          {flatEvents.length > 1 && (
+            <div className="ev-tabs">
+              {flatEvents.map(({ venue, ev }, i) => (
+                <button
+                  key={ev.id}
+                  className={`ev-tab${i === eventIndex ? ' ev-tab-on' : ''}`}
+                  onClick={() => setEventIndex(i)}
+                  aria-label={`${venue.stationName} ${ev.typeLabel}`}
+                >
+                  <Pictogram name={pictOf(ev.typeLabel)} size={16} />
+                </button>
+              ))}
+              <span className="ev-count">{eventIndex + 1}/{flatEvents.length}</span>
+            </div>
+          )}
+
+          <EventCard
+            key={current.ev.id}
+            venue={current.venue}
+            ev={current.ev}
+            plan={stepFree ? current.ev.planStepFree : current.ev.plan}
+            stepFree={stepFree}
+          />
+
+          {/* 上一則/下一則大按鈕：拇指區，方向明確 */}
+          {flatEvents.length > 1 && (
+            <div className="ev-nav">
+              <button
+                className="ghost-btn"
+                disabled={eventIndex === 0}
+                onClick={() => setEventIndex(Math.max(0, eventIndex - 1))}
               >
-                {/* ---- 一行看懂：類型 + 警戒 ---- */}
-                <div className="event-top">
-                  <Pictogram name={pictOf(ev.typeLabel)} size={26} className="event-pict" />
-                  <span className="event-type">{ev.typeLabel}</span>
-                  <span className={`threat threat-${ev.threatLevel}`}>
-                    {THREAT_LABEL[ev.threatLevel] ?? '未經確認'}
-                  </span>
-                </div>
-                {/* meta 只留「行動需要」的兩格：位置與更新時間。
-                    「獨立訊號 N」是系統的信任語彙，恐慌中的人不需要；
-                    信任已由「已確認/未經確認」徽章表達過了。 */}
-                <dl className="event-meta">
-                  <div><dt>位置</dt><dd>{ev.nearExitCode ? `近 ${ev.nearExitCode} 出口` : '未確認'}</dd></div>
-                  <div><dt>更新</dt><dd>{time(ev.updatedAt)}</dd></div>
-                </dl>
-
-                {/* ---- 需要最先看到的兩件事 ---- */}
-                {ev.motion?.moving && (
-                  <div className="flag flag-move">
-                    {ev.motion.reason === 'erratic'
-                      ? '可能不只一處'
-                      : `${wordingFor(ev.typeLabel).moving}${ev.motion.compass ? ` · 往${ev.motion.compass}方` : ''}`}
-                    {ev.motion.confidence === 'low' && ' · 方向待確認'}
-                  </div>
-                )}
-                {ev.assistanceReports > 0 && (
-                  <div className="flag flag-assist">
-                    有人需協助 · {ev.assistanceReports} 筆
-                  </div>
-                )}
-
-                {ev.onTrain && <div className="flag flag-train">事件在列車上</div>}
-
-                {/* 通報者給的東西：照片與文字。
-                    位置未確認時這是唯一有用的資訊——看的人可能一眼認出照片。 */}
-                {(ev.photoUrl || ev.note) && (
-                  <div className={`evidence${venue.offMap ? ' evidence-key' : ''}`}>
-                    {ev.photoUrl && (
-                      <a className="evidence-photo" href={ev.photoUrl} target="_blank" rel="noreferrer">
-                        <img src={ev.photoUrl} alt="通報者拍攝的現場照片" loading="lazy" />
-                      </a>
-                    )}
-                    <div className="evidence-body">
-                      {ev.note && <p className="evidence-note">「{ev.note}」</p>}
-                      {venue.offMap && (
-                        <a className="chip identify-cta" href={`#/confirm?event=${ev.id}`}>
-                          <Pictogram name="pin" size={16} />
-                          我認得這裡 · 幫忙指認
-                        </a>
-                      )}
-                      {ev.photoVenueGuesses?.length > 0 && (
-                        <p className="evidence-hint">
-                          可能在：{ev.photoVenueGuesses.join('、')}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* ---- 疏散：結構化，不是一整段字 ---- */}
-                <EvacPlan plan={plan} arrival={ev.arrival} offMap={venue.offMap} />
-
-                {/* advice 只在**沒有結構化計畫可講**時顯示——
-                    plan 已經把「往哪走」講完了，再唸一段一般性建議是重複。 */}
-                {!plan && <p className="advice">{ev.advice}</p>}
-
-                {/* 地圖預設對**已確認的高警戒事件**展開——那正是「往哪個方向離開」
-                    最需要看見空間關係的時候，而且值得那 190KB。其餘事件維持收合，
-                    弱網預算留給真正緊急的那一則。
-                    無論展開與否都是動態載入，leaflet 不進主 bundle。 */}
-                <EventMapToggle
-                  plan={plan}
-                  incidentPoint={ev.incidentPoint}
-                  defaultOpen={ev.status === 'active' && ev.threatLevel === 'high'}
-                />
-
-                {/* 目擊回報入口。
-                    移動威脅的軌跡靠的是「不同人、不同時間、不同位置」的觀測，
-                    而態勢卡是現場的人最常盯著的畫面——入口放這裡，
-                    看到歹徒移動的人才有地方說。只對進行中的高警戒事件顯示：
-                    低嚴重度事件不需要追蹤軌跡，多一顆按鈕只是雜訊。 */}
-                {/* 行動列。**徵詢從獨立區塊移進事件卡**——
-                    原本它在頁面最下方另成一區，等於要使用者看完一則事件、
-                    捲到底、再從站名重新辨認是哪一件。徵詢問的就是「這一件
-                    是真的嗎」，它屬於這一件事，不屬於頁尾。 */}
-                {ev.status === 'candidate' ? (
-                  <a className="chip sighting-cta cta-verify" href={`#/confirm?event=${ev.id}`}>
-                    <Pictogram name="sighting" size={18} />
-                    你在現場嗎？幫忙確認
-                  </a>
-                ) : ev.threatLevel === 'high' ? (
-                  <a className="chip sighting-cta" href={`#/confirm?event=${ev.id}`}>
-                    <Pictogram name="sighting" size={18} />
-                    {wordingFor(ev.typeLabel).cta}
-                  </a>
-                ) : null}
-
-                <div className="event-foot">
-                  {isSpeechSupported() && (
-                    <button className="chip" onClick={() => speak(planToSpeech(ev, plan))}>
-                      <Pictogram name="speak" size={18} />
-                      唸出來
-                    </button>
-                  )}
-                  <span className="muted">
-                    {ev.reportCount} 筆
-                    {ev.hasPhoto && <Pictogram name="photo" size={15} className="foot-pict" />}
-                    {ev.hasAudio && <Pictogram name="mic" size={15} className="foot-pict" />}
-                  </span>
-                </div>
-              </article>
-            );
-          })}
-        </section>
-      ))}
+                ← 上一則
+              </button>
+              <button
+                className="ghost-btn"
+                disabled={eventIndex >= flatEvents.length - 1}
+                onClick={() => setEventIndex(Math.min(flatEvents.length - 1, eventIndex + 1))}
+              >
+                下一則 →
+              </button>
+            </div>
+          )}
+        </>
+      )}
 
       <footer className="page-footer">
         <a href="#/">回報事件</a>
       </footer>
     </div>
+  );
+}
+
+/** 單一事件卡：獨占一屏的完整呈現 */
+function EventCard({ venue, ev, plan, stepFree }) {
+  return (
+    <article className={`event-card ${ev.status === 'active' ? 'event-active' : 'event-candidate'}`}>
+      {/* 站名帶：真實路線色，使用者本來就靠顏色認線 */}
+      <h2 className="venue-band" data-line={lineOf(venue.stationId)}>
+        <Pictogram name={venue.kind ?? 'pin'} size={20} className="venue-band-icon" />
+        <span className="venue-band-name">{venue.stationName}</span>
+      </h2>
+
+      {/* ---- 一行看懂：類型（大字）+ 警戒徽章 ---- */}
+      <div className="event-top">
+        <Pictogram name={pictOf(ev.typeLabel)} size={30} className="event-pict" />
+        <span className="event-type">{ev.typeLabel}</span>
+        <span className={`threat threat-${ev.threatLevel}`}>
+          {THREAT_LABEL[ev.threatLevel] ?? '未經確認'}
+        </span>
+      </div>
+
+      {/* 位置一行——meta 表格佔空間且恐慌中讀不進去，一行帶過 */}
+      <p className="ev-loc">
+        {ev.nearExitCode ? `近 ${ev.nearExitCode} 出口` : '位置未確認'}
+      </p>
+
+      {/* ---- 需要最先看到的旗標 ---- */}
+      {ev.motion?.moving && (
+        <div className="flag flag-move">
+          {ev.motion.reason === 'erratic'
+            ? '可能不只一處'
+            : `${wordingFor(ev.typeLabel).moving}${ev.motion.compass ? ` · 往${ev.motion.compass}方` : ''}`}
+        </div>
+      )}
+      {ev.assistanceReports > 0 && (
+        <div className="flag flag-assist">有人需協助 · {ev.assistanceReports} 筆</div>
+      )}
+      {ev.onTrain && <div className="flag flag-train">事件在列車上</div>}
+
+      {/* ---- 疏散：這張卡的主體，放最顯眼 ---- */}
+      <EvacPlan plan={plan} arrival={ev.arrival} offMap={venue.offMap} />
+      {!plan && <p className="advice">{ev.advice}</p>}
+
+      {/* 通報者證據：照片比文字有用，有照片才顯示 */}
+      {ev.photoUrl && (
+        <div className={`evidence${venue.offMap ? ' evidence-key' : ''}`}>
+          <a className="evidence-photo" href={ev.photoUrl} target="_blank" rel="noreferrer">
+            <img src={ev.photoUrl} alt="通報者拍攝的現場照片" loading="lazy" />
+          </a>
+          <div className="evidence-body">
+            {ev.note && <p className="evidence-note">「{ev.note}」</p>}
+            {venue.offMap && (
+              <a className="chip identify-cta" href={`#/confirm?event=${ev.id}`}>
+                <Pictogram name="pin" size={16} />
+                我認得這裡 · 幫忙指認
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 地圖：收合預設，動態載入 */}
+      <EventMapToggle
+        plan={plan}
+        incidentPoint={ev.incidentPoint}
+        defaultOpen={ev.status === 'active' && ev.threatLevel === 'high'}
+      />
+
+      {/* 目擊回報入口 */}
+      {ev.status === 'candidate' ? (
+        <a className="chip sighting-cta cta-verify" href={`#/confirm?event=${ev.id}`}>
+          <Pictogram name="sighting" size={18} />
+          你在現場嗎？幫忙確認
+        </a>
+      ) : ev.threatLevel === 'high' ? (
+        <a className="chip sighting-cta" href={`#/confirm?event=${ev.id}`}>
+          <Pictogram name="sighting" size={18} />
+          {wordingFor(ev.typeLabel).cta}
+        </a>
+      ) : null}
+
+      {/* 次要資訊：一行收尾（唸出來 + 回報數 + 更新時間） */}
+      <div className="event-foot">
+        {isSpeechSupported() && (
+          <button className="chip" onClick={() => speak(planToSpeech(ev, plan))}>
+            <Pictogram name="speak" size={18} />
+            唸出來
+          </button>
+        )}
+        <span className="muted">
+          {ev.reportCount} 筆 · {time(ev.updatedAt)}
+        </span>
+      </div>
+    </article>
   );
 }

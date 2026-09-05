@@ -1585,6 +1585,7 @@ button { cursor: pointer; }
    =========================================================================== */
 
 .holdtalk { padding: 18px 0 6px; text-align: center; }
+.holdtalk-where { padding: 4px 0 2px; }
 .holdtalk-btn {
   display: flex;
   align-items: center;
@@ -1601,6 +1602,8 @@ button { cursor: pointer; }
   user-select: none;
   transition: transform 0.12s;
 }
+/* 地點描述版：小一號但仍是大按鈕（84px），與補充頁的大鈕同語彙 */
+.holdtalk-sm { width: 84px; height: 84px; }
 .holdtalk-btn:active,
 .holdtalk-rec {
   transform: scale(1.08);
@@ -1631,3 +1634,85 @@ button { cursor: pointer; }
   margin: 6px 0 0;
   font-weight: 600;
 }
+
+/* ===========================================================================
+   目前狀況頁：一屏一事件卡（分頁式）
+   ---------------------------------------------------------------------------
+   舊版縱向堆疊所有事件，2~3 件就要上下拖半天。分頁讓每張卡獨占視線，
+   「掃全部」變成「按一下下一則」。
+   =========================================================================== */
+
+/* 周邊訊息摘要行：平時只佔一行 */
+.alerts-summary {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  margin: 10px 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--dim);
+  text-align: left;
+  background: var(--tunnel-2);
+  border: 1px dashed var(--edge-2);
+  border-radius: var(--r-tap);
+}
+.alerts-arrow {
+  margin-left: auto;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--info-lit);
+}
+.alerts-detail { margin-bottom: 8px; }
+
+/* 事件頁籤：每則一個小圖標鈕，目前頁高亮 */
+.ev-tabs {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 12px 0 8px;
+}
+.ev-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  color: var(--dim);
+  background: var(--tunnel-2);
+  border: 2px solid var(--edge);
+  border-radius: var(--r-tap);
+}
+.ev-tab-on {
+  color: var(--enamel);
+  background: var(--panel);
+  border-color: var(--enamel);
+}
+.ev-count {
+  margin-left: auto;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--dim);
+}
+
+/* 事件位置一行：取代舊的 meta 表格 */
+.ev-loc {
+  margin: 2px 0 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--dim);
+}
+
+/* 上一則/下一則：大按鈕、並排、拇指可及 */
+.ev-nav {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+.ev-nav > * { flex: 1; }
+.ev-nav .ghost-btn:disabled { opacity: 0.35; }
+
+/* 分頁進場動畫：與回報頁同款的方向感 */
+.event-card { animation: step-in 0.22s ease; }

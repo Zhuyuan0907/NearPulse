@@ -555,20 +555,29 @@ export default function ReportPage() {
                           value={placeText}
                           onChange={(e) => setPlaceText(e.target.value)}
                         />
-                        {isDictationSupported() && (
-                          <button
-                            type="button"
-                            className={`dictate-btn${dictating ? ' dictate-on' : ''}`}
-                            aria-label={dictating ? '停止語音輸入' : '用說的'}
-                            onClick={toggleDictation}
-                          >
-                            <Pictogram name="mic" size={20} />
-                          </button>
-                        )}
                       </span>
-                      {dictating && <span className="where-sub">正在聽…</span>}
                     </span>
                   </label>
+
+                  {/* 用說的——大麥克風圓鈕，與第 2 頁按住說話同款。
+                      恐慌中打字是懲罰，說一句只要兩秒。 */}
+                  {isDictationSupported() && (
+                    <div className="holdtalk holdtalk-where">
+                      <button
+                        type="button"
+                        className={`holdtalk-btn holdtalk-sm${dictating ? ' holdtalk-rec' : ''}`}
+                        aria-label={dictating ? '停止語音輸入' : '按住說出地點'}
+                        onPointerDown={(e) => { e.preventDefault(); if (!dictating) toggleDictation(); }}
+                        onPointerUp={() => { if (dictationRef.current) dictationRef.current.stop(); }}
+                        onPointerLeave={() => { if (dictationRef.current) dictationRef.current.stop(); }}
+                      >
+                        <Pictogram name="mic" size={30} />
+                      </button>
+                      <div className={`holdtalk-state${dictating ? ' holdtalk-state-rec' : ''}`}>
+                        {dictating ? '正在聽…放開結束' : '按住說出地點'}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -750,24 +759,28 @@ export default function ReportPage() {
           <h1 className="headline">要補充什麼嗎？</h1>
           <p className="subhead">不補也可以，直接送出</p>
 
-          {/* 按住說話：大麥克風圓鈕（倣 dev-zhuyuan 版樣式） */}
-          <div className="holdtalk">
-            <button
-              className={`holdtalk-btn${noteDictating ? ' holdtalk-rec' : ''}`}
-              aria-label="按住說話"
-              onPointerDown={(e) => { e.preventDefault(); if (!noteDictating) toggleNoteDictation(); }}
-              onPointerUp={() => { if (noteDictationRef.current) noteDictationRef.current.stop(); }}
-              onPointerLeave={() => { if (noteDictationRef.current) noteDictationRef.current.stop(); }}
-            >
-              <Pictogram name="mic" size={40} />
-            </button>
-            <div className={`holdtalk-state${noteDictating ? ' holdtalk-state-rec' : ''}`}>
-              {noteDictating ? '正在聽…放開結束' : '按住說話'}
+          {/* 按住說話：大麥克風圓鈕。
+              沒有語音支援的手機（budget 機、iOS Safari）看不到它，
+              直接看到「不補充也可以，直接送出」——永遠有最短路徑。 */}
+          {isDictationSupported() ? (
+            <div className="holdtalk">
+              <button
+                className={`holdtalk-btn${noteDictating ? ' holdtalk-rec' : ''}`}
+                aria-label="按住說話"
+                onPointerDown={(e) => { e.preventDefault(); if (!noteDictating) toggleNoteDictation(); }}
+                onPointerUp={() => { if (noteDictationRef.current) noteDictationRef.current.stop(); }}
+                onPointerLeave={() => { if (noteDictationRef.current) noteDictationRef.current.stop(); }}
+              >
+                <Pictogram name="mic" size={40} />
+              </button>
+              <div className={`holdtalk-state${noteDictating ? ' holdtalk-state-rec' : ''}`}>
+                {noteDictating ? '正在聽…放開結束' : '按住說話'}
+              </div>
             </div>
-          </div>
-
-          {!isDictationSupported() && (
-            <p className="muted" style={{ textAlign: 'center' }}>（此瀏覽器不支援語音輸入，請用打字）</p>
+          ) : (
+            <p className="muted" style={{ textAlign: 'center', margin: '4px 0 8px' }}>
+              不補充也可以，直接送出
+            </p>
           )}
 
           <textarea
